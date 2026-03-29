@@ -10,9 +10,10 @@ export default function App() {
   // Al cargar la app, intentar renovar sesión con cookie httpOnly.
   // Usa axios directo (no la instancia api) para no activar el interceptor 401.
   useEffect(() => {
-    axios.post("/api/auth/refresh", {}, { withCredentials: true })
+    const base = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
+    axios.post(`${base}/auth/refresh`, {}, { withCredentials: true })
       .then(({ data }) => {
-        return axios.get("/api/auth/me", {
+        return axios.get(`${base}/auth/me`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${data.accessToken}` },
         }).then(({ data: me }) => setAuth(me.user, data.accessToken));

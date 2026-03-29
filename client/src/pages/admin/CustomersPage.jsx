@@ -1,0 +1,125 @@
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "../../config/api.js";
+
+export default function CustomersPage() {
+  const qc = useQueryClient();
+  const [search, setSearch] = useState("");
+  const [form, setForm] = useState(null); // null | {} (new) | {...} (edit)
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["customers", search],
+    queryFn:  () => api.get(`/customers?search=${search}&limit=50`).then((r) => r.data),
+  });
+
+  const save = useMutation({
+    mutationFn: (d) => d.id ? api.put(`/customers/${d.id}`, d) : api.post("/customers", d),
+    onSuccess:  () => { qc.invalidateQueries(["customers"]); setForm(null); },
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <input className="input-field max-w-xs" placeholder="Buscar..." value={search}
+          onChange={(e) => setSearch(e.target.value)} />
+        <button className="btn-primary ml-auto" onClick={() => setForm({})}>+ Nuevo cliente</button>
+      </div>
+
+      <div className="card overflow-hidden p-0 overflow-x-auto">
+        <table className="w-full text-sm min-w-[520px]">
+          <thead className="bg-zinc-800 text-zinc-400">
+            <tr>
+              <th className="px-4 py-3 text-left">Nombre</th>
+              <th className="px-4 py-3 text-left">Documento</th>
+              <th className="px-4 py-3 text-left">Teléfono</th>
+              <th className="px-4 py-3 text-left">Correo</th>
+              <th className="px-4 py-3"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800">
+            {isLoading && <tr><td colSpan={5} className="text-center py-8 text-zinc-500">Cargando...</td></tr>}
+            {data?.data?.map((c) => (
+              <tr key={c.id} className="hover:bg-zinc-800/50 transition-colors">
+                <td className="px-4 py-3 text-white">{c.name}</td>
+                <td className="px-4 py-3 text-zinc-400">{c.document_type === "cedula" ? "C.C." : c.document_type.toUpperCase()} {c.document_number}</td>
+                <td className="px-4 py-3 text-zinc-400">{c.phone || "—"}</td>
+                <td className="px-4 py-3 text-zinc-400">{c.email || "—"}</td>
+                <td className="px-4 py-3">
+                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(c)}>Editar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {form !== null && <CustomerModal form={form} onSave={(d) => save.mutate(d)} onClose={() => setForm(null)} saving={save.isLoading} />}
+    </div>
+  );
+}
+
+function CustomerModal({ form, onSave, onClose, saving }) {
+  const [data, setData] = useState({ document_type: "cedula", is_company: false, ...form });
+  const [error, setError] = useState("");
+  const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
+
+  function handleSave() {
+    if (!data.name?.trim())            return setError("El nombre es obligatorio.");
+    if (!data.document_number?.trim()) return setError("El número de documento es obligatorio.");
+    if (!data.phone?.trim())           return setError("El teléfono es obligatorio.");
+    setError("");
+    onSave(data);
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-lg space-y-4">
+        <h2 className="text-white font-semibold">{data.id ? "Editar cliente" : "Nuevo cliente"}</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="col-span-2">
+            <label className="block text-xs text-zinc-400 mb-1">Nombre <span className="text-red-400">*</span></label>
+            <input className="input-field" value={data.name || ""} onChange={(e) => set("name", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Tipo doc. <span className="text-red-400">*</span></label>
+            <select className="input-field" value={data.document_type} onChange={(e) => set("document_type", e.target.value)}>
+              <option value="cedula">Cédula</option>
+              <option value="nit">NIT</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Número doc. <span className="text-red-400">*</span></label>
+            <input className="input-field" value={data.document_number || ""} onChange={(e) => set("document_number", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
+            <input className="input-field" value={data.phone || ""} onChange={(e) => set("phone", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Correo</label>
+            <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Departamento</label>
+            <input className="input-field" value={data.department || ""} onChange={(e) => set("department", e.target.value)} placeholder="Ej: Santander" />
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Ciudad</label>
+            <input className="input-field" value={data.city || ""} onChange={(e) => set("city", e.target.value)} placeholder="Ej: Bucaramanga" />
+          </div>
+          <div className="col-span-2">
+            <label className="block text-xs text-zinc-400 mb-1">Dirección</label>
+            <input className="input-field" value={data.address || ""} onChange={(e) => set("address", e.target.value)} />
+          </div>
+        </div>
+        {error && <p className="text-red-400 text-xs">{error}</p>}
+        <div className="flex gap-2 justify-end">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? "Guardando..." : "Guardar"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

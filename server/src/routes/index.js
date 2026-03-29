@@ -1,0 +1,32 @@
+import { Router } from "express";
+import { health } from "../controllers/health.controller.js";
+import authRoutes from "./auth.routes.js";
+import usersRoutes from "./users.routes.js";
+import customersRoutes from "./customers.routes.js";
+import ordersRoutes from "./orders.routes.js";
+import productionRoutes from "./production.routes.js";
+import financialRoutes from "./financial.routes.js";
+import dashboardRoutes from "./dashboard.routes.js";
+import notificationsRoutes from "./notifications.routes.js";
+import catalogRoutes from "./catalog/index.js";
+import syncRoutes from "./sync.routes.js";
+import chatRoutes from "./chat.routes.js";
+import suppliesRoutes from "./supplies.routes.js";
+
+const router = Router();
+
+router.get("/health", health);
+router.use("/auth",          authRoutes);
+router.use("/users",         usersRoutes);
+router.use("/customers",     customersRoutes);
+router.use("/orders",        ordersRoutes);
+router.use("/production",    productionRoutes);
+router.use("/financial",     financialRoutes);
+router.use("/dashboard",     dashboardRoutes);
+router.use("/notifications", notificationsRoutes);
+router.use("/catalog",       catalogRoutes);
+router.use("/sync",          syncRoutes);
+router.use("/chat",          chatRoutes);
+router.use("/supplies",      suppliesRoutes);
+
+export default router;

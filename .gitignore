@@ -1,0 +1,31 @@
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# Dependencias
+node_modules/
+server/node_modules/
+client/node_modules/
+
+# Build
+client/dist/
+server/dist/
+
+# Datos y subidas
+data/uploads/
+logs/
+backups/
+
+# Certificados SSL
+nginx/ssl/*.crt
+nginx/ssl/*.key
+nginx/ssl/*.pem
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/

@@ -1,0 +1,230 @@
+
+> app-ntrl-client@1.0.0 dev
+> vite
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m3269[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+(node:21160) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/Socia/OneDrive/Escritorio/Code/multi-agent-system/projects/app-ntrl/client/postcss.config.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\Socia\OneDrive\Escritorio\Code\multi-agent-system\projects\app-ntrl\client\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m3:27:41 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CalendarPage.jsx, /src/styles/globals.css[22m
+[2m3:27:47 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CalendarPage.jsx, /src/styles/globals.css[22m
+[2m3:27:57 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderDetailPage.jsx, /src/styles/globals.css[22m
+[2m3:33:20 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/UsersPage.jsx, /src/styles/globals.css[22m
+[2m3:35:31 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3Mjk0OTcsImV4cCI6MTc3NDczMDM5N30.xMd9qRRusg4Z9dAYGSYobd-NqQTII1n6DAE6zD5lFs8[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m3:35:31 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3Mjk0OTcsImV4cCI6MTc3NDczMDM5N30.xMd9qRRusg4Z9dAYGSYobd-NqQTII1n6DAE6zD5lFs8[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m3:38:25 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:38:30 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:38:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:38:54 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:39:05 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:41:26 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m
+[2m3:41:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:46:11 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:46:53 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzA0MDYsImV4cCI6MTc3NDczMTMwNn0.mxJ_nNQSv4wLPZXVl6nfmD_PlhHB9zVq9-9sGkyZCjU[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m3:46:53 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzA0MDYsImV4cCI6MTc3NDczMTMwNn0.mxJ_nNQSv4wLPZXVl6nfmD_PlhHB9zVq9-9sGkyZCjU[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m3:48:05 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m3:49:59 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/UsersPage.jsx, /src/styles/globals.css[22m
+[2m3:50:05 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/UsersPage.jsx, /src/styles/globals.css[22m
+[2m3:50:12 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/UsersPage.jsx, /src/styles/globals.css[22m
+[2m4:08:43 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:09:30 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:10:15 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:10:26 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:10:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:10:45 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:10:52 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:10:57 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m4:11:01 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m4:11:08 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:11:15 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:11:20 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:11:52 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzE5MDAsImV4cCI6MTc3NDczMjgwMH0.qnEbZ7tHr2RjTLYd8nNH8TkTZO8LXdhT7Mmcok7dOnM[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:11:52 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzE5MDAsImV4cCI6MTc3NDczMjgwMH0.qnEbZ7tHr2RjTLYd8nNH8TkTZO8LXdhT7Mmcok7dOnM[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:13:34 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:13:39 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:13:43 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:13:48 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:14:14 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:15:33 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m4:16:14 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzIzNjQsImV4cCI6MTc3NDczMzI2NH0.rdoDxGmXRIbOcVCyi1l6pUCW432PpopdizfF3hfV7Uo[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:16:14 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzIzNjQsImV4cCI6MTc3NDczMzI2NH0.rdoDxGmXRIbOcVCyi1l6pUCW432PpopdizfF3hfV7Uo[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:17:56 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:18:27 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/SuppliesPage.jsx, /src/styles/globals.css[22m
+[2m4:18:52 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzI3MDcsImV4cCI6MTc3NDczMzYwN30.3R8wxNhjENCX7d_ZXdYQq285zpot23q9OzH23LkZ9AA[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:18:52 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3MzI3MDcsImV4cCI6MTc3NDczMzYwN30.3R8wxNhjENCX7d_ZXdYQq285zpot23q9OzH23LkZ9AA[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:20:36 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/styles/globals.css, /src/router/AppRouter.jsx, /src/pages/AuthCallbackPage.jsx, /src/pages/LoginPage.jsx, /src/pages/admin/UsersPage.jsx, /src/pages/admin/OrdersPage.jsx, /src/pages/ChatPage.jsx, /src/pages/admin/OrderCreatePage.jsx, /src/pages/admin/ReportsPage.jsx, /src/pages/admin/DashboardPage.jsx, /src/pages/admin/CalendarPage.jsx, /src/pages/worker/TasksPage.jsx, /src/pages/worker/TaskDetailPage.jsx, /src/pages/admin/CustomersPage.jsx, /src/pages/admin/ProfilePage.jsx, /src/pages/admin/OrderDetailPage.jsx, /src/pages/admin/CatalogPage.jsx, /src/components/layout/Sidebar.jsx, /src/components/orders/CascadeFilter.jsx, /src/components/notifications/NotificationBell.jsx, /src/pages/admin/SuppliesPage.jsx, /src/pages/worker/SuppliesWorkerPage.jsx, /src/components/layout/Header.jsx[22m
+[2m4:20:59 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:21:18 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:21:35 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:21:45 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:22:14 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:22:23 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m4:22:50 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m4:23:08 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m4:25:30 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/ProfilePage.jsx, /src/styles/globals.css[22m
+[2m4:25:34 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/ProfilePage.jsx, /src/styles/globals.css[22m
+[2m4:25:49 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/ProfilePage.jsx, /src/styles/globals.css[22m
+[2m4:30:02 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:30:23 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/LoginPage.jsx, /src/styles/globals.css[22m
+[2m4:32:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:32:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:34:51 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:34:56 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m4:35:02 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m4:35:09 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m4:35:13 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m4:35:20 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m4:35:29 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m4:36:12 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:37:14 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:37:31 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:37:38 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:37:44 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:38:16 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:38:56 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:40:03 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:40:08 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:40:16 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:41:51 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:42:45 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:43:00 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:43:05 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:43:22 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:45:57 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:47:45 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyOWExNGQzMS0yYzBiLTQ4NTktYmJhOS0zZmZiNTQ5YjU0ZWIiLCJyb2xlIjoid29ya2VyIiwiYXJlYSI6ImNvcnRlIiwiaWF0IjoxNzc0NzM0MzM1LCJleHAiOjE3NzQ3MzUyMzV9.Pf6VHdUVTczmoabiOyIEl3bia5csBrCc7Oe-fmtx3kk[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m4:48:34 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:49:35 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:51:26 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m4:51:31 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TaskDetailPage.jsx, /src/styles/globals.css[22m
+[2m4:53:10 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:53:14 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:53:20 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:53:27 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:55:16 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:55:21 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:55:27 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m4:59:38 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m5:02:13 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/ChatPage.jsx, /src/styles/globals.css[22m
+[2m5:04:38 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m5:04:46 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m5:04:59 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m5:06:08 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/styles/globals.css, /src/router/AppRouter.jsx, /src/pages/AuthCallbackPage.jsx, /src/pages/LoginPage.jsx, /src/pages/admin/UsersPage.jsx, /src/pages/admin/OrdersPage.jsx, /src/pages/ChatPage.jsx, /src/pages/admin/OrderCreatePage.jsx, /src/pages/admin/ReportsPage.jsx, /src/pages/admin/DashboardPage.jsx, /src/pages/admin/CalendarPage.jsx, /src/pages/worker/TasksPage.jsx, /src/pages/worker/TaskDetailPage.jsx, /src/pages/admin/CustomersPage.jsx, /src/pages/admin/ProfilePage.jsx, /src/pages/admin/OrderDetailPage.jsx, /src/pages/admin/CatalogPage.jsx, /src/components/layout/Sidebar.jsx, /src/components/orders/CascadeFilter.jsx, /src/components/notifications/NotificationBell.jsx, /src/pages/admin/SuppliesPage.jsx, /src/pages/worker/SuppliesWorkerPage.jsx, /src/components/layout/Header.jsx[22m
+[2m5:06:18 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/router/AppRouter.jsx, /src/styles/globals.css[22m
+[2m5:06:24 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m5:06:32 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Sidebar.jsx, /src/styles/globals.css[22m
+[2m5:06:43 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m5:06:49 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/layout/Header.jsx, /src/styles/globals.css[22m
+[2m5:06:53 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/ProfilePage.jsx, /src/styles/globals.css[22m
+[2m5:06:58 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/ProfilePage.jsx, /src/styles/globals.css[22m
+[2m5:07:09 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/ProfilePage.jsx, /src/styles/globals.css[22m
+[2m8:38:21 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:38:34 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:38:58 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CalendarPage.jsx, /src/styles/globals.css[22m
+[2m8:39:16 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CalendarPage.jsx, /src/styles/globals.css[22m
+[2m8:39:22 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CalendarPage.jsx, /src/styles/globals.css[22m
+[2m8:39:33 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CalendarPage.jsx, /src/styles/globals.css[22m
+[2m8:40:43 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/LoginPage.jsx, /src/styles/globals.css[22m
+[2m8:42:22 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:42:32 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:42:44 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:42:53 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:43:53 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:46:04 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:48:01 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:48:04 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:49:23 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:49:35 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:50:49 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:50:55 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:51:01 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:52:09 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:52:20 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:52:25 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:52:29 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:54:49 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:55:04 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:57:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:59:32 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:59:32 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m8:59:59 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:06:30 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderCreatePage.jsx, /src/styles/globals.css[22m
+[2m9:06:34 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderCreatePage.jsx, /src/styles/globals.css[22m
+[2m9:06:40 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderCreatePage.jsx, /src/styles/globals.css[22m
+[2m9:06:45 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/worker/TasksPage.jsx, /src/styles/globals.css[22m
+[2m9:06:53 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderDetailPage.jsx, /src/styles/globals.css[22m
+[2m9:07:18 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderDetailPage.jsx, /src/styles/globals.css[22m
+[2m9:07:26 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderDetailPage.jsx, /src/styles/globals.css[22m
+[2m9:07:32 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/notifications/NotificationBell.jsx, /src/styles/globals.css[22m
+[2m9:07:36 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/notifications/NotificationBell.jsx, /src/styles/globals.css[22m
+[2m9:07:42 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/notifications/NotificationBell.jsx, /src/styles/globals.css[22m
+[2m9:07:50 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:07:55 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:07:58 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:10:18 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:11:37 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:12:21 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:18:19 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:20:35 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:20:40 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:20:47 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/DashboardPage.jsx, /src/styles/globals.css[22m
+[2m9:20:51 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderCreatePage.jsx, /src/styles/globals.css[22m
+[2m9:20:59 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderDetailPage.jsx, /src/styles/globals.css[22m
+[2m9:21:04 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/OrderDetailPage.jsx, /src/styles/globals.css[22m
+[2m9:26:19 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTA4OTQsImV4cCI6MTc3NDc1MTc5NH0.2PEnofskguZPgJF5vh-eL03sh9_sSYQ2sRqn_0biwL0[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:26:19 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTA4OTQsImV4cCI6MTc3NDc1MTc5NH0.2PEnofskguZPgJF5vh-eL03sh9_sSYQ2sRqn_0biwL0[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:28:32 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTEyMzIsImV4cCI6MTc3NDc1MjEzMn0.7Rg0cbqaHQ9o8mxjXhrOYcguIDizAAl8Hhk-rZBPi7Y[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:28:32 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTEyMzIsImV4cCI6MTc3NDc1MjEzMn0.7Rg0cbqaHQ9o8mxjXhrOYcguIDizAAl8Hhk-rZBPi7Y[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:30:26 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTEzNTAsImV4cCI6MTc3NDc1MjI1MH0.F8_LBiZ7cDv1RApgqfO_u8aP8QkRrMCQVw73QohSl2k[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:30:26 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTEzNTAsImV4cCI6MTc3NDc1MjI1MH0.F8_LBiZ7cDv1RApgqfO_u8aP8QkRrMCQVw73QohSl2k[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:33:33 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTE1MDIsImV4cCI6MTc3NDc1MjQwMn0.CEAXEB3MZEZUAWrXzAGD1R7hWQ_jgus6mUzog2MPY88[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:33:33 p. m.[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/notifications/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmOTA0MGZlMC1lOGRlLTRhNGEtOTI3ZS00ZGUzNDVkNTQyNzAiLCJyb2xlIjoiYWRtaW4iLCJhcmVhIjpudWxsLCJpYXQiOjE3NzQ3NTE1MDIsImV4cCI6MTc3NDc1MjQwMn0.CEAXEB3MZEZUAWrXzAGD1R7hWQ_jgus6mUzog2MPY88[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m9:44:27 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m
+[2m9:44:27 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m
+[2m9:45:44 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m
+[2m9:46:38 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m
+[2m9:48:07 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m
+[2m9:48:15 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/admin/CustomersPage.jsx, /src/styles/globals.css[22m

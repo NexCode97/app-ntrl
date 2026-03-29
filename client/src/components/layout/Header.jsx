@@ -1,0 +1,38 @@
+import { useLocation } from "react-router-dom";
+import { useAuthStore } from "../../stores/authStore.js";
+import NotificationBell from "../notifications/NotificationBell.jsx";
+
+const PAGE_TITLES = {
+  "/dashboard": "Dashboard",
+  "/orders":    "Pedidos",
+  "/orders/new": "Nuevo Pedido",
+  "/customers": "Clientes",
+  "/catalog":   "Catálogo",
+  "/users":     "Usuarios",
+  "/reports":   "Reportes",
+  "/supplies":  "Suministros",
+  "/profile":   "Mi Perfil",
+  "/calendar":  "Calendario",
+  "/chat":      "Chats",
+  "/tasks":     "Mis Tareas",
+};
+
+export default function Header() {
+  const location = useLocation();
+  const { user } = useAuthStore();
+
+  const title = Object.entries(PAGE_TITLES).find(([path]) =>
+    location.pathname === path || location.pathname.startsWith(path + "/")
+  )?.[1] ?? "APP NTRL";
+
+  return (
+    <header className="bg-zinc-950 border-b border-zinc-800 px-4 md:px-6 py-3 flex items-center justify-between shrink-0">
+      <h1 className="text-white font-semibold text-lg">{title}</h1>
+      <div className="flex items-center gap-3 text-sm text-zinc-400">
+        <span className="hidden md:block">{user?.name}</span>
+        <span className="badge badge-completed">{user?.role === "admin" ? "Admin" : user?.area}</span>
+        {user?.role === "admin" && <NotificationBell />}
+      </div>
+    </header>
+  );
+}

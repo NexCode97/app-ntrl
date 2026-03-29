@@ -16,10 +16,6 @@ export default defineConfig({
             options: { cacheName: "api-read", expiration: { maxAgeSeconds: 3600 } },
           },
         ],
-        backgroundSync: {
-          name: "ntrl-sync-queue",
-          options: { maxRetentionTime: 24 * 60 },
-        },
       },
       manifest: {
         name: "APP NTRL",

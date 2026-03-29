@@ -14,7 +14,7 @@ let cloudinary;
 if (useCloudinary) {
   const { v2 } = await import("cloudinary");
   cloudinary = v2;
-  cloudinary.config({ secure: true }); // CLOUDINARY_URL se parsea automáticamente
+  // CLOUDINARY_URL se parsea automáticamente por el SDK al importar
 }
 
 /**

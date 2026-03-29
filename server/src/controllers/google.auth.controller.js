@@ -88,7 +88,7 @@ export async function googleCallback(req, res, next) {
       });
 
       // Redirigir al frontend con el access token en query param (temporal, se guarda en memoria)
-      res.redirect(`${config.google.clientUrl}/auth/callback?token=${accessToken}`);
+      res.redirect(`${config.google.clientUrl}/auth/callback?token=${accessToken}&rt=${refreshToken}`);
     } catch (e) {
       next(e);
     }

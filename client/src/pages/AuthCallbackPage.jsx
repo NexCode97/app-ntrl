@@ -10,6 +10,7 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const token = params.get("token");
+    const rt    = params.get("rt");
     const error = params.get("error");
 
     if (error || !token) {
@@ -18,12 +19,14 @@ export default function AuthCallbackPage() {
       return;
     }
 
+    const base = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
+
     // Obtener datos del usuario con el token recibido
-    axios.get("/api/auth/me", {
+    axios.get(`${base}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(({ data }) => {
-        setAuth(data.user, token);
+        setAuth(data.user, token, rt);
         navigate("/", { replace: true });
       })
       .catch(() => {

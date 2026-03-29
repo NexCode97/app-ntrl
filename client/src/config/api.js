@@ -53,7 +53,8 @@ api.interceptors.response.use(
     refreshing = true;
 
     try {
-      const { data } = await axios.post(`${BASE}/auth/refresh`, {}, { withCredentials: true });
+      const rt = localStorage.getItem("ntrl_rt");
+      const { data } = await axios.post(`${BASE}/auth/refresh`, { refreshToken: rt }, { withCredentials: true });
       const { accessToken } = data;
       useAuthStore.getState().setAuth(useAuthStore.getState().user, accessToken);
       processQueue(null, accessToken);

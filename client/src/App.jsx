@@ -11,7 +11,8 @@ export default function App() {
   // Usa axios directo (no la instancia api) para no activar el interceptor 401.
   useEffect(() => {
     const base = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : "/api";
-    axios.post(`${base}/auth/refresh`, {}, { withCredentials: true })
+    const rt = localStorage.getItem("ntrl_rt");
+    axios.post(`${base}/auth/refresh`, { refreshToken: rt }, { withCredentials: true })
       .then(({ data }) => {
         return axios.get(`${base}/auth/me`, {
           withCredentials: true,

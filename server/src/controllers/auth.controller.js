@@ -26,8 +26,9 @@ export async function login(req, res, next) {
 
     res.json({
       status: "ok",
-      user:        result.user,
-      accessToken: result.accessToken,
+      user:         result.user,
+      accessToken:  result.accessToken,
+      refreshToken: result.refreshToken,
     });
   } catch (err) {
     next(err);
@@ -37,7 +38,8 @@ export async function login(req, res, next) {
 export async function refresh(req, res, next) {
   try {
     const cookieToken = req.cookies?.ntrl_refresh;
-    const { accessToken } = await authService.refreshAccessToken(null, cookieToken);
+    const bodyToken   = req.body?.refreshToken;
+    const { accessToken } = await authService.refreshAccessToken(bodyToken, cookieToken);
     res.json({ status: "ok", accessToken });
   } catch (err) {
     next(err);

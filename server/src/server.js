@@ -4,10 +4,12 @@ import app from "./app.js";
 import { config } from "./config/index.js";
 import { testConnection } from "./config/database.js";
 import { connectRedis } from "./config/redis.js";
+import { runMigrations } from "./utils/runMigrations.js";
 
 async function start() {
   try {
     await testConnection();
+    await runMigrations();
     await connectRedis();
 
     const { initSSESubscriber } = await import("./utils/sseManager.js");

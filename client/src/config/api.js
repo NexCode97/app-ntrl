@@ -1,8 +1,12 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/authStore.js";
 
+const BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : "/api";
+
 export const api = axios.create({
-  baseURL:         "/api",
+  baseURL:         BASE,
   withCredentials: true, // necesario para enviar/recibir cookies httpOnly
   timeout:         15000,
 });

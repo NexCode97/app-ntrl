@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { pool } from "../config/database.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const MIGRATIONS_DIR = join(__dirname, "../../../../migrations");
+const MIGRATIONS_DIR = join(__dirname, "../../../migrations");
 
 export async function runMigrations() {
   const client = await pool.connect();

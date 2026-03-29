@@ -82,7 +82,7 @@ export async function googleCallback(req, res, next) {
       res.cookie("ntrl_refresh", refreshToken, {
         httpOnly: true,
         secure:   config.nodeEnv === "production",
-        sameSite: "strict",
+        sameSite: config.nodeEnv === "production" ? "none" : "strict",
         maxAge:   7 * 24 * 60 * 60 * 1000,
         path:     "/api/auth/refresh",
       });

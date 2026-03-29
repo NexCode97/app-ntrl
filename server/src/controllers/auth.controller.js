@@ -8,7 +8,7 @@ import { saveFile, deleteFile } from "../utils/fileStorage.js";
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure:   config.nodeEnv === "production",
-  sameSite: "strict",
+  sameSite: config.nodeEnv === "production" ? "none" : "strict",
   maxAge:   7 * 24 * 60 * 60 * 1000, // 7 días
   path:     "/api/auth/refresh",
 };

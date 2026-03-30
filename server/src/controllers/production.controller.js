@@ -120,5 +120,5 @@ export async function updateTaskStatus(req, res, next) {
 
     redis.del("dashboard:summary").catch(() => {});
     res.json({ status: "ok", data: updated });
-  } catch (err) { next(err); }
+  } catch (err) { console.error("updateTaskStatus ERROR:", err.message, err.stack); next(err); }
 }

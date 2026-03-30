@@ -114,11 +114,11 @@ export async function updateTaskStatus(req, res, next) {
     const eventMsg  = status === "done"
       ? `${areaLabel} completó su tarea en el pedido #${orderNum}`
       : `${areaLabel} inició su tarea en el pedido #${orderNum}`;
-    await notifyAdmins(eventType, eventMsg,
+    notifyAdmins(eventType, eventMsg,
       { orderId: task.order_id, orderNumber: order?.order_number, area: task.area }
-    );
+    ).catch(() => {});
 
-    await redis.del("dashboard:summary").catch(() => {});
+    redis.del("dashboard:summary").catch(() => {});
     res.json({ status: "ok", data: updated });
   } catch (err) { next(err); }
 }

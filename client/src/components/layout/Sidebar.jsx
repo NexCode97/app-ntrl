@@ -80,7 +80,7 @@ export default function Sidebar() {
   return (
     <aside className="w-16 md:w-56 bg-zinc-950 border-r border-zinc-800 flex flex-col py-4">
       {/* Logo */}
-      <div className="px-3 mb-6 flex items-center gap-2 justify-center md:justify-start">
+      <div className="px-3 mb-4 flex items-center gap-2 justify-center md:justify-start">
         <div className="w-10 h-10 border border-zinc-700 rounded-lg overflow-hidden shrink-0">
           <img
             src="/logo.png"
@@ -103,7 +103,7 @@ export default function Sidebar() {
               if (to === "/supplies") setSuppliesCount(0);
             }}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-2 py-2 rounded-lg transition-colors text-sm font-medium
+              `flex items-center gap-3 px-2 py-1.5 rounded-lg transition-colors text-sm font-medium
               ${isActive
                 ? "bg-brand-green text-black"
                 : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`
@@ -131,7 +131,7 @@ export default function Sidebar() {
       <div className="px-2 pt-4 border-t border-zinc-800">
         <button
           onClick={() => navigate("/profile")}
-          className="flex items-center gap-2 px-2 py-2 mb-1 w-full rounded-lg hover:bg-zinc-800 transition-colors text-left"
+          className="flex items-center gap-2 px-2 py-1.5 mb-1 w-full rounded-lg hover:bg-zinc-800 transition-colors text-left"
         >
           {user?.avatar ? (
             <img
@@ -151,7 +151,7 @@ export default function Sidebar() {
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-2 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors text-sm"
+          className="flex items-center gap-3 w-full px-2 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors text-sm"
         >
           <span className="text-lg w-6 text-center">🚪</span>
           <span className="hidden md:block">Salir</span>

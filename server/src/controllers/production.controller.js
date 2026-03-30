@@ -81,7 +81,7 @@ export async function updateTaskStatus(req, res, next) {
       throw new AppError("No puedes modificar tareas de otra área.", 403, "FORBIDDEN");
     }
 
-    const updates = ["status = $2", "updated_at = NOW()"];
+    const updates = ["status = $2"];
     const vals = [taskId, status];
 
     if (status === "in_progress" && !task.started_by) {

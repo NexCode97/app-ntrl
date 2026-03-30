@@ -78,7 +78,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-16 md:w-56 bg-zinc-950 border-r border-zinc-800 flex flex-col py-4">
+    <aside className="w-16 md:w-56 bg-zinc-950 border-r border-zinc-800 flex flex-col py-4 h-screen overflow-y-auto">
       {/* Logo */}
       <div className="px-3 mb-6 flex items-center gap-2 justify-center md:justify-start">
         <div className="w-10 h-10 border border-zinc-700 rounded-lg overflow-hidden shrink-0">

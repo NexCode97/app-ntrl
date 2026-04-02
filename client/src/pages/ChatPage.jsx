@@ -144,6 +144,19 @@ function MessageBubble({ msg, mine, onReact }) {
 export default function ChatPage() {
   const { user, accessToken } = useAuthStore();
 
+  // Eliminar padding y scroll del main mientras el chat está activo
+  useEffect(() => {
+    const main = document.querySelector("main");
+    if (!main) return;
+    const prev = { overflow: main.style.overflow, padding: main.style.padding };
+    main.style.overflow = "hidden";
+    main.style.padding  = "0";
+    return () => {
+      main.style.overflow = prev.overflow;
+      main.style.padding  = prev.padding;
+    };
+  }, []);
+
   const [contacts,    setContacts]    = useState([]);
   const [activeId,    setActiveId]    = useState(null);
   const [messages,    setMessages]    = useState([]);
@@ -251,7 +264,7 @@ export default function ChatPage() {
   const activeContact = contacts.find((c) => (c.id ?? c.other_user) === activeId);
 
   return (
-    <div className="flex h-full gap-0 -mx-4 md:-mx-6 -my-0 overflow-hidden" style={{ height: "calc(100vh - 60px)" }}>
+    <div className="flex h-full overflow-hidden">
 
       {/* Lista de contactos */}
       <div className={`${showSidebar ? "flex" : "hidden"} md:flex w-full md:w-64 shrink-0 border-r border-zinc-800 bg-zinc-950 flex-col`}>

@@ -123,7 +123,7 @@ export default function OrderDetailPage() {
             <div className="flex gap-3 flex-wrap">
               {designFiles.map((f, i) => {
                 const url = fileUrl(f);
-                const pdf = f.toLowerCase().endsWith(".pdf");
+                const pdf = f.toLowerCase().endsWith(".pdf") || f.includes("/raw/upload/");
                 return (
                   <div key={i}>
                     {pdf ? (
@@ -380,7 +380,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
               <div className="flex gap-3 flex-wrap mb-3">
                 {keptFiles.map((f, i) => {
                   const url = fileUrl(f);
-                  const pdf = f.toLowerCase().endsWith(".pdf");
+                  const pdf = f.toLowerCase().endsWith(".pdf") || f.includes("/raw/upload/");
                   return (
                     <div key={i} className="relative group/thumb">
                       {pdf ? (

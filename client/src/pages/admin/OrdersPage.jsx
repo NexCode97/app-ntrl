@@ -52,7 +52,7 @@ export default function OrdersPage() {
             <tr>
               <th className="px-4 py-3 text-left">#</th>
               <th className="px-4 py-3 text-left">Cliente</th>
-              <th className="px-4 py-3 text-left">Estado</th>
+              <th className="px-4 py-3 text-center">Estado</th>
               <th className="px-4 py-3 text-right">Total</th>
               <th className="px-4 py-3 text-right">Saldo</th>
               <th className="px-4 py-3 text-left">Entrega</th>
@@ -70,7 +70,7 @@ export default function OrdersPage() {
                   onClick={() => navigate(`/orders/${order.id}`)}>
                   <td className="px-4 py-3 font-mono text-brand-green font-semibold">#{order.order_number}</td>
                   <td className="px-4 py-3 text-white">{order.customer_name}</td>
-                  <td className="px-4 py-3"><span className={s.cls}>{s.label}</span></td>
+                  <td className="px-4 py-3 text-center"><span className={`${s.cls} whitespace-nowrap`}>{s.label}</span></td>
                   <td className="px-4 py-3 text-right text-white">${Number(order.total).toLocaleString()}</td>
                   <td className="px-4 py-3 text-right text-yellow-400">${Number(order.balance).toLocaleString()}</td>
                   <td className="px-4 py-3 text-zinc-400">{order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("es-CO") : "—"}</td>

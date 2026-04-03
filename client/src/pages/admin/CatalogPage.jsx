@@ -27,14 +27,21 @@ export default function CatalogPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg w-fit">
-        {[["sports","Deportes"],["lines","Líneas"],["products","Productos"]].map(([key, label]) => (
-          <button key={key} onClick={() => setTab(key)}
-            className={`px-3 py-1.5 rounded text-sm font-medium transition-colors
-              ${tab === key ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
-            {label}
-          </button>
-        ))}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto shrink-0">
+          {[["sports","Deportes"],["lines","Líneas"],["products","Productos"]].map(([key, label]) => (
+            <button key={key} onClick={() => setTab(key)}
+              className={`px-3 py-1.5 rounded text-sm font-medium transition-colors whitespace-nowrap
+                ${tab === key ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <button className="btn-primary shrink-0 whitespace-nowrap" onClick={() => {
+          if (tab === "sports")   setForm({ type: "sport" });
+          if (tab === "lines")    setForm({ type: "line" });
+          if (tab === "products") setForm({ type: "product" });
+        }}>+ Agregar</button>
       </div>
 
       {tab === "sports" && (
@@ -42,7 +49,6 @@ export default function CatalogPage() {
           title="Deportes"
           data={sports.data}
           columns={[["name","Nombre"],["slug","Slug"]]}
-          onNew={() => setForm({ type: "sport" })}
           onEdit={(row) => setForm({ type: "sport", ...row })}
         />
       )}
@@ -51,7 +57,6 @@ export default function CatalogPage() {
           title="Líneas"
           data={lines.data}
           columns={[["name","Nombre"],["sport_name","Deporte"],["slug","Slug"]]}
-          onNew={() => setForm({ type: "line" })}
           onEdit={(row) => setForm({ type: "line", ...row })}
         />
       )}
@@ -60,7 +65,6 @@ export default function CatalogPage() {
           title="Productos"
           data={products.data}
           columns={[["name","Nombre"],["line_name","Línea"],["sport_name","Deporte"]]}
-          onNew={() => setForm({ type: "product" })}
           onEdit={(row) => setForm({ type: "product", ...row })}
         />
       )}
@@ -72,12 +76,9 @@ export default function CatalogPage() {
   );
 }
 
-function CatalogTable({ title, data, columns, onNew, onEdit }) {
+function CatalogTable({ title, data, columns, onEdit }) {
   return (
     <div className="space-y-3">
-      <div className="flex justify-end">
-        <button className="btn-primary" onClick={onNew}>+ Agregar</button>
-      </div>
       <div className="card overflow-hidden p-0 overflow-x-auto">
         <table className="w-full text-sm min-w-[360px]">
           <thead className="bg-zinc-800 text-zinc-400">

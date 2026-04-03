@@ -30,7 +30,7 @@ export default function UsersPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <button className="btn-primary" onClick={() => setForm({})}>+ Nuevo usuario</button>
+        <button className="btn-primary whitespace-nowrap" onClick={() => setForm({})}>+ Nuevo usuario</button>
       </div>
 
       <div className="card overflow-hidden p-0 overflow-x-auto">

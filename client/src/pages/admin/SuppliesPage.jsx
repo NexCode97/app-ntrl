@@ -77,18 +77,15 @@ function RequestsTab() {
   return (
     <div className="space-y-4">
 
-      <div className="flex justify-end">
-        <button className="btn-primary" onClick={() => setShowForm(true)}>+ Nueva solicitud</button>
-      </div>
-
-      {/* Filtros */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Filtros + botón */}
+      <div className="flex gap-2 flex-wrap items-center">
         {[["all","Todos"], ["pending","Pendientes"], ["in_progress","En proceso"], ["delivered","Entregados"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === val ? "bg-brand-green text-black" : "bg-zinc-800 text-zinc-400 hover:text-white"}`}>
             {label}{val !== "all" && counts[val] ? ` (${counts[val]})` : ""}
           </button>
         ))}
+        <button className="btn-primary ml-auto shrink-0 whitespace-nowrap" onClick={() => setShowForm(true)}>+ Nueva solicitud</button>
       </div>
 
       {/* Tabla */}

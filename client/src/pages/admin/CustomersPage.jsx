@@ -22,7 +22,7 @@ export default function CustomersPage() {
       <div className="flex items-center gap-3">
         <input className="input-field max-w-xs" placeholder="Buscar..." value={search}
           onChange={(e) => setSearch(e.target.value)} />
-        <button className="btn-primary ml-auto" onClick={() => setForm({})}>+ Nuevo cliente</button>
+        <button className="btn-primary ml-auto shrink-0 whitespace-nowrap" onClick={() => setForm({})}>+ Nuevo cliente</button>
       </div>
 
       <div className="card overflow-hidden p-0 overflow-x-auto">

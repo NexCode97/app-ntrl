@@ -129,10 +129,12 @@ export default function OrderDetailPage() {
                     {pdf ? (
                       <a href={url} target="_blank" rel="noopener noreferrer"
                         className="flex flex-col items-center justify-center w-24 h-24 rounded-xl
-                                   bg-zinc-800 border border-zinc-700 hover:border-brand-green
-                                   transition-colors text-zinc-400 hover:text-brand-green gap-1">
+                                   bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
+                                   transition-colors text-zinc-200 hover:text-brand-green gap-1">
                         <span className="text-3xl">📄</span>
-                        <span className="text-xs">PDF {designFiles.length > 1 ? i + 1 : ""}</span>
+                        <span className="text-xs text-center px-1 truncate w-full text-center">
+                          {designFiles.length > 1 ? `PDF ${i + 1}` : "PDF"}
+                        </span>
                       </a>
                     ) : (
                       <button type="button" onClick={() => setLightboxSrc(url)}
@@ -384,10 +386,10 @@ function EditOrderModal({ order, onClose, onSaved }) {
                       {pdf ? (
                         <a href={url} target="_blank" rel="noopener noreferrer"
                           className="flex flex-col items-center justify-center w-16 h-16 rounded-lg
-                                     bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-brand-green
-                                     transition-colors text-xs gap-0.5">
+                                     bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
+                                     transition-colors text-zinc-200 hover:text-brand-green text-xs gap-0.5">
                           <span className="text-2xl">📄</span>
-                          <span>PDF {keptFiles.length > 1 ? i + 1 : ""}</span>
+                          <span>{keptFiles.length > 1 ? `PDF ${i + 1}` : "PDF"}</span>
                         </a>
                       ) : (
                         <button type="button" onClick={() => setLightboxSrc(url)}

@@ -38,7 +38,7 @@ export default function SuppliesWorkerPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-4">
 
-      <div className="flex justify-end">
+      <div className="flex justify-start md:justify-end">
         <button className="btn-primary" onClick={() => setShowForm(true)}>+ Nueva solicitud</button>
       </div>
 

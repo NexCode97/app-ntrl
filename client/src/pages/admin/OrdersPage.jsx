@@ -49,7 +49,7 @@ export default function OrdersPage() {
 
       {/* Table */}
       <div className="card overflow-hidden p-0 overflow-x-auto">
-        <table className="w-full text-sm min-w-[600px]">
+        <table className="w-full text-sm min-w-[680px]">
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>
               <th className="px-4 py-3 text-left">#</th>
@@ -58,11 +58,12 @@ export default function OrdersPage() {
               <th className="px-4 py-3 text-right">Total</th>
               <th className="px-4 py-3 text-right">Saldo</th>
               <th className="px-4 py-3 text-left">Entrega</th>
+              <th className="px-4 py-3 text-left">Creación</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
             {isLoading && (
-              <tr><td colSpan={6} className="text-center py-8 text-zinc-500">Cargando...</td></tr>
+              <tr><td colSpan={7} className="text-center py-8 text-zinc-500">Cargando...</td></tr>
             )}
             {data?.data?.map((order) => {
               const s = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
@@ -76,11 +77,12 @@ export default function OrdersPage() {
                   <td className="px-4 py-3 text-right text-white">${Number(order.total).toLocaleString()}</td>
                   <td className="px-4 py-3 text-right text-yellow-400">${Number(order.balance).toLocaleString()}</td>
                   <td className="px-4 py-3 text-zinc-400">{order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("es-CO") : "—"}</td>
+                  <td className="px-4 py-3 text-zinc-400">{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</td>
                 </tr>
               );
             })}
             {!isLoading && !data?.data?.length && (
-              <tr><td colSpan={6} className="text-center py-8 text-zinc-500">No hay pedidos.</td></tr>
+              <tr><td colSpan={7} className="text-center py-8 text-zinc-500">No hay pedidos.</td></tr>
             )}
           </tbody>
         </table>

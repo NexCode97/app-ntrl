@@ -92,7 +92,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav links */}
-      <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
+      <nav className="md:flex-1 px-2 space-y-1 overflow-y-auto max-h-[60vh] md:max-h-none">
         {links.map(({ to, label, icon }) => (
           <NavLink
             key={to}

@@ -35,6 +35,7 @@ export default function OrderDetailPage() {
   const [tab,        setTab]        = useState("items");
   const [showEdit,   setShowEdit]   = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [pdfSrc,     setPdfSrc]     = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["order", id],
@@ -127,15 +128,15 @@ export default function OrderDetailPage() {
                 return (
                   <div key={i}>
                     {pdf ? (
-                      <a href={url} target="_blank" rel="noopener noreferrer"
+                      <button type="button" onClick={() => setPdfSrc(url)}
                         className="flex flex-col items-center justify-center w-24 h-24 rounded-xl
                                    bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
                                    transition-colors text-zinc-200 hover:text-brand-green gap-1">
                         <span className="text-3xl">📄</span>
-                        <span className="text-xs text-center px-1 truncate w-full text-center">
+                        <span className="text-xs text-center px-1 w-full">
                           {designFiles.length > 1 ? `PDF ${i + 1}` : "PDF"}
                         </span>
-                      </a>
+                      </button>
                     ) : (
                       <button type="button" onClick={() => setLightboxSrc(url)}
                         className="focus:outline-none">
@@ -161,6 +162,23 @@ export default function OrderDetailPage() {
           <img src={lightboxSrc} alt="Diseño del pedido"
             className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl"
             onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
+
+      {pdfSrc && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
+            <span className="text-white text-sm font-medium">Vista previa PDF</span>
+            <div className="flex items-center gap-3">
+              <a href={pdfSrc} download className="text-zinc-400 hover:text-white text-sm">⬇ Descargar</a>
+              <button onClick={() => setPdfSrc(null)} className="text-white text-2xl leading-none hover:text-zinc-300">✕</button>
+            </div>
+          </div>
+          <iframe
+            src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfSrc)}&embedded=true`}
+            className="flex-1 w-full border-0"
+            title="Vista previa PDF"
+          />
         </div>
       )}
 

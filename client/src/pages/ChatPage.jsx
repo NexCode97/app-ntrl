@@ -304,9 +304,9 @@ export default function ChatPage() {
       </div>
 
       {/* Área de mensajes */}
-      <div className={`flex-1 flex flex-col bg-zinc-900 min-w-0 ${!activeId && showSidebar ? "hidden md:flex" : "flex"}`}>
+      <div className="flex-1 flex flex-col bg-zinc-900 min-w-0">
         {!activeId ? (
-          <div className="flex-1 flex items-center justify-center">
+          <div className="hidden md:flex flex-1 items-center justify-center">
             <p className="text-zinc-600 text-sm">Selecciona un contacto para chatear</p>
           </div>
         ) : (

@@ -26,23 +26,26 @@ export default function OrdersPage() {
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <input
-          className="input-field max-w-xs"
-          placeholder="Buscar por # o cliente..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-        />
-        <select className="input-field w-40" value={statusFilter}
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <input
+            className="input-field flex-1 md:max-w-xs"
+            placeholder="Buscar por # o cliente..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+          <button className="btn-primary shrink-0 whitespace-nowrap" onClick={() => navigate("/orders/new")}>
+            + Nuevo Pedido
+          </button>
+        </div>
+        <select className="input-field w-full md:w-40" value={statusFilter}
           onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
           <option value="">Todos los estados</option>
           {Object.entries(STATUS_LABELS).map(([v, { label }]) => (
             <option key={v} value={v}>{label}</option>
           ))}
         </select>
-        <button className="btn-primary ml-auto" onClick={() => navigate("/orders/new")}>
-          + Nuevo Pedido
-        </button>
+      </div>
       </div>
 
       {/* Table */}

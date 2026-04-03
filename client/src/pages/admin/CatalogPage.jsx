@@ -27,7 +27,7 @@ export default function CatalogPage() {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto w-fit">
           {[["sports","Deportes"],["lines","Líneas"],["products","Productos"]].map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)}
@@ -37,7 +37,7 @@ export default function CatalogPage() {
             </button>
           ))}
         </div>
-        <button className="btn-primary whitespace-nowrap" onClick={() => {
+        <button className="btn-primary whitespace-nowrap self-start sm:self-auto" onClick={() => {
           if (tab === "sports")   setForm({ type: "sport" });
           if (tab === "lines")    setForm({ type: "line" });
           if (tab === "products") setForm({ type: "product" });

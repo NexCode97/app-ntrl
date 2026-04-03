@@ -29,7 +29,7 @@ export default function UsersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <button className="btn-primary whitespace-nowrap" onClick={() => setForm({})}>+ Nuevo usuario</button>
       </div>
 

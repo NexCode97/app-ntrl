@@ -27,8 +27,8 @@ export default function CatalogPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto shrink-0">
+      <div className="space-y-2">
+        <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto w-fit">
           {[["sports","Deportes"],["lines","Líneas"],["products","Productos"]].map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-3 py-1.5 rounded text-sm font-medium transition-colors whitespace-nowrap
@@ -37,7 +37,7 @@ export default function CatalogPage() {
             </button>
           ))}
         </div>
-        <button className="btn-primary shrink-0 whitespace-nowrap" onClick={() => {
+        <button className="btn-primary whitespace-nowrap" onClick={() => {
           if (tab === "sports")   setForm({ type: "sport" });
           if (tab === "lines")    setForm({ type: "line" });
           if (tab === "products") setForm({ type: "product" });

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/api.js";
@@ -20,30 +20,37 @@ const UNITS = ["unidades", "metros", "kg", "litros", "rollos", "yardas", "piezas
 
 export default function SuppliesPage() {
   const [tab, setTab] = useState("requests"); // "requests" | "suppliers"
+  const [showRequestForm,  setShowRequestForm]  = useState(false);
+  const [showSupplierForm, setShowSupplierForm] = useState(false);
 
   return (
     <div className="space-y-4">
-      <div className="flex bg-zinc-800 rounded-lg p-1 gap-1 w-fit">
-        <button onClick={() => setTab("requests")}
-          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "requests" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
-          Solicitudes
-        </button>
-        <button onClick={() => setTab("suppliers")}
-          className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "suppliers" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
-          Proveedores
-        </button>
+      <div className="flex items-center gap-3 justify-between">
+        <div className="flex bg-zinc-800 rounded-lg p-1 gap-1 w-fit">
+          <button onClick={() => setTab("requests")}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "requests" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
+            Solicitudes
+          </button>
+          <button onClick={() => setTab("suppliers")}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "suppliers" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
+            Proveedores
+          </button>
+        </div>
+        {tab === "requests"  && <button className="btn-primary whitespace-nowrap" onClick={() => setShowRequestForm(true)}>+ Nueva solicitud</button>}
+        {tab === "suppliers" && <button className="btn-primary whitespace-nowrap" onClick={() => setShowSupplierForm(true)}>+ Nuevo proveedor</button>}
       </div>
-      {tab === "requests" ? <RequestsTab /> : <SuppliersTab />}
+      {tab === "requests"
+        ? <RequestsTab  showForm={showRequestForm}  setShowForm={setShowRequestForm} />
+        : <SuppliersTab showForm={showSupplierForm} setShowForm={setShowSupplierForm} />}
     </div>
   );
 }
 
-function RequestsTab() {
+function RequestsTab({ showForm, setShowForm }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [filter,   setFilter]   = useState("all");
   const [selected, setSelected] = useState(null);
-  const [showForm, setShowForm] = useState(false);
 
   const { data: allData, isLoading } = useQuery({
     queryKey: ["supplies"],
@@ -77,15 +84,14 @@ function RequestsTab() {
   return (
     <div className="space-y-4">
 
-      {/* Filtros + botón */}
-      <div className="flex gap-2 flex-wrap items-center">
+      {/* Filtros */}
+      <div className="flex gap-2 flex-wrap">
         {[["all","Todos"], ["pending","Pendientes"], ["in_progress","En proceso"], ["delivered","Entregados"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === val ? "bg-brand-green text-black" : "bg-zinc-800 text-zinc-400 hover:text-white"}`}>
             {label}{val !== "all" && counts[val] ? ` (${counts[val]})` : ""}
           </button>
         ))}
-        <button className="btn-primary ml-auto shrink-0 whitespace-nowrap" onClick={() => setShowForm(true)}>+ Nueva solicitud</button>
       </div>
 
       {/* Tabla */}
@@ -162,9 +168,12 @@ function RequestsTab() {
 }
 
 // ── Pestaña de Proveedores ─────────────────────────────────────────
-function SuppliersTab() {
+function SuppliersTab({ showForm, setShowForm }) {
   const qc = useQueryClient();
-  const [form, setForm] = useState(null);
+  const [form, setFormInternal] = useState(null);
+
+  useEffect(() => { if (showForm) setFormInternal({}); }, [showForm]);
+  const setForm = (v) => { setFormInternal(v); if (!v) setShowForm(false); };
 
   const { data, isLoading } = useQuery({
     queryKey: ["suppliers"],
@@ -183,10 +192,6 @@ function SuppliersTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <button className="btn-primary" onClick={() => setForm({})}>+ Nuevo proveedor</button>
-      </div>
-
       {isLoading && <p className="text-zinc-500 text-center py-8 text-sm">Cargando...</p>}
       {!isLoading && data?.length === 0 && (
         <div className="card text-center py-10">

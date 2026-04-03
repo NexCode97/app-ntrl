@@ -46,7 +46,6 @@ export default function OrdersPage() {
           ))}
         </select>
       </div>
-      </div>
 
       {/* Table */}
       <div className="card overflow-hidden p-0 overflow-x-auto">

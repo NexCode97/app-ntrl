@@ -5,6 +5,39 @@ import { api } from "../../config/api.js";
 import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
 import { fileUrl } from "../../utils/fileUrl.js";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
+function PdfThumbnail({ url, label, onClick }) {
+  const [loaded, setLoaded] = useState(false);
+  const [error,  setError]  = useState(false);
+  return (
+    <button type="button" onClick={onClick}
+      className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-zinc-500
+                 hover:border-brand-green transition-colors bg-zinc-700 flex-shrink-0">
+      {!error ? (
+        <Document file={url} onLoadSuccess={() => setLoaded(true)} onLoadError={() => setError(true)}
+          loading={null}>
+          <Page pageNumber={1} width={96} renderAnnotationLayer={false} renderTextLayer={false} />
+        </Document>
+      ) : (
+        <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-zinc-200">
+          <span className="text-3xl">📄</span>
+          <span className="text-xs truncate w-full text-center px-1">{label}</span>
+        </div>
+      )}
+      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">
+        {label}
+      </div>
+    </button>
+  );
+}
 
 const AREA_NAMES = {
   corte: "Corte", diseno_disenar: "Diseño — Diseñar",
@@ -130,13 +163,7 @@ export default function OrderDetailPage() {
                 return (
                   <div key={i}>
                     {pdf ? (
-                      <button type="button" onClick={() => setPdfSrc(url)}
-                        className="flex flex-col items-center justify-center w-24 h-24 rounded-xl
-                                   bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
-                                   transition-colors text-zinc-200 hover:text-brand-green gap-1 px-1">
-                        <span className="text-3xl">📄</span>
-                        <span className="text-xs text-center w-full truncate">{label}</span>
-                      </button>
+                      <PdfThumbnail url={url} label={label} onClick={() => setPdfSrc(url)} />
                     ) : (
                       <button type="button" onClick={() => setLightboxSrc(url)}
                         className="focus:outline-none">

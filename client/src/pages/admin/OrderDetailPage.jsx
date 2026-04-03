@@ -123,19 +123,19 @@ export default function OrderDetailPage() {
             </p>
             <div className="flex gap-3 flex-wrap">
               {designFiles.map((f, i) => {
-                const url = fileUrl(f);
-                const pdf = f.toLowerCase().endsWith(".pdf") || f.includes("/raw/upload/");
+                const url = fileUrl(f.url);
+                const rawUrl = f.url ?? "";
+                const pdf = rawUrl.toLowerCase().endsWith(".pdf") || rawUrl.includes("/raw/upload/");
+                const label = f.name ? f.name.replace(/\.[^.]+$/, "") : (designFiles.length > 1 ? `PDF ${i + 1}` : "PDF");
                 return (
                   <div key={i}>
                     {pdf ? (
                       <button type="button" onClick={() => setPdfSrc(url)}
                         className="flex flex-col items-center justify-center w-24 h-24 rounded-xl
                                    bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
-                                   transition-colors text-zinc-200 hover:text-brand-green gap-1">
+                                   transition-colors text-zinc-200 hover:text-brand-green gap-1 px-1">
                         <span className="text-3xl">📄</span>
-                        <span className="text-xs text-center px-1 w-full">
-                          {designFiles.length > 1 ? `PDF ${i + 1}` : "PDF"}
-                        </span>
+                        <span className="text-xs text-center w-full truncate">{label}</span>
                       </button>
                     ) : (
                       <button type="button" onClick={() => setLightboxSrc(url)}
@@ -266,13 +266,17 @@ export default function OrderDetailPage() {
   );
 }
 
-// Parsea design_file que puede ser string simple o JSON array
+// Parsea design_file — soporta formato viejo (string/array de URLs) y nuevo ({url,name})
 function parseDesignFiles(raw) {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [raw];
-  } catch { return [raw]; }
+    if (Array.isArray(parsed)) {
+      return parsed.map((item) => typeof item === "string" ? { url: item, name: null } : item);
+    }
+    if (parsed && typeof parsed === "object" && parsed.url) return [parsed];
+    return [{ url: raw, name: null }];
+  } catch { return [{ url: raw, name: null }]; }
 }
 
 function EditOrderModal({ order, onClose, onSaved }) {
@@ -397,17 +401,19 @@ function EditOrderModal({ order, onClose, onSaved }) {
             {keptFiles.length > 0 && (
               <div className="flex gap-3 flex-wrap mb-3">
                 {keptFiles.map((f, i) => {
-                  const url = fileUrl(f);
-                  const pdf = f.toLowerCase().endsWith(".pdf") || f.includes("/raw/upload/");
+                  const url = fileUrl(f.url ?? f);
+                  const rawUrl = f.url ?? f;
+                  const pdf = rawUrl.toLowerCase().endsWith(".pdf") || rawUrl.includes("/raw/upload/");
+                  const label = f.name ? f.name.replace(/\.[^.]+$/, "") : (keptFiles.length > 1 ? `PDF ${i + 1}` : "PDF");
                   return (
                     <div key={i} className="relative group/thumb">
                       {pdf ? (
                         <a href={url} target="_blank" rel="noopener noreferrer"
                           className="flex flex-col items-center justify-center w-16 h-16 rounded-lg
                                      bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
-                                     transition-colors text-zinc-200 hover:text-brand-green text-xs gap-0.5">
+                                     transition-colors text-zinc-200 hover:text-brand-green text-xs gap-0.5 px-1">
                           <span className="text-2xl">📄</span>
-                          <span>{keptFiles.length > 1 ? `PDF ${i + 1}` : "PDF"}</span>
+                          <span className="truncate w-full text-center">{label}</span>
                         </a>
                       ) : (
                         <button type="button" onClick={() => setLightboxSrc(url)}

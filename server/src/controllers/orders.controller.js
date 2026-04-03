@@ -48,7 +48,7 @@ export async function getById(req, res, next) {
 export async function create(req, res, next) {
   try {
     const files = req.files?.length ? req.files : req.file ? [req.file] : [];
-    const designFiles = await Promise.all(files.map((f) => saveFile(f, "designs")));
+    const designFiles = await Promise.all(files.map(async (f) => ({ url: await saveFile(f, "designs"), name: f.originalname })));
     const order = await orderService.createOrder(req.user.id, req.body, designFiles);
     await invalidateDashboard();
     res.status(201).json({ status: "ok", data: order });
@@ -58,7 +58,7 @@ export async function create(req, res, next) {
 export async function update(req, res, next) {
   try {
     const files = req.files?.length ? req.files : req.file ? [req.file] : [];
-    const designFiles = await Promise.all(files.map((f) => saveFile(f, "designs")));
+    const designFiles = await Promise.all(files.map(async (f) => ({ url: await saveFile(f, "designs"), name: f.originalname })));
 
     await orderService.updateOrder(req.params.id, req.user.id, req.body, designFiles);
     const order = await orderService.getOrderDetail(req.params.id);

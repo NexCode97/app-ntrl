@@ -7,7 +7,7 @@ export async function createOrder(userId, data, designFiles = []) {
     await client.query("BEGIN");
 
     const designValue = designFiles.length
-      ? (designFiles.length === 1 ? designFiles[0] : JSON.stringify(designFiles))
+      ? JSON.stringify(designFiles.length === 1 ? designFiles[0] : designFiles)
       : null;
 
     // Crear pedido
@@ -193,7 +193,7 @@ export async function updateOrder(orderId, userId, data, newDesignFiles = []) {
         catch { base = [existing]; }
       }
       const combined = [...base, ...newDesignFiles].slice(0, 5);
-      const designValue = combined.length === 0 ? null : combined.length === 1 ? combined[0] : JSON.stringify(combined);
+      const designValue = combined.length === 0 ? null : JSON.stringify(combined.length === 1 ? combined[0] : combined);
       vals.push(designValue);
       sets.push(`design_file = $${vals.length}`);
       changes.design_file = "actualizado";

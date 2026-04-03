@@ -25,5 +25,5 @@ export const updateOrderSchema = Joi.object({
   description:        Joi.string().max(1000).optional().allow("", null),
   status:             Joi.string().valid("delivered").optional(),
   items:              Joi.array().items(orderItemSchema).min(1).optional(),
-  design_files_keep:  Joi.array().items(Joi.string()).optional(),
+  design_files_keep:  Joi.array().items(Joi.alternatives().try(Joi.string(), Joi.object())).optional(),
 });

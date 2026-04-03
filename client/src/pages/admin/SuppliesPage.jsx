@@ -25,8 +25,8 @@ export default function SuppliesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3 justify-between">
-        <div className="flex bg-zinc-800 rounded-lg p-1 gap-1 w-fit">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="order-last sm:order-first flex bg-zinc-800 rounded-lg p-1 gap-1 w-fit">
           <button onClick={() => setTab("requests")}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "requests" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
             Solicitudes
@@ -36,8 +36,10 @@ export default function SuppliesPage() {
             Proveedores
           </button>
         </div>
-        {tab === "requests"  && <button className="btn-primary whitespace-nowrap" onClick={() => setShowRequestForm(true)}>+ Nueva solicitud</button>}
-        {tab === "suppliers" && <button className="btn-primary whitespace-nowrap" onClick={() => setShowSupplierForm(true)}>+ Nuevo proveedor</button>}
+        <div className="order-first sm:order-last self-start sm:self-auto">
+          {tab === "requests"  && <button className="btn-primary whitespace-nowrap" onClick={() => setShowRequestForm(true)}>+ Nueva solicitud</button>}
+          {tab === "suppliers" && <button className="btn-primary whitespace-nowrap" onClick={() => setShowSupplierForm(true)}>+ Nuevo proveedor</button>}
+        </div>
       </div>
       {tab === "requests"
         ? <RequestsTab  showForm={showRequestForm}  setShowForm={setShowRequestForm} />

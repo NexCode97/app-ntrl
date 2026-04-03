@@ -286,7 +286,7 @@ export default function ChatPage() {
               : c.role === "admin" ? "Administrador" : null;
             const unread   = parseInt(c.unread ?? "0");
             return (
-              <button key={id} onClick={() => setActiveId(id)}
+              <button key={id} onClick={() => { setActiveId(id); setShowSidebar(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-zinc-800 transition-colors border-b border-zinc-900 ${id === activeId ? "bg-zinc-800" : ""}`}>
                 <Avatar user={c} />
                 <div className="flex-1 min-w-0">
@@ -313,6 +313,11 @@ export default function ChatPage() {
           <>
             {/* Header */}
             <div className="px-4 py-3 border-b border-zinc-800 flex items-center gap-3 bg-zinc-950 shrink-0">
+              <button
+                className="md:hidden text-zinc-400 hover:text-white p-1 -ml-1 shrink-0"
+                onClick={() => { setShowSidebar(true); setActiveId(null); }}>
+                ←
+              </button>
               <Avatar user={activeContact} />
               <div>
                 <p className="text-white font-medium text-sm">{activeContact?.name ?? activeContact?.other_name}</p>

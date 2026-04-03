@@ -26,7 +26,7 @@ export default function ReportsPage() {
       <h2 className="text-white font-semibold text-lg">Exportar reportes</h2>
       <div className="card space-y-3">
         <p className="text-zinc-400 text-sm">Genera reportes de pedidos y ventas para el período actual.</p>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <button className="btn-primary flex-1" disabled={loading.excel}
             onClick={() => downloadReport("excel")}>
             {loading.excel ? "Generando..." : "📊 Exportar Excel"}

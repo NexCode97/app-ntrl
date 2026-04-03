@@ -148,7 +148,7 @@ export default function OrderCreatePage() {
                 <button type="button" onClick={() => removeItem(i)} className="text-zinc-500 hover:text-red-400 transition-colors">✕</button>
               </div>
 
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-4 items-center flex-wrap">
                 <div>
                   <label className="block text-xs text-zinc-400 mb-1">Género</label>
                   <select className="input-field w-auto" value={item.gender}

@@ -163,7 +163,7 @@ export default function OrderDetailPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto">
         {[["items","Productos"],["financial","Financiero"],["production","Producción"],["history","Historial"]].map(([key, label]) => (
           <button key={key}
             onClick={() => setTab(key)}
@@ -205,7 +205,7 @@ export default function OrderDetailPage() {
 
       {/* Tab: Producción */}
       {tab === "production" && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {data.tasks?.map((task) => {
             const ts = STATUS_LABELS[task.status] || STATUS_LABELS.pending;
             return (
@@ -459,7 +459,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
                   <button type="button" onClick={() => removeItem(i)}
                     className="text-zinc-500 hover:text-red-400 transition-colors">✕</button>
                 </div>
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-4 items-center flex-wrap">
                   <div>
                     <label className="block text-xs text-zinc-400 mb-1">Género</label>
                     <select className="input-field w-auto" value={item.gender}
@@ -561,7 +561,7 @@ function FinancialTab({ order, onRefresh }) {
   return (
     <div className="card space-y-4">
       {/* Totales */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-zinc-800 rounded-lg p-3 text-center">
           <p className="text-xs text-zinc-400 mb-1">Total</p>
           <p className="text-white text-xl font-bold">${Number(order.total).toLocaleString()}</p>
@@ -609,7 +609,7 @@ function FinancialTab({ order, onRefresh }) {
         {showForm && (
           <form onSubmit={handleAddPayment} className="bg-zinc-800 rounded-lg p-4 space-y-3 mt-2">
             <p className="text-white text-sm font-medium">Abono #{nextNumber}</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Monto</label>
                 <input type="number" min="1" step="any" className="input-field"
@@ -622,7 +622,7 @@ function FinancialTab({ order, onRefresh }) {
                   value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Método</label>
                 <select className="input-field" value={method}

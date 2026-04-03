@@ -155,7 +155,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         <div>
           <h2 className="text-white font-semibold mb-3">Pedidos por estado</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {byStatusData.map((item) => (
               <div key={item.status} className="card text-center flex flex-col items-center justify-center py-4">
                 <p className="text-3xl font-black" style={{ color: STATUS_COLORS[item.status] }}>{item.total}</p>

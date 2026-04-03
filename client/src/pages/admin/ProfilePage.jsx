@@ -227,7 +227,7 @@ export default function ProfilePage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <p className="text-xs text-zinc-400">Rol</p>
               <p className="text-zinc-300 text-sm capitalize mt-1">{user?.role === "admin" ? "Administrador" : "Trabajador"}</p>

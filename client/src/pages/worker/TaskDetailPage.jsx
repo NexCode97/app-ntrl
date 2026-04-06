@@ -5,16 +5,21 @@ import { api } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 
 const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp"];
-function isImage(f) {
-  return IMAGE_EXTS.includes(String(f).split(".").pop().toLowerCase());
+function isImage(url) {
+  const ext = String(url).split("?")[0].split(".").pop().toLowerCase();
+  return IMAGE_EXTS.includes(ext);
+}
+function isPdf(url) {
+  return String(url).toLowerCase().endsWith(".pdf") || String(url).includes("/raw/upload/");
 }
 function parseFiles(raw) {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [raw];
+    const arr = Array.isArray(parsed) ? parsed : [parsed];
+    return arr.map((item) => typeof item === "string" ? { url: item, name: null } : item);
   } catch {
-    return [raw];
+    return [{ url: raw, name: null }];
   }
 }
 
@@ -112,16 +117,16 @@ export default function TaskDetailPage() {
           </h3>
           <div className="flex flex-wrap gap-3">
             {files.map((f, i) =>
-              isImage(f) ? (
+              isImage(f.url) ? (
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setLightbox({ src: fileUrl(f), isPdf: false })}
+                  onClick={() => setLightbox({ src: fileUrl(f.url), isPdf: false })}
                   className="group relative w-32 h-32 rounded-lg overflow-hidden border border-zinc-700 hover:border-brand-green transition-colors"
                 >
                   <img
-                    src={fileUrl(f)}
-                    alt={`Diseño ${i + 1}`}
+                    src={fileUrl(f.url)}
+                    alt={f.name || `Diseño ${i + 1}`}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -132,7 +137,7 @@ export default function TaskDetailPage() {
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setLightbox({ src: fileUrl(f), isPdf: true })}
+                  onClick={() => setLightbox({ src: fileUrl(f.url), isPdf: isPdf(f.url) })}
                   className="group relative w-32 h-32 rounded-lg overflow-hidden border border-zinc-700 hover:border-brand-green transition-colors bg-zinc-800 flex flex-col items-center justify-center gap-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -142,10 +147,10 @@ export default function TaskDetailPage() {
                     <line x1="9" y1="17" x2="15" y2="17"/>
                   </svg>
                   <span className="text-zinc-400 text-[10px] font-medium px-1 text-center truncate w-full">
-                    {String(f).split("/").pop()}
+                    {f.name || String(f.url).split("/").pop()}
                   </span>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">Ver PDF</span>
+                    <span className="text-white text-xs font-medium">Ver archivo</span>
                   </div>
                 </button>
               )

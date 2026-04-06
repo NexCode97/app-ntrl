@@ -3,6 +3,29 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
+function PdfThumbnail({ url, width = 32 }) {
+  const [error, setError] = useState(false);
+  return (
+    <div style={{ width, height: width }} className="overflow-hidden bg-white rounded shrink-0">
+      {!error ? (
+        <Document file={url} onLoadError={() => setError(true)} loading={null}>
+          <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />
+        </Document>
+      ) : (
+        <span className="text-base flex items-center justify-center w-full h-full">📄</span>
+      )}
+    </div>
+  );
+}
 
 const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp"];
 function isImage(url) {
@@ -161,16 +184,30 @@ export default function TaskDetailPage() {
 
       <div className="card space-y-2">
         <h3 className="text-white font-medium mb-3">Productos</h3>
-        {data.items?.map((item) => (
-          <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
-            <p className="text-white font-medium text-sm">{item.product_name} — {item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : ""}</p>
-            <div className="flex gap-2 flex-wrap text-xs mt-2">
-              {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => (
-                <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">{size}: {qty}</span>
-              ))}
+        {data.items?.map((item) => {
+          const df = item.design_file_index != null ? files[item.design_file_index] : null;
+          const dfUrl = df ? fileUrl(df.url ?? df) : null;
+          const dfIsPdf = df ? isPdf(df.url ?? df) : false;
+          return (
+            <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
+              <div className="flex items-center gap-2 mb-1">
+                {df && (
+                  dfIsPdf ? (
+                    <PdfThumbnail url={dfUrl} width={32} />
+                  ) : (
+                    <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover bg-white shrink-0" />
+                  )
+                )}
+                <p className="text-white font-medium text-sm">{item.product_name} — {item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : ""}</p>
+              </div>
+              <div className="flex gap-2 flex-wrap text-xs mt-2">
+                {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => (
+                  <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">{size}: {qty}</span>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

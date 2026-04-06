@@ -18,8 +18,8 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: "APP NTRL",
-        short_name: "NTRL",
+        name: "Natural Ropa Deportiva - Gestión interna de pedidos",
+        short_name: "Natural",
         description: "Natural Ropa Deportiva — Gestión de Pedidos",
         theme_color: "#98f909",
         background_color: "#000000",

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
@@ -8,12 +8,6 @@ import { fileUrl } from "../../utils/fileUrl.js";
 const AREA_LABELS = {
   corte: "Corte", diseno: "Diseño",
   sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados",
-};
-
-const TASK_LABELS = {
-  corte: "Corte", diseno_disenar: "Diseñar",
-  diseno_imprimir: "Imprimir", sublimacion: "Sublimación",
-  ensamble: "Ensamble", terminados: "Terminados",
 };
 
 const STATUS_COLORS = {
@@ -30,10 +24,49 @@ function greet() {
   return "Buenas noches";
 }
 
+// ── Sub-paso dentro de la tarjeta de diseño ────────────────────────────────
+function DesignStep({ label, task, onMutate, isPending }) {
+  if (!task) return null;
+  return (
+    <div className="flex items-center justify-between gap-2 py-2 border-t border-zinc-700/60 first:border-t-0 flex-wrap">
+      <div className="flex items-center gap-2">
+        <span className="text-zinc-300 text-sm font-medium w-20">{label}</span>
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[task.status]}`}>
+          {STATUS_LABELS[task.status]}
+        </span>
+      </div>
+      <div className="flex gap-2">
+        {task.status === "pending" && (
+          <button
+            className="btn-secondary py-1 px-3 text-xs"
+            onClick={() => onMutate({ taskId: task.id, status: "in_progress" })}
+            disabled={isPending}
+          >
+            Empezar
+          </button>
+        )}
+        {task.status === "in_progress" && (
+          <button
+            className="btn-primary py-1 px-3 text-xs"
+            onClick={() => onMutate({ taskId: task.id, status: "done" })}
+            disabled={isPending}
+          >
+            Marcar listo ✓
+          </button>
+        )}
+        {task.status === "done" && (
+          <span className="text-brand-green text-xs font-medium">Completado ✓</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function TasksPage() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const isDiseno = user?.area === "diseno";
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["my-tasks"],
@@ -60,7 +93,7 @@ export default function TasksPage() {
     },
   });
 
-  // Escuchar evento order_deleted via SSE para refrescar tareas inmediatamente
+  // SSE: refrescar tareas cuando un pedido es eliminado
   useEffect(() => {
     const { accessToken } = useAuthStore.getState();
     if (!accessToken) return;
@@ -76,13 +109,44 @@ export default function TasksPage() {
     return () => es.close();
   }, [qc]);
 
-  const pending     = tasks?.filter((t) => t.status === "pending").length ?? 0;
-  const inProgress  = tasks?.filter((t) => t.status === "in_progress").length ?? 0;
-  const done        = tasks?.filter((t) => t.status === "done").length ?? 0;
-  const supPending  = suppliesData?.filter((s) => s.status === "pending").length ?? 0;
+  // ── Stats (siempre por tarea individual) ──────────────────────────────────
+  const pending    = tasks?.filter((t) => t.status === "pending").length ?? 0;
+  const inProgress = tasks?.filter((t) => t.status === "in_progress").length ?? 0;
+  const done       = tasks?.filter((t) => t.status === "done").length ?? 0;
+  const supPending = suppliesData?.filter((s) => s.status === "pending").length ?? 0;
 
-  // Solo mostrar tareas activas en la lista (las completadas ya se cuentan en stats)
-  const activeTasks = tasks?.filter((t) => t.status !== "done") ?? [];
+  // ── Lista de ítems a renderizar ───────────────────────────────────────────
+  // Para diseño: agrupa las dos tareas del mismo pedido en un solo objeto
+  // Para el resto: filtra las completadas (se muestran solo en stats)
+  const activeItems = useMemo(() => {
+    if (!tasks) return [];
+
+    if (!isDiseno) {
+      return tasks.filter((t) => t.status !== "done");
+    }
+
+    // Agrupar por order_id
+    const map = {};
+    tasks.forEach((t) => {
+      if (!map[t.order_id]) {
+        map[t.order_id] = {
+          order_id:          t.order_id,
+          order_number_fmt:  t.order_number_fmt,
+          customer_name:     t.customer_name,
+          delivery_date:     t.delivery_date,
+          disenar:           null,
+          imprimir:          null,
+        };
+      }
+      if (t.area === "diseno_disenar") map[t.order_id].disenar = t;
+      if (t.area === "diseno_imprimir") map[t.order_id].imprimir = t;
+    });
+
+    // Solo pedidos donde al menos una tarea no esté lista
+    return Object.values(map).filter(
+      (g) => g.disenar?.status !== "done" || g.imprimir?.status !== "done"
+    );
+  }, [tasks, isDiseno]);
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -110,10 +174,10 @@ export default function TasksPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Pendientes",   value: pending,    color: "text-yellow-400" },
-          { label: "En proceso",   value: inProgress, color: "text-blue-400"   },
-          { label: "Completadas",  value: done,       color: "text-brand-green"},
-          { label: "Suministros",  value: supPending, color: "text-zinc-400", sub: "pendientes" },
+          { label: "Pendientes",  value: pending,    color: "text-yellow-400" },
+          { label: "En proceso",  value: inProgress, color: "text-blue-400"   },
+          { label: "Completadas", value: done,       color: "text-brand-green"},
+          { label: "Suministros", value: supPending, color: "text-zinc-400", sub: "pendientes" },
         ].map(({ label, value, color, sub }) => (
           <div key={label} className="card py-3 text-center">
             <p className={`text-2xl font-black ${color}`}>{value}</p>
@@ -135,7 +199,7 @@ export default function TasksPage() {
 
         {isLoading && <p className="text-zinc-500 text-center py-8 text-sm">Cargando...</p>}
 
-        {!isLoading && activeTasks.length === 0 && (
+        {!isLoading && activeItems.length === 0 && (
           <div className="card text-center py-10">
             <p className="text-4xl mb-3">✅</p>
             <p className="text-white font-medium">¡Todo al día!</p>
@@ -144,61 +208,83 @@ export default function TasksPage() {
         )}
 
         <div className="space-y-3">
-          {activeTasks.map((task) => (
-            <div key={task.id} className="card">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-brand-green font-mono font-bold text-sm">#{task.order_number_fmt}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[task.status]}`}>
-                      {STATUS_LABELS[task.status]}
-                    </span>
-                    {user?.area === "diseno" && (
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                        {task.area === "diseno_disenar" ? "Diseñar" : "Imprimir"}
-                      </span>
+          {activeItems.map((item) =>
+            isDiseno ? (
+              /* ── Tarjeta agrupada para diseño ── */
+              <div key={item.order_id} className="card">
+                <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
+                  <div className="min-w-0">
+                    <span className="text-brand-green font-mono font-bold text-sm">#{item.order_number_fmt}</span>
+                    <p className="text-white font-medium truncate mt-0.5">{item.customer_name}</p>
+                    {item.delivery_date && (
+                      <p className="text-zinc-600 text-xs mt-1">
+                        Entrega: {new Date(String(item.delivery_date).slice(0, 10) + "T12:00:00").toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                      </p>
                     )}
                   </div>
-                  <p className="text-white font-medium truncate">{task.customer_name}</p>
-                  {task.delivery_date && (
-                    <p className="text-zinc-600 text-xs mt-1">
-                      Entrega: {new Date(String(task.delivery_date).slice(0, 10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short", year:"numeric" })}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex gap-2 shrink-0 flex-wrap justify-end">
                   <button
-                    className="btn-secondary py-1.5 px-3 text-sm"
-                    onClick={() => navigate(`/tasks/${task.order_id}`)}
+                    className="btn-secondary py-1.5 px-3 text-sm shrink-0"
+                    onClick={() => navigate(`/tasks/${item.order_id}`)}
                   >
                     Ver pedido
                   </button>
-                  {task.status === "pending" && (
-                    <button
-                      className="btn-secondary py-1.5 px-4 text-sm"
-                      onClick={() => mutation.mutate({ taskId: task.id, status: "in_progress" })}
-                      disabled={mutation.isPending}
-                    >
-                      Empezar
-                    </button>
-                  )}
-                  {task.status === "in_progress" && (
-                    <button
-                      className="btn-primary py-1.5 px-4 text-sm"
-                      onClick={() => mutation.mutate({ taskId: task.id, status: "done" })}
-                      disabled={mutation.isPending}
-                    >
-                      Marcar listo ✓
-                    </button>
-                  )}
-                  {task.status === "done" && (
-                    <span className="text-brand-green text-sm font-medium">Completado ✓</span>
-                  )}
+                </div>
+
+                {/* Sub-pasos */}
+                <div className="space-y-0">
+                  <DesignStep label="Diseñar"  task={item.disenar}  onMutate={(p) => mutation.mutate(p)} isPending={mutation.isPending} />
+                  <DesignStep label="Imprimir" task={item.imprimir} onMutate={(p) => mutation.mutate(p)} isPending={mutation.isPending} />
                 </div>
               </div>
-            </div>
-          ))}
+            ) : (
+              /* ── Tarjeta normal para otras áreas ── */
+              <div key={item.id} className="card">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-brand-green font-mono font-bold text-sm">#{item.order_number_fmt}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[item.status]}`}>
+                        {STATUS_LABELS[item.status]}
+                      </span>
+                    </div>
+                    <p className="text-white font-medium truncate">{item.customer_name}</p>
+                    {item.delivery_date && (
+                      <p className="text-zinc-600 text-xs mt-1">
+                        Entrega: {new Date(String(item.delivery_date).slice(0, 10) + "T12:00:00").toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 shrink-0 flex-wrap justify-end">
+                    <button
+                      className="btn-secondary py-1.5 px-3 text-sm"
+                      onClick={() => navigate(`/tasks/${item.order_id}`)}
+                    >
+                      Ver pedido
+                    </button>
+                    {item.status === "pending" && (
+                      <button
+                        className="btn-secondary py-1.5 px-4 text-sm"
+                        onClick={() => mutation.mutate({ taskId: item.id, status: "in_progress" })}
+                        disabled={mutation.isPending}
+                      >
+                        Empezar
+                      </button>
+                    )}
+                    {item.status === "in_progress" && (
+                      <button
+                        className="btn-primary py-1.5 px-4 text-sm"
+                        onClick={() => mutation.mutate({ taskId: item.id, status: "done" })}
+                        disabled={mutation.isPending}
+                      >
+                        Marcar listo ✓
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>

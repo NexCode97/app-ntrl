@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
+import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
 
 export default function CustomersPage() {
   const qc = useQueryClient();
@@ -63,17 +64,22 @@ function CustomerModal({ form, onSave, onClose, saving }) {
   const [error, setError] = useState("");
   const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
 
+  const cities = data.department ? (COLOMBIA[data.department] || []) : [];
+
   function handleSave() {
     if (!data.name?.trim())            return setError("El nombre es obligatorio.");
     if (!data.document_number?.trim()) return setError("El número de documento es obligatorio.");
     if (!data.phone?.trim())           return setError("El teléfono es obligatorio.");
+    if (!data.email?.trim())           return setError("El correo es obligatorio.");
+    if (!data.department)              return setError("El departamento es obligatorio.");
+    if (!data.city)                    return setError("La ciudad es obligatoria.");
     setError("");
     onSave(data);
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-lg space-y-4">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-lg space-y-4 my-auto">
         <h2 className="text-white font-semibold">{data.id ? "Editar cliente" : "Nuevo cliente"}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="col-span-2">
@@ -96,16 +102,24 @@ function CustomerModal({ form, onSave, onClose, saving }) {
             <input className="input-field" value={data.phone || ""} onChange={(e) => set("phone", e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Correo</label>
+            <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
             <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Departamento</label>
-            <input className="input-field" value={data.department || ""} onChange={(e) => set("department", e.target.value)} placeholder="Ej: Santander" />
+            <label className="block text-xs text-zinc-400 mb-1">Departamento <span className="text-red-400">*</span></label>
+            <select className="input-field" value={data.department || ""}
+              onChange={(e) => { set("department", e.target.value); set("city", ""); }}>
+              <option value="">Seleccionar...</option>
+              {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
           </div>
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Ciudad</label>
-            <input className="input-field" value={data.city || ""} onChange={(e) => set("city", e.target.value)} placeholder="Ej: Bucaramanga" />
+            <label className="block text-xs text-zinc-400 mb-1">Ciudad / Municipio <span className="text-red-400">*</span></label>
+            <select className="input-field" value={data.city || ""} onChange={(e) => set("city", e.target.value)}
+              disabled={!data.department}>
+              <option value="">Seleccionar...</option>
+              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
           <div className="col-span-2">
             <label className="block text-xs text-zinc-400 mb-1">Dirección</label>

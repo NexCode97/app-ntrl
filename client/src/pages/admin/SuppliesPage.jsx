@@ -86,8 +86,21 @@ function RequestsTab({ showForm, setShowForm }) {
   return (
     <div className="space-y-4">
 
-      {/* Filtros */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Filtros — dropdown en móvil, botones en escritorio */}
+      <div className="md:hidden">
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="input-field text-sm w-full"
+        >
+          {[["all","Todos"], ["pending","Pendientes"], ["in_progress","En proceso"], ["delivered","Entregados"]].map(([val, label]) => (
+            <option key={val} value={val}>
+              {label}{val !== "all" && counts[val] ? ` (${counts[val]})` : ""}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="hidden md:flex gap-2 flex-wrap">
         {[["all","Todos"], ["pending","Pendientes"], ["in_progress","En proceso"], ["delivered","Entregados"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === val ? "bg-brand-green text-black" : "bg-zinc-800 text-zinc-400 hover:text-white"}`}>

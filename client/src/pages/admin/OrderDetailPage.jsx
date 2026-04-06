@@ -20,7 +20,7 @@ function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
   return (
     <Tag type={onClick ? "button" : undefined} onClick={onClick}
       style={{ width, height: width }}
-      className={`relative overflow-hidden bg-zinc-700 flex-shrink-0 ${btnClassName}`}>
+      className={`relative overflow-hidden bg-white flex-shrink-0 ${btnClassName}`}>
       {!error ? (
         <Document file={url} onLoadError={() => setError(true)} loading={null}>
           <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />

@@ -16,7 +16,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 function PdfThumbnail({ url, width = 40 }) {
   const [error, setError] = useState(false);
   return (
-    <div style={{ width, height: width }} className="overflow-hidden bg-zinc-700 flex items-center justify-center">
+    <div style={{ width, height: width }} className="overflow-hidden bg-white flex items-center justify-center">
       {!error ? (
         <Document file={url} onLoadError={() => setError(true)} loading={null}>
           <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />

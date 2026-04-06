@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
@@ -59,6 +59,22 @@ export default function TasksPage() {
       setMutError(err.response?.data?.message || "No se pudo actualizar la tarea. Intenta de nuevo.");
     },
   });
+
+  // Escuchar evento order_deleted via SSE para refrescar tareas inmediatamente
+  useEffect(() => {
+    const { accessToken } = useAuthStore.getState();
+    if (!accessToken) return;
+    const es = new EventSource(`/api/notifications/stream?token=${accessToken}`);
+    es.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === "order_deleted") {
+          qc.invalidateQueries({ queryKey: ["my-tasks"] });
+        }
+      } catch { /* ignorar */ }
+    };
+    return () => es.close();
+  }, [qc]);
 
   const pending     = tasks?.filter((t) => t.status === "pending").length ?? 0;
   const inProgress  = tasks?.filter((t) => t.status === "in_progress").length ?? 0;

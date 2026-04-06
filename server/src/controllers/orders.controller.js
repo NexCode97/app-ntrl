@@ -3,7 +3,7 @@ import { saveFile } from "../utils/fileStorage.js";
 import { unlinkSync, existsSync } from "fs";
 import path from "path";
 import { config } from "../config/index.js";
-import { redis } from "../config/redis.js";
+import { redis, redisPub } from "../config/redis.js";
 
 function invalidateDashboard() {
   return redis.del("dashboard:summary").catch(() => {});
@@ -93,6 +93,7 @@ export async function remove(req, res, next) {
 
     await orderService.deleteOrder(req.params.id);
     await invalidateDashboard();
+    await redisPub.publish("ntrl:notifications", JSON.stringify({ targetRole: "worker", type: "order_deleted" })).catch(() => {});
     res.json({ status: "ok", message: "Pedido eliminado." });
   } catch (err) { next(err); }
 }

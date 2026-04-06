@@ -153,11 +153,13 @@ export default function TasksPage() {
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[task.status]}`}>
                       {STATUS_LABELS[task.status]}
                     </span>
+                    {user?.area === "diseno" && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        {task.area === "diseno_disenar" ? "Diseñar" : "Imprimir"}
+                      </span>
+                    )}
                   </div>
                   <p className="text-white font-medium truncate">{task.customer_name}</p>
-                  {TASK_LABELS[task.area] && TASK_LABELS[task.area] !== AREA_LABELS[user?.area] && (
-                    <p className="text-zinc-500 text-xs mt-0.5">Tarea: {TASK_LABELS[task.area]}</p>
-                  )}
                   {task.delivery_date && (
                     <p className="text-zinc-600 text-xs mt-1">
                       Entrega: {new Date(String(task.delivery_date).slice(0, 10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short", year:"numeric" })}

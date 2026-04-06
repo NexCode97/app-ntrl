@@ -128,7 +128,7 @@ export default function Sidebar() {
       </nav>
 
       {/* User info + logout */}
-      <div className="px-2 pt-4 border-t border-zinc-800">
+      <div className="mt-auto px-2 pt-4 border-t border-zinc-800">
         <button
           onClick={() => navigate("/profile")}
           className="flex items-center gap-2 px-2 py-1.5 mb-1 w-full rounded-lg hover:bg-zinc-800 transition-colors text-left"

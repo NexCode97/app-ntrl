@@ -29,8 +29,10 @@ export default function Header() {
     <header className="bg-zinc-950 border-b border-zinc-800 px-4 md:px-6 py-3 flex items-center justify-between shrink-0">
       <h1 className="text-white font-semibold text-lg">{title}</h1>
       <div className="flex items-center gap-3 text-sm text-zinc-400">
-        <span className="hidden md:block">{user?.name}</span>
-        <span className="badge badge-completed">{user?.role === "admin" ? "Admin" : user?.area}</span>
+        <span>{user?.name}</span>
+        <span className="badge badge-completed text-center">
+          {user?.role === "admin" ? "Admin" : (user?.area ? user.area.charAt(0).toUpperCase() + user.area.slice(1) : "")}
+        </span>
         {user?.role === "admin" && <NotificationBell />}
       </div>
     </header>

@@ -1,14 +1,14 @@
 -- Migration 012: Reemplazar diseno_imprimir por área independiente "impresion"
 
--- 1. Eliminar el check constraint que no incluye 'impresion'
+-- 1. Eliminar el check constraint viejo (permite cualquier valor temporalmente)
 ALTER TABLE production_tasks DROP CONSTRAINT IF EXISTS production_tasks_area_check;
 
--- 2. Agregar nuevo check constraint con 'impresion' (sin 'diseno_imprimir')
+-- 2. Renombrar filas ANTES de agregar el nuevo constraint
+UPDATE production_tasks SET area = 'impresion' WHERE area = 'diseno_imprimir';
+
+-- 3. Agregar nuevo check constraint ya con los datos actualizados
 ALTER TABLE production_tasks ADD CONSTRAINT production_tasks_area_check
   CHECK (area IN ('corte', 'diseno_disenar', 'impresion', 'sublimacion', 'ensamble', 'terminados'));
-
--- 3. Renombrar tareas existentes de diseno_imprimir → impresion
-UPDATE production_tasks SET area = 'impresion' WHERE area = 'diseno_imprimir';
 
 -- 4. Actualizar la función del trigger para nuevos pedidos
 CREATE OR REPLACE FUNCTION fn_create_production_tasks()

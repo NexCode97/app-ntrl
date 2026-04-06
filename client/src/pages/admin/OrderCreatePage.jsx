@@ -13,7 +13,7 @@ const GENDERS = [
 ];
 
 function emptyItem(product) {
-  return { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0 };
+  return { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0, design_file_index: null };
 }
 
 export default function OrderCreatePage() {
@@ -26,6 +26,7 @@ export default function OrderCreatePage() {
   const [deliveryDate,  setDeliveryDate]  = useState("");
   const [description,   setDescription]  = useState("");
   const [designFiles,   setDesignFiles]   = useState([]);
+  const [designPreviews, setDesignPreviews] = useState([]);
   const [items,         setItems]         = useState([]);
   const [error,         setError]         = useState("");
   const [saving,        setSaving]        = useState(false);
@@ -62,8 +63,8 @@ export default function OrderCreatePage() {
       formData.append("customer_id", customerId);
       if (deliveryDate) formData.append("delivery_date", deliveryDate);
       if (description)  formData.append("description",   description);
-      formData.append("items", JSON.stringify(items.map(({ product_id, gender, sizes, unit_price }) => ({
-        product_id, gender, sizes, unit_price: parseFloat(unit_price) || 0,
+      formData.append("items", JSON.stringify(items.map(({ product_id, gender, sizes, unit_price, design_file_index }) => ({
+        product_id, gender, sizes, unit_price: parseFloat(unit_price) || 0, design_file_index: design_file_index ?? null,
       }))));
       designFiles.forEach((f) => formData.append("design", f));
 
@@ -123,7 +124,11 @@ export default function OrderCreatePage() {
             <div>
               <label className="block text-xs text-zinc-400 mb-1">Diseños — máx. 5 (JPG/PNG/PDF)</label>
               <input type="file" accept=".jpg,.jpeg,.png,.pdf" multiple className="input-field text-sm"
-                onChange={(e) => setDesignFiles(Array.from(e.target.files).slice(0, 5))} />
+                onChange={(e) => {
+                  const files = Array.from(e.target.files).slice(0, 5);
+                  setDesignFiles(files);
+                  setDesignPreviews(files.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : null));
+                }} />
               {designFiles.length > 0 && (
                 <p className="text-xs text-brand-green mt-1">{designFiles.length} archivo(s) seleccionado(s)</p>
               )}
@@ -144,7 +149,15 @@ export default function OrderCreatePage() {
           {items.map((item, i) => (
             <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-white font-medium text-sm">{item.product_name}</span>
+                <div className="flex items-center gap-2">
+                  {item.design_file_index !== null && designPreviews[item.design_file_index] ? (
+                    <img src={designPreviews[item.design_file_index]} alt="diseño"
+                      className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
+                  ) : item.design_file_index !== null ? (
+                    <span className="text-xl shrink-0">📄</span>
+                  ) : null}
+                  <span className="text-white font-medium text-sm">{item.product_name}</span>
+                </div>
                 <button type="button" onClick={() => removeItem(i)} className="text-zinc-500 hover:text-red-400 transition-colors">✕</button>
               </div>
 
@@ -163,6 +176,26 @@ export default function OrderCreatePage() {
                     placeholder="$0" />
                 </div>
               </div>
+
+              {designFiles.length > 0 && (
+                <div>
+                  <label className="block text-xs text-zinc-400 mb-1">Diseño relacionado</label>
+                  <div className="flex gap-2 flex-wrap">
+                    {designFiles.map((f, fi) => (
+                      <button key={fi} type="button"
+                        onClick={() => updateItem(i, "design_file_index", item.design_file_index === fi ? null : fi)}
+                        className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-colors flex items-center justify-center shrink-0
+                          ${item.design_file_index === fi ? "border-brand-green" : "border-zinc-600 hover:border-zinc-400"}`}>
+                        {designPreviews[fi] ? (
+                          <img src={designPreviews[fi]} alt={f.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-lg">📄</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <SizeQuantityGrid
                 gender={item.gender}

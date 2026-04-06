@@ -21,9 +21,9 @@ export async function createOrder(userId, data, designFiles = []) {
     // Insertar items (el trigger calcula subtotal y total)
     for (const item of data.items) {
       await client.query(
-        `INSERT INTO order_items (order_id, product_id, gender, sizes, unit_price)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [order.id, item.product_id, item.gender, JSON.stringify(item.sizes), item.unit_price || 0]
+        `INSERT INTO order_items (order_id, product_id, gender, sizes, unit_price, design_file_index)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [order.id, item.product_id, item.gender, JSON.stringify(item.sizes), item.unit_price || 0, item.design_file_index ?? null]
       );
     }
 

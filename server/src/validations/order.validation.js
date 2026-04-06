@@ -6,10 +6,11 @@ const sizeQuantities = Joi.object().pattern(
 );
 
 export const orderItemSchema = Joi.object({
-  product_id: Joi.string().uuid().required(),
-  gender:     Joi.string().valid("nino", "hombre", "mujer", "unisex").required(),
-  sizes:      sizeQuantities.required(),
-  unit_price: Joi.number().min(0).default(0),
+  product_id:        Joi.string().uuid().required(),
+  gender:            Joi.string().valid("nino", "hombre", "mujer", "unisex").required(),
+  sizes:             sizeQuantities.required(),
+  unit_price:        Joi.number().min(0).default(0),
+  design_file_index: Joi.number().integer().min(0).optional().allow(null),
 });
 
 export const createOrderSchema = Joi.object({

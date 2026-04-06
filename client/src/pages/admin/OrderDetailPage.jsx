@@ -224,21 +224,35 @@ export default function OrderDetailPage() {
       {/* Tab: Productos */}
       {tab === "items" && (
         <div className="card space-y-3">
-          {data.items?.map((item) => (
-            <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-white font-medium">{item.product_name}</span>
-                <span className="text-zinc-400 text-sm">{item.gender} · {item.line_name} / {item.sport_name}</span>
+          {data.items?.map((item) => {
+            const df = item.design_file_index != null ? designFiles[item.design_file_index] : null;
+            const dfUrl = df ? fileUrl(df.url ?? df) : null;
+            const dfIsPdf = df ? (String(df.url ?? df).toLowerCase().endsWith(".pdf") || String(df.url ?? df).includes("/raw/upload/")) : false;
+            return (
+              <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {df && (
+                      dfIsPdf ? (
+                        <span className="text-xl shrink-0">📄</span>
+                      ) : (
+                        <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
+                      )
+                    )}
+                    <span className="text-white font-medium">{item.product_name}</span>
+                  </div>
+                  <span className="text-zinc-400 text-sm">{item.gender} · {item.line_name} / {item.sport_name}</span>
+                </div>
+                <div className="flex gap-2 flex-wrap text-xs">
+                  {Object.entries(item.sizes).filter(([,q]) => q > 0).map(([size, qty]) => (
+                    <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">
+                      {size}: {qty}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-2 flex-wrap text-xs">
-                {Object.entries(item.sizes).filter(([,q]) => q > 0).map(([size, qty]) => (
-                  <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">
-                    {size}: {qty}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -315,14 +329,16 @@ function EditOrderModal({ order, onClose, onSaved }) {
   );
   const [description,   setDescription]  = useState(order.description || "");
   const [newFiles,      setNewFiles]      = useState([]);
+  const [newFilePreviews, setNewFilePreviews] = useState([]);
   const [lightboxSrc,   setLightboxSrc]   = useState(null);
   const [items,         setItems]         = useState(
     (order.items || []).map((item) => ({
-      product_id:   item.product_id,
-      product_name: item.product_name,
-      gender:       item.gender,
-      sizes:        item.sizes,
-      unit_price:   item.unit_price ?? 0,
+      product_id:        item.product_id,
+      product_name:      item.product_name,
+      gender:            item.gender,
+      sizes:             item.sizes,
+      unit_price:        item.unit_price ?? 0,
+      design_file_index: item.design_file_index ?? null,
     }))
   );
   const [error,  setError]  = useState("");
@@ -341,7 +357,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
 
   function addItem(product) {
     if (!product) return;
-    setItems((prev) => [...prev, { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0 }]);
+    setItems((prev) => [...prev, { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0, design_file_index: null }]);
   }
   function updateItem(index, field, value) {
     setItems((prev) => prev.map((item, i) => i === index ? { ...item, [field]: value } : item));
@@ -360,8 +376,8 @@ function EditOrderModal({ order, onClose, onSaved }) {
       if (customerId && customerId !== order.customer_id) formData.append("customer_id", customerId);
       if (deliveryDate) formData.append("delivery_date", deliveryDate);
       formData.append("description", description);
-      formData.append("items", JSON.stringify(items.map(({ product_id, gender, sizes, unit_price }) => ({
-        product_id, gender, sizes, unit_price: parseFloat(unit_price) || 0,
+      formData.append("items", JSON.stringify(items.map(({ product_id, gender, sizes, unit_price, design_file_index }) => ({
+        product_id, gender, sizes, unit_price: parseFloat(unit_price) || 0, design_file_index: design_file_index ?? null,
       }))));
       formData.append("design_files_keep", JSON.stringify(keptFiles));
       newFiles.forEach((f) => formData.append("design", f));
@@ -467,7 +483,11 @@ function EditOrderModal({ order, onClose, onSaved }) {
             {slotsLeft > 0 && (
               <>
                 <input type="file" accept=".jpg,.jpeg,.png,.pdf" multiple className="input-field text-sm"
-                  onChange={(e) => setNewFiles(Array.from(e.target.files).slice(0, slotsLeft))} />
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files).slice(0, slotsLeft);
+                    setNewFiles(files);
+                    setNewFilePreviews(files.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : null));
+                  }} />
                 <p className="text-xs text-zinc-500 mt-1">
                   {slotsLeft === 5 ? "Puedes agregar hasta 5 archivos" : `Puedes agregar ${slotsLeft} archivo(s) más`}
                 </p>
@@ -505,35 +525,78 @@ function EditOrderModal({ order, onClose, onSaved }) {
             <h3 className="text-white font-medium text-sm">Productos</h3>
             <CascadeFilter onProductSelect={addItem} />
 
-            {items.map((item, i) => (
-              <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-white font-medium text-sm">{item.product_name}</span>
-                  <button type="button" onClick={() => removeItem(i)}
-                    className="text-zinc-500 hover:text-red-400 transition-colors">✕</button>
-                </div>
-                <div className="flex gap-4 items-center flex-wrap">
-                  <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Género</label>
-                    <select className="input-field w-auto" value={item.gender}
-                      onChange={(e) => updateItem(i, "gender", e.target.value)}>
-                      {GENDERS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
-                    </select>
+            {(() => {
+              // Lista unificada de archivos de diseño para el selector
+              const allDesignFiles = [
+                ...keptFiles.map((f) => {
+                  const rawUrl = f.url ?? f;
+                  const isPdfFile = String(rawUrl).toLowerCase().endsWith(".pdf") || String(rawUrl).includes("/raw/upload/");
+                  return { previewUrl: isPdfFile ? null : fileUrl(rawUrl), label: f.name || String(rawUrl).split("/").pop() };
+                }),
+                ...newFiles.map((f, fi) => ({
+                  previewUrl: newFilePreviews[fi] || null,
+                  label: f.name,
+                })),
+              ];
+              return items.map((item, i) => (
+                <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {item.design_file_index !== null && allDesignFiles[item.design_file_index] ? (
+                        allDesignFiles[item.design_file_index].previewUrl ? (
+                          <img src={allDesignFiles[item.design_file_index].previewUrl} alt="diseño"
+                            className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
+                        ) : (
+                          <span className="text-xl shrink-0">📄</span>
+                        )
+                      ) : null}
+                      <span className="text-white font-medium text-sm">{item.product_name}</span>
+                    </div>
+                    <button type="button" onClick={() => removeItem(i)}
+                      className="text-zinc-500 hover:text-red-400 transition-colors">✕</button>
                   </div>
-                  <div>
-                    <label className="block text-xs text-zinc-400 mb-1">Precio unitario</label>
-                    <input type="number" min="0" step="any" className="input-field w-32"
-                      value={item.unit_price} onChange={(e) => updateItem(i, "unit_price", e.target.value)}
-                      placeholder="$0" />
+                  <div className="flex gap-4 items-center flex-wrap">
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">Género</label>
+                      <select className="input-field w-auto" value={item.gender}
+                        onChange={(e) => updateItem(i, "gender", e.target.value)}>
+                        {GENDERS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">Precio unitario</label>
+                      <input type="number" min="0" step="any" className="input-field w-32"
+                        value={item.unit_price} onChange={(e) => updateItem(i, "unit_price", e.target.value)}
+                        placeholder="$0" />
+                    </div>
                   </div>
+                  {allDesignFiles.length > 0 && (
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">Diseño relacionado</label>
+                      <div className="flex gap-2 flex-wrap">
+                        {allDesignFiles.map((df, fi) => (
+                          <button key={fi} type="button"
+                            onClick={() => updateItem(i, "design_file_index", item.design_file_index === fi ? null : fi)}
+                            className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-colors flex items-center justify-center shrink-0
+                              ${item.design_file_index === fi ? "border-brand-green" : "border-zinc-600 hover:border-zinc-400"}`}>
+                            {df.previewUrl ? (
+                              <img src={df.previewUrl} alt={df.label} className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-lg">📄</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <SizeQuantityGrid
+                    gender={item.gender}
+                    sizes={item.sizes}
+                    onChange={(sizes) => updateItem(i, "sizes", sizes)}
+                  />
                 </div>
-                <SizeQuantityGrid
-                  gender={item.gender}
-                  sizes={item.sizes}
-                  onChange={(sizes) => updateItem(i, "sizes", sizes)}
-                />
-              </div>
-            ))}
+              ));
+            })()}
 
             {items.length === 0 && (
               <p className="text-zinc-500 text-sm text-center py-3">Sin productos. Agrega uno con el filtro.</p>

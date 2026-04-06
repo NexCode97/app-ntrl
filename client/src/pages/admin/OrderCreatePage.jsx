@@ -4,6 +4,29 @@ import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
+function PdfThumbnail({ url, width = 40 }) {
+  const [error, setError] = useState(false);
+  return (
+    <div style={{ width, height: width }} className="overflow-hidden bg-zinc-700 flex items-center justify-center">
+      {!error ? (
+        <Document file={url} onLoadError={() => setError(true)} loading={null}>
+          <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />
+        </Document>
+      ) : (
+        <span className="text-base">📄</span>
+      )}
+    </div>
+  );
+}
 
 const GENDERS = [
   { value: "nino",    label: "Niño" },
@@ -150,11 +173,15 @@ export default function OrderCreatePage() {
             <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {item.design_file_index !== null && designPreviews[item.design_file_index] ? (
-                    <img src={designPreviews[item.design_file_index]} alt="diseño"
-                      className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
-                  ) : item.design_file_index !== null ? (
-                    <span className="text-xl shrink-0">📄</span>
+                  {item.design_file_index != null ? (
+                    designPreviews[item.design_file_index] ? (
+                      <img src={designPreviews[item.design_file_index]} alt="diseño"
+                        className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 rounded border border-zinc-600 overflow-hidden shrink-0">
+                        <PdfThumbnail url={URL.createObjectURL(designFiles[item.design_file_index])} width={32} />
+                      </div>
+                    )
                   ) : null}
                   <span className="text-white font-medium text-sm">{item.product_name}</span>
                 </div>
@@ -189,7 +216,7 @@ export default function OrderCreatePage() {
                         {designPreviews[fi] ? (
                           <img src={designPreviews[fi]} alt={f.name} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-lg">📄</span>
+                          <PdfThumbnail url={URL.createObjectURL(f)} width={40} />
                         )}
                       </button>
                     ))}

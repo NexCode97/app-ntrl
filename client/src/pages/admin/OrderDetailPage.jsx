@@ -14,28 +14,29 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
-function PdfThumbnail({ url, label, onClick }) {
-  const [loaded, setLoaded] = useState(false);
-  const [error,  setError]  = useState(false);
+function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
+  const [error, setError] = useState(false);
+  const Tag = onClick ? "button" : "div";
   return (
-    <button type="button" onClick={onClick}
-      className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-zinc-500
-                 hover:border-brand-green transition-colors bg-zinc-700 flex-shrink-0">
+    <Tag type={onClick ? "button" : undefined} onClick={onClick}
+      style={{ width, height: width }}
+      className={`relative overflow-hidden bg-zinc-700 flex-shrink-0 ${btnClassName}`}>
       {!error ? (
-        <Document file={url} onLoadSuccess={() => setLoaded(true)} onLoadError={() => setError(true)}
-          loading={null}>
-          <Page pageNumber={1} width={96} renderAnnotationLayer={false} renderTextLayer={false} />
+        <Document file={url} onLoadError={() => setError(true)} loading={null}>
+          <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />
         </Document>
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-zinc-200">
-          <span className="text-3xl">📄</span>
-          <span className="text-xs truncate w-full text-center px-1">{label}</span>
+          <span className="text-2xl">📄</span>
+          {label && <span className="text-[9px] truncate w-full text-center px-1">{label}</span>}
         </div>
       )}
-      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">
-        {label}
-      </div>
-    </button>
+      {label && width >= 64 && (
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">
+          {label}
+        </div>
+      )}
+    </Tag>
   );
 }
 
@@ -163,7 +164,8 @@ export default function OrderDetailPage() {
                 return (
                   <div key={i}>
                     {pdf ? (
-                      <PdfThumbnail url={url} label={label} onClick={() => setPdfSrc(url)} />
+                      <PdfThumbnail url={url} label={label} onClick={() => setPdfSrc(url)}
+                        width={96} btnClassName="rounded-xl border-2 border-zinc-500 hover:border-brand-green transition-colors cursor-pointer" />
                     ) : (
                       <button type="button" onClick={() => setLightboxSrc(url)}
                         className="focus:outline-none">
@@ -234,7 +236,7 @@ export default function OrderDetailPage() {
                   <div className="flex items-center gap-2">
                     {df && (
                       dfIsPdf ? (
-                        <span className="text-xl shrink-0">📄</span>
+                        <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" />
                       ) : (
                         <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
                       )
@@ -531,10 +533,13 @@ function EditOrderModal({ order, onClose, onSaved }) {
                 ...keptFiles.map((f) => {
                   const rawUrl = f.url ?? f;
                   const isPdfFile = String(rawUrl).toLowerCase().endsWith(".pdf") || String(rawUrl).includes("/raw/upload/");
-                  return { previewUrl: isPdfFile ? null : fileUrl(rawUrl), label: f.name || String(rawUrl).split("/").pop() };
+                  const resolvedUrl = fileUrl(rawUrl);
+                  return { url: resolvedUrl, previewUrl: isPdfFile ? null : resolvedUrl, isPdf: isPdfFile, label: f.name || String(rawUrl).split("/").pop() };
                 }),
                 ...newFiles.map((f, fi) => ({
+                  url: newFilePreviews[fi] || null,
                   previewUrl: newFilePreviews[fi] || null,
+                  isPdf: !newFilePreviews[fi],
                   label: f.name,
                 })),
               ];
@@ -542,12 +547,12 @@ function EditOrderModal({ order, onClose, onSaved }) {
                 <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {item.design_file_index !== null && allDesignFiles[item.design_file_index] ? (
-                        allDesignFiles[item.design_file_index].previewUrl ? (
+                      {item.design_file_index != null && allDesignFiles[item.design_file_index] ? (
+                        allDesignFiles[item.design_file_index].isPdf ? (
+                          <PdfThumbnail url={allDesignFiles[item.design_file_index].url} width={32} btnClassName="rounded border border-zinc-600" />
+                        ) : (
                           <img src={allDesignFiles[item.design_file_index].previewUrl} alt="diseño"
                             className="w-8 h-8 rounded object-cover border border-zinc-600 shrink-0" />
-                        ) : (
-                          <span className="text-xl shrink-0">📄</span>
                         )
                       ) : null}
                       <span className="text-white font-medium text-sm">{item.product_name}</span>
@@ -579,10 +584,10 @@ function EditOrderModal({ order, onClose, onSaved }) {
                             onClick={() => updateItem(i, "design_file_index", item.design_file_index === fi ? null : fi)}
                             className={`w-10 h-10 rounded-lg overflow-hidden border-2 transition-colors flex items-center justify-center shrink-0
                               ${item.design_file_index === fi ? "border-brand-green" : "border-zinc-600 hover:border-zinc-400"}`}>
-                            {df.previewUrl ? (
-                              <img src={df.previewUrl} alt={df.label} className="w-full h-full object-cover" />
+                            {df.isPdf ? (
+                              <PdfThumbnail url={df.url} width={40} />
                             ) : (
-                              <span className="text-lg">📄</span>
+                              <img src={df.previewUrl} alt={df.label} className="w-full h-full object-cover" />
                             )}
                           </button>
                         ))}

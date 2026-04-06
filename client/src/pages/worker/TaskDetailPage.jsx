@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
@@ -44,57 +44,29 @@ function parseFiles(raw) {
   }
 }
 
-function PdfViewer({ src }) {
-  const [blobUrl, setBlobUrl] = useState(null);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    let url;
-    fetch(src)
-      .then((r) => { if (!r.ok) throw new Error(); return r.blob(); })
-      .then((blob) => { url = URL.createObjectURL(blob); setBlobUrl(url); })
-      .catch(() => setError(true));
-    return () => { if (url) URL.revokeObjectURL(url); };
-  }, [src]);
-
-  if (error) return (
-    <div className="flex items-center justify-center h-full text-zinc-400 text-sm">
-      No se pudo cargar el PDF.
-    </div>
-  );
-  if (!blobUrl) return (
-    <div className="flex items-center justify-center h-full text-zinc-500 text-sm">Cargando...</div>
-  );
-  return <iframe src={blobUrl} title="PDF" className="w-full h-full border-0" />;
-}
-
 function Lightbox({ src, isPdf, onClose }) {
-  return (
-    <div
-      className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <button
-        className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-zinc-400 leading-none z-10"
-        onClick={onClose}
-      >
-        ✕
-      </button>
-      {isPdf ? (
-        <div
-          className="w-full max-w-3xl h-[85vh] rounded-lg overflow-hidden shadow-2xl bg-zinc-900"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <PdfViewer src={src} />
+  if (isPdf) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
+          <span className="text-white text-sm font-medium">Vista previa PDF</span>
+          <div className="flex items-center gap-3">
+            <a href={src} download className="text-zinc-400 hover:text-white text-sm">⬇ Descargar</a>
+            <button onClick={onClose} className="text-white text-2xl leading-none hover:text-zinc-300">✕</button>
+          </div>
         </div>
-      ) : (
-        <img
-          src={src}
-          alt="Diseño"
-          className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
+        <iframe
+          src={`https://docs.google.com/viewer?url=${encodeURIComponent(src)}&embedded=true`}
+          className="flex-1 w-full border-0"
+          title="Vista previa PDF"
         />
-      )}
+      </div>
+    );
+  }
+  return (
+    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={onClose}>
+      <button className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-zinc-400 leading-none z-10" onClick={onClose}>✕</button>
+      <img src={src} alt="Diseño" className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()} />
     </div>
   );
 }

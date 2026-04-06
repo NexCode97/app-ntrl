@@ -10,29 +10,33 @@ import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
-function PdfThumbnail({ url, width = 32 }) {
+// ─── Igual que admin ──────────────────────────────────────────────────────────
+function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
   const [error, setError] = useState(false);
+  const Tag = onClick ? "button" : "div";
   return (
-    <div style={{ width, height: width }} className="overflow-hidden bg-white rounded shrink-0">
+    <Tag type={onClick ? "button" : undefined} onClick={onClick}
+      style={{ width, height: width }}
+      className={`relative overflow-hidden bg-white flex-shrink-0 ${btnClassName}`}>
       {!error ? (
         <Document file={url} onLoadError={() => setError(true)} loading={null}>
           <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />
         </Document>
       ) : (
-        <span className="text-base flex items-center justify-center w-full h-full">📄</span>
+        <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-zinc-600">
+          <span className="text-2xl">📄</span>
+          {label && <span className="text-[9px] truncate w-full text-center px-1">{label}</span>}
+        </div>
       )}
-    </div>
+      {label && width >= 64 && (
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">
+          {label}
+        </div>
+      )}
+    </Tag>
   );
 }
 
-const IMAGE_EXTS = ["jpg", "jpeg", "png", "gif", "webp"];
-function isImage(url) {
-  const ext = String(url).split("?")[0].split(".").pop().toLowerCase();
-  return IMAGE_EXTS.includes(ext);
-}
-function isPdf(url) {
-  return String(url).toLowerCase().endsWith(".pdf") || String(url).includes("/raw/upload/");
-}
 function parseFiles(raw) {
   if (!raw) return [];
   try {
@@ -44,37 +48,50 @@ function parseFiles(raw) {
   }
 }
 
-function Lightbox({ src, isPdf, onClose }) {
-  if (isPdf) {
-    return (
-      <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
-          <span className="text-white text-sm font-medium">Vista previa PDF</span>
-          <div className="flex items-center gap-3">
-            <a href={src} download className="text-zinc-400 hover:text-white text-sm">⬇ Descargar</a>
-            <button onClick={onClose} className="text-white text-2xl leading-none hover:text-zinc-300">✕</button>
-          </div>
-        </div>
-        <iframe
-          src={`https://docs.google.com/viewer?url=${encodeURIComponent(src)}&embedded=true`}
-          className="flex-1 w-full border-0"
-          title="Vista previa PDF"
-        />
-      </div>
-    );
-  }
+function isPdfUrl(url) {
+  return String(url).toLowerCase().endsWith(".pdf") || String(url).includes("/raw/upload/");
+}
+
+// ─── Visor imagen ────────────────────────────────────────────────────────────
+function ImageLightbox({ src, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={onClose}>
-      <button className="absolute top-4 right-4 text-white text-2xl font-bold hover:text-zinc-400 leading-none z-10" onClick={onClose}>✕</button>
-      <img src={src} alt="Diseño" className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" onClick={(e) => e.stopPropagation()} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+      onClick={onClose}>
+      <button className="absolute top-4 right-4 text-white text-3xl leading-none hover:text-zinc-300"
+        onClick={onClose}>✕</button>
+      <img src={src} alt="Diseño del pedido"
+        className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl"
+        onClick={(e) => e.stopPropagation()} />
     </div>
   );
 }
 
+// ─── Visor PDF (Google Docs, igual que admin) ─────────────────────────────────
+function PdfViewer({ src, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-black/95">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
+        <span className="text-white text-sm font-medium">Vista previa PDF</span>
+        <div className="flex items-center gap-3">
+          <a href={src} download className="text-zinc-400 hover:text-white text-sm">⬇ Descargar</a>
+          <button onClick={onClose} className="text-white text-2xl leading-none hover:text-zinc-300">✕</button>
+        </div>
+      </div>
+      <iframe
+        src={`https://docs.google.com/viewer?url=${encodeURIComponent(src)}&embedded=true`}
+        className="flex-1 w-full border-0"
+        title="Vista previa PDF"
+      />
+    </div>
+  );
+}
+
+// ─── Página principal ─────────────────────────────────────────────────────────
 export default function TaskDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [lightbox, setLightbox] = useState(null); // { src, isPdf }
+  const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [pdfSrc,      setPdfSrc]      = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["order-for-worker", id],
@@ -88,10 +105,16 @@ export default function TaskDetailPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
-      {lightbox && <Lightbox src={lightbox.src} isPdf={lightbox.isPdf} onClose={() => setLightbox(null)} />}
+
+      {/* Lightbox imagen */}
+      {lightboxSrc && <ImageLightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />}
+
+      {/* Visor PDF */}
+      {pdfSrc && <PdfViewer src={pdfSrc} onClose={() => setPdfSrc(null)} />}
 
       <button className="btn-secondary" onClick={() => navigate("/tasks")}>← Volver</button>
 
+      {/* Info del pedido */}
       <div className="card">
         <h2 className="text-brand-green font-mono font-bold text-xl mb-1">#{data.order_number}</h2>
         <p className="text-white text-lg">{data.customer_name}</p>
@@ -103,72 +126,64 @@ export default function TaskDetailPage() {
         {data.description && <p className="text-zinc-300 text-sm mt-2 bg-zinc-800 rounded-lg p-3">{data.description}</p>}
       </div>
 
+      {/* Diseños adjuntos — idéntico al admin */}
       {files.length > 0 && (
         <div className="card">
-          <h3 className="text-zinc-400 text-sm font-medium mb-3">
-            Diseño adjunto {files.length > 1 && <span className="text-zinc-600">({files.length} archivos)</span>}
-          </h3>
-          <div className="flex flex-wrap gap-3">
-            {files.map((f, i) =>
-              isImage(f.url) ? (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setLightbox({ src: fileUrl(f.url), isPdf: false })}
-                  className="group relative w-32 h-32 rounded-lg overflow-hidden border border-zinc-700 hover:border-brand-green transition-colors"
-                >
-                  <img
-                    src={fileUrl(f.url)}
-                    alt={f.name || `Diseño ${i + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">Ver completo</span>
-                  </div>
-                </button>
-              ) : (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setLightbox({ src: fileUrl(f.url), isPdf: isPdf(f.url) })}
-                  className="group relative w-32 h-32 rounded-lg overflow-hidden border border-zinc-700 hover:border-brand-green transition-colors bg-zinc-800 flex flex-col items-center justify-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                    <line x1="9" y1="13" x2="15" y2="13"/>
-                    <line x1="9" y1="17" x2="15" y2="17"/>
-                  </svg>
-                  <span className="text-zinc-400 text-[10px] font-medium px-1 text-center truncate w-full">
-                    {f.name || String(f.url).split("/").pop()}
-                  </span>
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white text-xs font-medium">Ver archivo</span>
-                  </div>
-                </button>
-              )
-            )}
+          <p className="text-xs text-zinc-500 mb-3">
+            Diseño{files.length > 1 ? "s" : ""} adjunto{files.length > 1 ? "s" : ""}
+          </p>
+          <div className="flex gap-3 flex-wrap">
+            {files.map((f, i) => {
+              const url    = fileUrl(f.url);
+              const rawUrl = f.url ?? "";
+              const pdf    = isPdfUrl(rawUrl);
+              const label  = f.name
+                ? f.name.replace(/\.[^.]+$/, "")
+                : (files.length > 1 ? `Archivo ${i + 1}` : "Archivo");
+              return (
+                <div key={i}>
+                  {pdf ? (
+                    <PdfThumbnail
+                      url={url}
+                      label={label}
+                      onClick={() => setPdfSrc(url)}
+                      width={96}
+                      btnClassName="rounded-xl border-2 border-zinc-500 hover:border-brand-green transition-colors cursor-pointer"
+                    />
+                  ) : (
+                    <button type="button" onClick={() => setLightboxSrc(url)} className="focus:outline-none">
+                      <img src={url} alt={label}
+                        className="w-24 h-24 rounded-xl object-cover border border-zinc-700
+                                   hover:border-brand-green transition-colors cursor-zoom-in" />
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
+      {/* Productos */}
       <div className="card space-y-2">
         <h3 className="text-white font-medium mb-3">Productos</h3>
         {data.items?.map((item) => {
-          const df = item.design_file_index != null ? files[item.design_file_index] : null;
-          const dfUrl = df ? fileUrl(df.url ?? df) : null;
-          const dfIsPdf = df ? isPdf(df.url ?? df) : false;
+          const df     = item.design_file_index != null ? files[item.design_file_index] : null;
+          const dfUrl  = df ? fileUrl(df.url ?? df) : null;
+          const dfIsPdf = df ? isPdfUrl(df.url ?? df) : false;
           return (
             <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
               <div className="flex items-center gap-2 mb-1">
                 {df && (
                   dfIsPdf ? (
-                    <PdfThumbnail url={dfUrl} width={32} />
+                    <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" />
                   ) : (
                     <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover bg-white shrink-0" />
                   )
                 )}
-                <p className="text-white font-medium text-sm">{item.product_name} — {item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : ""}</p>
+                <p className="text-white font-medium text-sm">
+                  {item.product_name} — {item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : ""}
+                </p>
               </div>
               <div className="flex gap-2 flex-wrap text-xs mt-2">
                 {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => (

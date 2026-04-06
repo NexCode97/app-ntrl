@@ -146,12 +146,28 @@ export default function OrderCreatePage() {
               <label className="block text-xs text-zinc-400 mb-1">Diseños — máx. 5 (JPG/PNG/PDF)</label>
               <input type="file" accept=".jpg,.jpeg,.png,.pdf" multiple className="input-field text-sm"
                 onChange={(e) => {
-                  const files = Array.from(e.target.files).slice(0, 5);
-                  setDesignFiles(files);
-                  setDesignPreviews(files.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : null));
+                  const picked = Array.from(e.target.files);
+                  e.target.value = "";
+                  setDesignFiles(prev => {
+                    const combined = [...prev, ...picked].slice(0, 5);
+                    setDesignPreviews(combined.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : null));
+                    return combined;
+                  });
                 }} />
               {designFiles.length > 0 && (
-                <p className="text-xs text-brand-green mt-1">{designFiles.length} archivo(s) seleccionado(s)</p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {designFiles.map((f, i) => (
+                    <span key={i} className="flex items-center gap-1 text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full">
+                      {f.name}
+                      <button type="button" className="text-zinc-500 hover:text-red-400 ml-1"
+                        onClick={() => setDesignFiles(prev => {
+                          const next = prev.filter((_, idx) => idx !== i);
+                          setDesignPreviews(next.map(f2 => f2.type.startsWith("image/") ? URL.createObjectURL(f2) : null));
+                          return next;
+                        })}>✕</button>
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </div>

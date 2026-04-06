@@ -39,8 +39,8 @@ function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
 }
 
 const AREA_NAMES = {
-  corte: "Corte", diseno_disenar: "Diseño — Diseñar",
-  diseno_imprimir: "Diseño — Imprimir", sublimacion: "Sublimación",
+  corte: "Corte", diseno_disenar: "Diseño",
+  impresion: "Impresión", sublimacion: "Sublimación",
   ensamble: "Ensamble", terminados: "Terminados",
 };
 
@@ -155,24 +155,32 @@ export default function OrderDetailPage() {
             </p>
             <div className="flex gap-3 flex-wrap">
               {designFiles.map((f, i) => {
-                const url = fileUrl(f.url);
+                const url   = fileUrl(f.url);
                 const rawUrl = f.url ?? "";
-                const pdf = rawUrl.toLowerCase().endsWith(".pdf") || rawUrl.includes("/raw/upload/");
-                const label = f.name ? f.name.replace(/\.[^.]+$/, "") : (designFiles.length > 1 ? `PDF ${i + 1}` : "PDF");
+                const pdf   = rawUrl.toLowerCase().endsWith(".pdf") || rawUrl.includes("/raw/upload/");
+                const label = f.name ? f.name.replace(/\.[^.]+$/, "") : (designFiles.length > 1 ? `Archivo ${i + 1}` : "Archivo");
                 return (
-                  <div key={i}>
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => pdf ? setPdfSrc(url) : setLightboxSrc(url)}
+                    className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 relative border border-zinc-700 hover:border-brand-green transition-colors focus:outline-none"
+                  >
                     {pdf ? (
-                      <PdfThumbnail url={url} label={label} onClick={() => setPdfSrc(url)}
-                        width={96} btnClassName="rounded-xl border-2 border-zinc-500 hover:border-brand-green transition-colors cursor-pointer" />
+                      <>
+                        <div className="w-full h-full bg-white overflow-hidden flex items-start justify-center">
+                          <Document file={url} loading={null} onLoadError={() => {}}>
+                            <Page pageNumber={1} width={96} renderAnnotationLayer={false} renderTextLayer={false} />
+                          </Document>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">
+                          {label}
+                        </div>
+                      </>
                     ) : (
-                      <button type="button" onClick={() => setLightboxSrc(url)}
-                        className="focus:outline-none">
-                        <img src={url} alt={`Diseño ${i + 1}`}
-                          className="w-24 h-24 rounded-xl object-cover border border-zinc-700
-                                     hover:border-brand-green transition-colors cursor-zoom-in" />
-                      </button>
+                      <img src={url} alt={label} className="w-full h-full object-cover" />
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>

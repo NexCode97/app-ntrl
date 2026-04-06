@@ -12,7 +12,7 @@ const STATUS_COLORS = {
 };
 
 const AREA_LABELS = {
-  corte: "Corte", diseno_disenar: "Diseño", diseno_imprimir: "Imprimir",
+  corte: "Corte", diseno_disenar: "Diseño", impresion: "Impresión",
   sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados",
 };
 

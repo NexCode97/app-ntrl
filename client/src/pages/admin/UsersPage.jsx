@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 
-const AREAS = ["corte", "diseno", "sublimacion", "ensamble", "terminados"];
+const AREAS = ["corte", "diseno", "impresion", "sublimacion", "ensamble", "terminados"];
 const AREA_LABELS = {
-  corte: "Corte", diseno: "Diseño",
+  corte: "Corte", diseno: "Diseño", impresion: "Impresión",
   sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados",
 };
 

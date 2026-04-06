@@ -42,9 +42,9 @@ export async function getTasksByOrder(req, res, next) {
 
 export async function getMyTasks(req, res, next) {
   try {
-    // El área 'diseno' cubre las dos tareas: diseno_disenar y diseno_imprimir
+    // diseno → solo diseno_disenar; impresion → impresion (área propia)
     const areas = req.user.area === "diseno"
-      ? ["diseno_disenar", "diseno_imprimir"]
+      ? ["diseno_disenar"]
       : [req.user.area];
 
     const { rows } = await pool.query(
@@ -75,7 +75,7 @@ export async function updateTaskStatus(req, res, next) {
 
     // Verificar que el trabajador pertenece al área de esta tarea
     const userAreas = req.user.area === "diseno"
-      ? ["diseno_disenar", "diseno_imprimir"]
+      ? ["diseno_disenar"]
       : [req.user.area];
     if (req.user.role !== "admin" && !userAreas.includes(task.area)) {
       throw new AppError("No puedes modificar tareas de otra área.", 403, "FORBIDDEN");
@@ -104,8 +104,8 @@ export async function updateTaskStatus(req, res, next) {
       [task.order_id]
     );
     const AREA_NAMES = {
-      corte: "Corte", diseno_disenar: "Diseño — Diseñar",
-      diseno_imprimir: "Diseño — Imprimir", sublimacion: "Sublimación",
+      corte: "Corte", diseno_disenar: "Diseño",
+      impresion: "Impresión", sublimacion: "Sublimación",
       ensamble: "Ensamble", terminados: "Terminados",
     };
     const areaLabel = AREA_NAMES[task.area] ?? task.area;

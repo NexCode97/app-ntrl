@@ -134,11 +134,11 @@ export async function listProducts(req, res, next) {
     if (line_id) { params.push(line_id); where += ` AND p.line_id = $${params.length}`; }
 
     const { rows } = await pool.query(
-      `SELECT p.*, l.name as line_name, s.name as sport_name
+      `SELECT p.*, l.name as line_name, s.name as sport_name, s.display_order as sport_order
        FROM products p
        JOIN lines l ON l.id = p.line_id
        JOIN sports s ON s.id = l.sport_id
-       ${where} ORDER BY p.display_order, p.name`,
+       ${where} ORDER BY s.display_order, l.display_order, p.display_order, p.name`,
       params
     );
     res.json({ status: "ok", data: rows });

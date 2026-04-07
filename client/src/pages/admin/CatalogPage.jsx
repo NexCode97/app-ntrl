@@ -47,11 +47,12 @@ export default function CatalogPage() {
   }, [products.data, search]);
 
   const productsBySport = useMemo(() => {
-    const groups = {};
+    // Keep insertion order from server (already sorted by s.display_order)
+    const groups = new Map();
     filteredProducts.forEach(p => {
       const sport = p.sport_name || "Sin deporte";
-      if (!groups[sport]) groups[sport] = [];
-      groups[sport].push(p);
+      if (!groups.has(sport)) groups.set(sport, []);
+      groups.get(sport).push(p);
     });
     return groups;
   }, [filteredProducts]);
@@ -113,36 +114,36 @@ export default function CatalogPage() {
             </div>
           </div>
 
-          {Object.keys(productsBySport).length === 0 && (
+          {productsBySport.size === 0 && (
             <p className="text-zinc-500 text-sm text-center py-8">No se encontraron productos.</p>
           )}
-          {Object.entries(productsBySport).map(([sport, prods]) => (
+          {[...productsBySport.entries()].map(([sport, prods]) => (
             <div key={sport}>
               <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wide mb-2 px-1">{sport}</h3>
               <div className="card overflow-hidden p-0 overflow-x-auto">
                 <table className="w-full text-sm min-w-[360px]">
                   <thead className="bg-zinc-800 text-zinc-400">
                     <tr>
-                      <th className="px-4 py-3 text-left">Nombre</th>
-                      <th className="px-4 py-3 text-left">Línea</th>
-                      <th className="px-4 py-3 text-center">
+                      <th className="px-4 py-3 text-left w-1/2">Nombre</th>
+                      <th className="px-4 py-3 text-left w-1/4">Línea</th>
+                      <th className="px-4 py-3 text-center w-32">
                         Precio {activeTier.label}
                         {activeTier.desc && <span className="ml-1 text-zinc-500 text-xs">({activeTier.desc})</span>}
                       </th>
-                      <th className="px-4 py-3" />
+                      <th className="px-4 py-3 w-16" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800">
                     {prods.map((row) => (
                       <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors">
-                        <td className="px-4 py-3 text-zinc-300">{row.name}</td>
-                        <td className="px-4 py-3 text-zinc-400">{row.line_name}</td>
-                        <td className="px-4 py-3 text-center text-zinc-300">
+                        <td className="px-4 py-3 text-zinc-300 w-1/2">{row.name}</td>
+                        <td className="px-4 py-3 text-zinc-400 w-1/4">{row.line_name}</td>
+                        <td className="px-4 py-3 text-center text-zinc-300 w-32">
                           {row[priceTier]
                             ? `$${Number(row[priceTier]).toLocaleString("es-CO")}`
                             : <span className="text-zinc-600">—</span>}
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 w-16">
                           <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm({ type: "product", ...row })}>Editar</button>
                         </td>
                       </tr>

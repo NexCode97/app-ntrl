@@ -55,10 +55,10 @@ export default function OrdersPage() {
               <th className="px-4 py-3 text-left">#</th>
               <th className="px-4 py-3 text-left">Cliente</th>
               <th className="px-4 py-3 text-center">Estado</th>
-              <th className="px-4 py-3 text-right">Total</th>
-              <th className="px-4 py-3 text-right">Saldo</th>
-              <th className="px-4 py-3 text-left">Entrega</th>
-              <th className="px-4 py-3 text-left">Creación</th>
+              <th className="px-4 py-3 text-center">Creación</th>
+              <th className="px-4 py-3 text-center">Entrega</th>
+              <th className="px-4 py-3 text-center">Total</th>
+              <th className="px-4 py-3 text-center">Saldo</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
@@ -74,10 +74,10 @@ export default function OrdersPage() {
                   <td className="px-4 py-3 font-mono text-brand-green font-semibold">#{order.order_number}</td>
                   <td className="px-4 py-3 text-white">{order.customer_name}</td>
                   <td className="px-4 py-3 text-center"><span className={`${s.cls} whitespace-nowrap`}>{s.label}</span></td>
-                  <td className="px-4 py-3 text-right text-white">${Number(order.total).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-right text-yellow-400">${Number(order.balance).toLocaleString()}</td>
-                  <td className="px-4 py-3 text-zinc-400">{order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("es-CO") : "—"}</td>
-                  <td className="px-4 py-3 text-zinc-400">{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</td>
+                  <td className="px-4 py-3 text-center text-zinc-400">{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</td>
+                  <td className="px-4 py-3 text-center text-zinc-400">{order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("es-CO") : "—"}</td>
+                  <td className="px-4 py-3 text-center text-white">${Number(order.total).toLocaleString()}</td>
+                  <td className="px-4 py-3 text-center text-yellow-400">${Number(order.balance).toLocaleString()}</td>
                 </tr>
               );
             })}

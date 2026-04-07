@@ -219,7 +219,7 @@ export default function OrderDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto">
-        {[["items","Productos"],["financial","Financiero"],["production","Producción"],["history","Historial"]].map(([key, label]) => (
+        {[["items","Productos"],["financial","Abonos"],["production","Producción"],["history","Historial"]].map(([key, label]) => (
           <button key={key}
             onClick={() => setTab(key)}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors
@@ -278,10 +278,22 @@ export default function OrderDetailPage() {
           {data.items?.length > 0 && (() => {
             const totalQty = data.items.reduce((s, item) =>
               s + Object.values(item.sizes).reduce((a, q) => a + (Number(q) || 0), 0), 0);
+            const totalPesos = data.items.reduce((s, item) => {
+              const qty = Object.values(item.sizes).reduce((a, q) => a + (Number(q) || 0), 0);
+              return s + qty * (Number(item.unit_price) || 0);
+            }, 0);
             return (
-              <div className="border-t border-zinc-700 pt-3 flex justify-between items-center px-1">
-                <span className="text-zinc-400 text-sm">Total unidades</span>
-                <span className="text-white font-bold text-lg">{totalQty}</span>
+              <div className="border-t border-zinc-700 pt-3 space-y-1 px-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-400 text-sm">Total unidades</span>
+                  <span className="text-white font-bold text-lg">{totalQty}</span>
+                </div>
+                {totalPesos > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-zinc-400 text-sm">Total pedido</span>
+                    <span className="text-brand-green font-bold text-lg">${totalPesos.toLocaleString("es-CO")}</span>
+                  </div>
+                )}
               </div>
             );
           })()}

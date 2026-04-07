@@ -148,10 +148,11 @@ export async function listProducts(req, res, next) {
 export async function createProduct(req, res, next) {
   try {
     await requireAdmin(req);
-    const { line_id, name, display_order } = req.body;
+    const { line_id, name, display_order, price_unit, price_group, price_distributor } = req.body;
     const { rows } = await pool.query(
-      `INSERT INTO products (line_id, name, slug, display_order) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [line_id, name, slugify(name), display_order || 0]
+      `INSERT INTO products (line_id, name, slug, display_order, price_unit, price_group, price_distributor)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [line_id, name, slugify(name), display_order || 0, price_unit || null, price_group || null, price_distributor || null]
     );
     res.status(201).json({ status: "ok", data: rows[0] });
   } catch (err) { next(err); }
@@ -161,15 +162,19 @@ export async function updateProduct(req, res, next) {
   try {
     await requireAdmin(req);
     const { id } = req.params;
-    const { name, is_active, display_order } = req.body;
+    const { name, is_active, display_order, price_unit, price_group, price_distributor } = req.body;
     const { rows } = await pool.query(
       `UPDATE products SET
         name = COALESCE($2, name),
         slug = CASE WHEN $2 IS NOT NULL THEN $3 ELSE slug END,
         is_active = COALESCE($4, is_active),
-        display_order = COALESCE($5, display_order)
+        display_order = COALESCE($5, display_order),
+        price_unit = $6,
+        price_group = $7,
+        price_distributor = $8
        WHERE id = $1 RETURNING *`,
-      [id, name || null, name ? slugify(name) : null, is_active ?? null, display_order ?? null]
+      [id, name || null, name ? slugify(name) : null, is_active ?? null, display_order ?? null,
+       price_unit ?? null, price_group ?? null, price_distributor ?? null]
     );
     if (!rows.length) throw new AppError("Producto no encontrado.", 404, "NOT_FOUND");
     res.json({ status: "ok", data: rows[0] });

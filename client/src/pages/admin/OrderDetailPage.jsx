@@ -377,12 +377,13 @@ function EditOrderModal({ order, onClose, onSaved }) {
   const [lightboxSrc,   setLightboxSrc]   = useState(null);
   const [items,         setItems]         = useState(
     (order.items || []).map((item) => ({
-      product_id:        item.product_id,
-      product_name:      item.product_name,
-      gender:            item.gender,
-      sizes:             item.sizes,
-      unit_price:        item.unit_price ?? 0,
-      design_file_index: item.design_file_index ?? null,
+      product_id:          item.product_id,
+      product_name:        item.product_name,
+      gender:              item.gender,
+      sizes:               item.sizes,
+      unit_price:          item.unit_price ?? 0,
+      unit_price_display:  item.unit_price ? Number(item.unit_price).toLocaleString("es-CO") : "",
+      design_file_index:   item.design_file_index ?? null,
     }))
   );
   const [error,  setError]  = useState("");
@@ -401,7 +402,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
 
   function addItem(product) {
     if (!product) return;
-    setItems((prev) => [...prev, { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0, design_file_index: null }]);
+    setItems((prev) => [...prev, { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0, unit_price_display: "", design_file_index: null }]);
   }
   function updateItem(index, field, value) {
     setItems((prev) => prev.map((item, i) => i === index ? { ...item, [field]: value } : item));
@@ -628,8 +629,13 @@ function EditOrderModal({ order, onClose, onSaved }) {
                     </div>
                     <div>
                       <label className="block text-xs text-zinc-400 mb-1">Precio unitario</label>
-                      <input type="number" min="0" step="any" className="input-field w-32"
-                        value={item.unit_price} onChange={(e) => updateItem(i, "unit_price", e.target.value)}
+                      <input type="text" inputMode="numeric" className="input-field w-36"
+                        value={item.unit_price_display ?? ""}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "");
+                          updateItem(i, "unit_price", Number(digits) || 0);
+                          updateItem(i, "unit_price_display", digits ? Number(digits).toLocaleString("es-CO") : "");
+                        }}
                         placeholder="$0" />
                     </div>
                   </div>

@@ -34,7 +34,13 @@ const GENDERS = [
 ];
 
 function emptyItem(product) {
-  return { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0, design_file_index: null };
+  return { product_id: product.id, product_name: product.name, gender: "hombre", sizes: {}, unit_price: 0, unit_price_display: "", design_file_index: null };
+}
+
+function formatPriceCO(raw) {
+  const digits = String(raw).replace(/\D/g, "");
+  if (!digits) return "";
+  return Number(digits).toLocaleString("es-CO");
 }
 
 export default function OrderCreatePage() {
@@ -212,8 +218,13 @@ export default function OrderCreatePage() {
                 </div>
                 <div>
                   <label className="block text-xs text-zinc-400 mb-1">Precio unitario</label>
-                  <input type="number" min="0" step="100" className="input-field w-32"
-                    value={item.unit_price} onChange={(e) => updateItem(i, "unit_price", e.target.value)}
+                  <input type="text" inputMode="numeric" className="input-field w-36"
+                    value={item.unit_price_display ?? ""}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "");
+                      updateItem(i, "unit_price", Number(digits) || 0);
+                      updateItem(i, "unit_price_display", formatPriceCO(digits));
+                    }}
                     placeholder="$0" />
                 </div>
               </div>

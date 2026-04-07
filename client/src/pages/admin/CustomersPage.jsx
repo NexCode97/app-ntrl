@@ -51,14 +51,12 @@ export default function CustomersPage() {
                 <td className="px-4 py-3 text-zinc-400">{c.document_type === "cedula" ? "C.C." : c.document_type.toUpperCase()} {c.document_number}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.phone || "—"}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.email || "—"}</td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-3 items-center">
-                    <button title="Ver" className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setViewing(c)}>Ver</button>
-                    <button title="Editar" className="text-zinc-500 hover:text-zinc-200 text-xs" onClick={() => setForm(c)}>✎</button>
-                    <button title="Eliminar" className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
-                      if (confirm(`¿Eliminar a ${c.name}? Esta acción no se puede deshacer.`)) remove.mutate(c.id);
-                    }}>✕</button>
-                  </div>
+                <td className="px-4 py-3 flex gap-2">
+                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setViewing(c)}>Ver</button>
+                  <button className="text-zinc-500 hover:text-zinc-200 text-xs" onClick={() => setForm(c)}>Editar</button>
+                  <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
+                    if (confirm(`¿Eliminar a ${c.name}? Esta acción no se puede deshacer.`)) remove.mutate(c.id);
+                  }}>Eliminar</button>
                 </td>
               </tr>
             ))}

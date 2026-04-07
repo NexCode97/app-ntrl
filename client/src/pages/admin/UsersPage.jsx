@@ -59,17 +59,15 @@ export default function UsersPage() {
                 <td className="px-4 py-3"><span className={`badge ${u.role === "admin" ? "badge-completed" : "badge-pending"}`}>{u.role}</span></td>
                 <td className="px-4 py-3 text-zinc-400">{u.role === "admin" ? (u.position || "—") : (AREA_LABELS[u.area] || "—")}</td>
                 <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-3 items-center">
-                    <button title="Editar" className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>✎</button>
-                    <button title={u.is_active ? "Desactivar" : "Activar"}
-                      className={`text-zinc-500 text-xs ${u.is_active ? "hover:text-yellow-400" : "hover:text-brand-green"}`}
-                      onClick={() => toggleActive.mutate({ id: u.id, is_active: !u.is_active })}>
-                      {u.is_active ? "⏸" : "▶"}
-                    </button>
-                    <button title="Eliminar" className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
-                      if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
-                    }}>✕</button>
+                <td className="px-4 py-3 flex gap-2">
+                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>Editar</button>
+                  <button className={`text-zinc-500 text-xs ${u.is_active ? "hover:text-yellow-400" : "hover:text-brand-green"}`}
+                    onClick={() => toggleActive.mutate({ id: u.id, is_active: !u.is_active })}>
+                    {u.is_active ? "Desactivar" : "Activar"}
+                  </button>
+                  <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
+                    if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
+                  }}>Eliminar</button>
                 </td>
               </tr>
             ))}

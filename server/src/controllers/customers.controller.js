@@ -70,3 +70,11 @@ export async function getById(req, res, next) {
     res.json({ status: "ok", data: rows[0] });
   } catch (err) { next(err); }
 }
+
+export async function remove(req, res, next) {
+  try {
+    const { rowCount } = await pool.query("DELETE FROM customers WHERE id = $1", [req.params.id]);
+    if (!rowCount) throw new AppError("Cliente no encontrado.", 404, "NOT_FOUND");
+    res.json({ status: "ok" });
+  } catch (err) { next(err); }
+}

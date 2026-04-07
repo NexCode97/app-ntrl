@@ -44,7 +44,7 @@ export default function UsersPage() {
             <tr>
               <th className="px-4 py-3 text-left">Nombre</th>
               <th className="px-4 py-3 text-left">Correo</th>
-              <th className="px-4 py-3 text-left">Rol</th>
+              <th className="px-4 py-3 text-center">Rol</th>
               <th className="px-4 py-3 text-left">Área / Cargo</th>
               <th className="px-4 py-3 text-left">Estado</th>
               <th className="px-4 py-3"></th>
@@ -56,7 +56,7 @@ export default function UsersPage() {
               <tr key={u.id} className="hover:bg-zinc-800/50 transition-colors">
                 <td className="px-4 py-3 text-white">{u.name}</td>
                 <td className="px-4 py-3 text-zinc-400">{u.email}</td>
-                <td className="px-4 py-3"><span className={`badge ${u.role === "admin" ? "badge-completed" : "badge-pending"}`}>{u.role}</span></td>
+                <td className="px-4 py-3 text-center"><span className={`badge ${u.role === "admin" ? "badge-completed" : "badge-pending"}`}>{u.role}</span></td>
                 <td className="px-4 py-3 text-zinc-400">{u.role === "admin" ? (u.position || "—") : u.role === "vendedor" ? "—" : (AREA_LABELS[u.area] || "—")}</td>
                 <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
                 <td className="px-4 py-3 flex gap-2">

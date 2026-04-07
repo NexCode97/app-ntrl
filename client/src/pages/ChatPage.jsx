@@ -178,11 +178,18 @@ export default function ChatPage() {
   const bottomRef = useRef(null);
   const fileRef   = useRef(null);
 
-  useEffect(() => {
+  const refreshContacts = useCallback(() => {
     api.get("/chat/contacts")
       .then(({ data }) => setContacts(data.data))
       .catch(() => {});
   }, []);
+
+  // Cargar contactos al montar y cada 15s para mantener unread actualizado
+  useEffect(() => {
+    refreshContacts();
+    const interval = setInterval(refreshContacts, 15000);
+    return () => clearInterval(interval);
+  }, [refreshContacts]);
 
   const loadMessages = useCallback(async (userId) => {
     setLoadingMsgs(true);

@@ -260,6 +260,16 @@ export default function OrderCreatePage() {
           {items.length === 0 && (
             <p className="text-zinc-500 text-sm text-center py-4">Selecciona un producto en el filtro para agregarlo.</p>
           )}
+
+          {items.length > 0 && (() => {
+            const totalUnits = items.reduce((sum, item) =>
+              sum + Object.values(item.sizes || {}).reduce((s, q) => s + (Number(q) || 0), 0), 0);
+            return (
+              <div className="flex justify-end pt-2 border-t border-zinc-700">
+                <span className="text-zinc-400 text-sm">Total unidades: <span className="text-white font-semibold">{totalUnits}</span></span>
+              </div>
+            );
+          })()}
         </div>
 
         {error && (

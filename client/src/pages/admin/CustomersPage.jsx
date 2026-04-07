@@ -6,7 +6,8 @@ import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
 export default function CustomersPage() {
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState(null); // null | {} (new) | {...} (edit)
+  const [form,   setForm]   = useState(null); // null | {} (new) | {...} (edit)
+  const [viewing, setViewing] = useState(null); // null | {...} (view)
 
   const { data, isLoading } = useQuery({
     queryKey: ["customers", search],
@@ -45,8 +46,9 @@ export default function CustomersPage() {
                 <td className="px-4 py-3 text-zinc-400">{c.document_type === "cedula" ? "C.C." : c.document_type.toUpperCase()} {c.document_number}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.phone || "—"}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.email || "—"}</td>
-                <td className="px-4 py-3">
-                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(c)}>Editar</button>
+                <td className="px-4 py-3 flex gap-3">
+                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setViewing(c)}>Ver</button>
+                  <button className="text-zinc-500 hover:text-zinc-200 text-xs" onClick={() => setForm(c)}>Editar</button>
                 </td>
               </tr>
             ))}
@@ -55,6 +57,43 @@ export default function CustomersPage() {
       </div>
 
       {form !== null && <CustomerModal form={form} onSave={(d) => save.mutate(d)} onClose={() => setForm(null)} saving={save.isLoading} />}
+      {viewing && <CustomerView customer={viewing} onEdit={() => { setForm(viewing); setViewing(null); }} onClose={() => setViewing(null)} />}
+    </div>
+  );
+}
+
+function CustomerView({ customer: c, onEdit, onClose }) {
+  const rows = [
+    ["Documento",    `${c.document_type === "cedula" ? "C.C." : c.document_type?.toUpperCase()} ${c.document_number}`],
+    ["Teléfono",     c.phone   || "—"],
+    ["Correo",       c.email   || "—"],
+    ["Departamento", c.department || "—"],
+    ["Ciudad",       c.city    || "—"],
+    ["Dirección",    c.address || "—"],
+  ];
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-sm space-y-4">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h2 className="text-white font-semibold text-lg">{c.name}</h2>
+            {c.is_company && <span className="text-xs text-zinc-500">Empresa</span>}
+          </div>
+          <button onClick={onClose} className="text-zinc-500 hover:text-white text-lg leading-none">✕</button>
+        </div>
+        <div className="space-y-2">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex justify-between gap-4 py-1.5 border-b border-zinc-800 last:border-0">
+              <span className="text-zinc-500 text-sm shrink-0">{label}</span>
+              <span className="text-zinc-200 text-sm text-right break-all">{value}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2 justify-end pt-1">
+          <button className="btn-secondary" onClick={onClose}>Cerrar</button>
+          <button className="btn-primary" onClick={onEdit}>Editar</button>
+        </div>
+      </div>
     </div>
   );
 }

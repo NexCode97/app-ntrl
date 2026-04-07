@@ -175,8 +175,9 @@ export default function DashboardPage() {
               );
               return upcoming.map((o) => {
                 const diff = (new Date(String(o.delivery_date).slice(0,10) + "T12:00:00") - new Date()) / 86400000;
-                const isUrgent = diff <= 3 && diff >= 0;
-                const isOverdue = diff < 0;
+                const isToday   = diff >= -1 && diff < 0;
+                const isOverdue = diff < -1;
+                const isUrgent  = diff >= 0 && diff <= 3;
                 return (
                   <div
                     key={o.id}
@@ -187,11 +188,12 @@ export default function DashboardPage() {
                       <div className="flex items-center gap-2">
                         <span className="text-brand-green font-mono font-bold text-xs">#{o.order_number_fmt}</span>
                         {isOverdue && <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded-full">Vencido</span>}
-                        {isUrgent && !isOverdue && <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded-full">Urgente</span>}
+                        {isToday && <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">Hoy</span>}
+                        {isUrgent && !isToday && <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded-full">Urgente</span>}
                       </div>
                       <p className="text-zinc-300 text-xs truncate">{o.customer_name}</p>
                     </div>
-                    <p className={`text-xs shrink-0 font-medium ${isOverdue ? "text-red-400" : isUrgent ? "text-orange-400" : "text-zinc-500"}`}>
+                    <p className={`text-xs shrink-0 font-medium ${isOverdue ? "text-red-400" : isToday ? "text-blue-400" : isUrgent ? "text-orange-400" : "text-zinc-500"}`}>
                       {new Date(String(o.delivery_date).slice(0,10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
                     </p>
                   </div>

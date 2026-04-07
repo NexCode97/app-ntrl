@@ -29,7 +29,7 @@ router.get("/:id",       ctrl.getById);
 router.get("/:id/history", requireRole("admin"), ctrl.getHistory);
 
 router.post("/",
-  requireRole("admin"),
+  requireRole("admin", "vendedor"),
   upload.array("design", 5),
   sanitizeUpload,
   parseFormDataFields,
@@ -38,7 +38,7 @@ router.post("/",
 );
 
 router.put("/:id",
-  requireRole("admin"),
+  requireRole("admin", "vendedor"),
   upload.array("design", 5),
   sanitizeUpload,
   parseFormDataFields,

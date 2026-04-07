@@ -23,11 +23,11 @@ import TasksPage           from "../pages/worker/TasksPage.jsx";
 import TaskDetailPage      from "../pages/worker/TaskDetailPage.jsx";
 import SuppliesWorkerPage  from "../pages/worker/SuppliesWorkerPage.jsx";
 
-function RequireAuth({ children, role }) {
+function RequireAuth({ children, roles }) {
   const { user, isLoading } = useAuthStore();
   if (isLoading) return <div className="flex items-center justify-center h-screen"><div className="text-brand-green animate-pulse">Cargando...</div></div>;
   if (!user) return <Navigate to="/login" replace />;
-  if (role && user.role !== role) return <Navigate to="/" replace />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -44,28 +44,31 @@ export default function AppRouter() {
           <AppLayout />
         </RequireAuth>
       }>
-        {/* Admin routes */}
+        {/* Redirect by role */}
         <Route index element={
-          user?.role === "admin"
+          user?.role === "admin" || user?.role === "vendedor"
             ? <Navigate to="/dashboard" replace />
             : <Navigate to="/tasks" replace />
         } />
 
-        <Route path="dashboard"        element={<RequireAuth role="admin"><DashboardPage /></RequireAuth>} />
-        <Route path="orders"           element={<RequireAuth role="admin"><OrdersPage /></RequireAuth>} />
-        <Route path="orders/new"       element={<RequireAuth role="admin"><OrderCreatePage /></RequireAuth>} />
-        <Route path="orders/:id"       element={<RequireAuth role="admin"><OrderDetailPage /></RequireAuth>} />
-        <Route path="customers"        element={<RequireAuth role="admin"><CustomersPage /></RequireAuth>} />
-        <Route path="users"            element={<RequireAuth role="admin"><UsersPage /></RequireAuth>} />
-        <Route path="catalog"          element={<RequireAuth role="admin"><CatalogPage /></RequireAuth>} />
-        <Route path="reports"          element={<RequireAuth role="admin"><ReportsPage /></RequireAuth>} />
-        <Route path="calendar"         element={<RequireAuth><CalendarPage /></RequireAuth>} />
+        {/* Admin only */}
+        <Route path="users"    element={<RequireAuth roles={["admin"]}><UsersPage /></RequireAuth>} />
+        <Route path="reports"  element={<RequireAuth roles={["admin"]}><ReportsPage /></RequireAuth>} />
+
+        {/* Admin + Vendedor */}
+        <Route path="dashboard"  element={<RequireAuth roles={["admin","vendedor"]}><DashboardPage /></RequireAuth>} />
+        <Route path="orders"     element={<RequireAuth roles={["admin","vendedor"]}><OrdersPage /></RequireAuth>} />
+        <Route path="orders/new" element={<RequireAuth roles={["admin","vendedor"]}><OrderCreatePage /></RequireAuth>} />
+        <Route path="orders/:id" element={<RequireAuth roles={["admin","vendedor"]}><OrderDetailPage /></RequireAuth>} />
+        <Route path="customers"  element={<RequireAuth roles={["admin","vendedor"]}><CustomersPage /></RequireAuth>} />
+        <Route path="catalog"    element={<RequireAuth roles={["admin","vendedor"]}><CatalogPage /></RequireAuth>} />
+        <Route path="calendar"   element={<RequireAuth><CalendarPage /></RequireAuth>} />
 
         {/* All authenticated users */}
-        <Route path="profile"          element={<RequireAuth><ProfilePage /></RequireAuth>} />
-        <Route path="chat"             element={<RequireAuth><ChatPage /></RequireAuth>} />
+        <Route path="profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
+        <Route path="chat"    element={<RequireAuth><ChatPage /></RequireAuth>} />
 
-        {/* Supplies — admin ve gestión, worker ve sus solicitudes */}
+        {/* Supplies — admin ve gestión completa, vendedor y worker ven sus solicitudes */}
         <Route path="supplies" element={
           <RequireAuth>
             {user?.role === "admin" ? <SuppliesPage /> : <SuppliesWorkerPage />}
@@ -73,8 +76,8 @@ export default function AppRouter() {
         } />
 
         {/* Worker routes */}
-        <Route path="tasks"            element={<RequireAuth role="worker"><TasksPage /></RequireAuth>} />
-        <Route path="tasks/:id"        element={<RequireAuth role="worker"><TaskDetailPage /></RequireAuth>} />
+        <Route path="tasks"     element={<RequireAuth roles={["worker"]}><TasksPage /></RequireAuth>} />
+        <Route path="tasks/:id" element={<RequireAuth roles={["worker"]}><TaskDetailPage /></RequireAuth>} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

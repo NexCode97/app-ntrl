@@ -57,7 +57,7 @@ export default function UsersPage() {
                 <td className="px-4 py-3 text-white">{u.name}</td>
                 <td className="px-4 py-3 text-zinc-400">{u.email}</td>
                 <td className="px-4 py-3"><span className={`badge ${u.role === "admin" ? "badge-completed" : "badge-pending"}`}>{u.role}</span></td>
-                <td className="px-4 py-3 text-zinc-400">{u.role === "admin" ? (u.position || "—") : (AREA_LABELS[u.area] || "—")}</td>
+                <td className="px-4 py-3 text-zinc-400">{u.role === "admin" ? (u.position || "—") : u.role === "vendedor" ? "—" : (AREA_LABELS[u.area] || "—")}</td>
                 <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
                 <td className="px-4 py-3 flex gap-2">
                   <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>Editar</button>
@@ -124,12 +124,14 @@ function UserModal({ form, onSave, onClose, saving, error }) {
               <label className="block text-xs text-zinc-400 mb-1">Rol</label>
               <select className="input-field" value={data.role} onChange={(e) => set("role", e.target.value)}>
                 <option value="worker">Trabajador</option>
+                <option value="vendedor">Vendedor</option>
                 <option value="admin">Administrador</option>
               </select>
             </div>
             {data.role === "worker" && (
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Área</label>
+
                 <select className="input-field" value={data.area || ""} onChange={(e) => set("area", e.target.value)}>
                   <option value="">Seleccionar área</option>
                   {AREAS.map((a) => <option key={a} value={a}>{AREA_LABELS[a]}</option>)}

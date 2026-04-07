@@ -6,6 +6,15 @@ import { fileUrl } from "../../utils/fileUrl.js";
 
 const AREA_LABELS = { corte: "Corte", diseno: "Diseño", sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados" };
 
+const VENDEDOR_LINKS = [
+  { to: "/dashboard", label: "Dashboard",   icon: "📊" },
+  { to: "/orders",    label: "Pedidos",     icon: "📋" },
+  { to: "/customers", label: "Clientes",    icon: "👥" },
+  { to: "/catalog",   label: "Catálogo",    icon: "🏷️" },
+  { to: "/supplies",  label: "Suministros", icon: "📦" },
+  { to: "/chat",      label: "Mensajes",    icon: "💬" },
+];
+
 const ADMIN_LINKS = [
   { to: "/dashboard", label: "Dashboard",  icon: "📊" },
   { to: "/orders",    label: "Pedidos",     icon: "📋" },
@@ -28,7 +37,7 @@ const WORKER_LINKS = [
 export default function Sidebar() {
   const { user, clearAuth, accessToken } = useAuthStore();
   const navigate = useNavigate();
-  const links = user?.role === "admin" ? ADMIN_LINKS : WORKER_LINKS;
+  const links = user?.role === "admin" ? ADMIN_LINKS : user?.role === "vendedor" ? VENDEDOR_LINKS : WORKER_LINKS;
   const [chatUnread,     setChatUnread]     = useState(0);
   const [tasksCount,     setTasksCount]     = useState(0);
   const [suppliesCount,  setSuppliesCount]  = useState(0);
@@ -146,7 +155,7 @@ export default function Sidebar() {
           )}
           <div className="hidden md:block overflow-hidden">
             <p className="text-white text-xs font-medium truncate">{user?.name}</p>
-            <p className="text-zinc-500 text-xs truncate">{user?.role === "admin" ? "Administrador" : (AREA_LABELS[user?.area] ?? user?.area)}</p>
+            <p className="text-zinc-500 text-xs truncate">{user?.role === "admin" ? "Administrador" : user?.role === "vendedor" ? "Vendedor" : (AREA_LABELS[user?.area] ?? user?.area)}</p>
           </div>
         </button>
         <button

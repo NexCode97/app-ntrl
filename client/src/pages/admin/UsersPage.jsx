@@ -27,6 +27,11 @@ export default function UsersPage() {
     onSuccess:  () => qc.invalidateQueries(["users"]),
   });
 
+  const remove = useMutation({
+    mutationFn: (id) => api.delete(`/users/${id}`),
+    onSuccess:  () => qc.invalidateQueries(["users"]),
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex justify-start">
@@ -56,7 +61,10 @@ export default function UsersPage() {
                 <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
                 <td className="px-4 py-3 flex gap-2">
                   <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>Editar</button>
-                  {u.is_active && <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => deactivate.mutate(u.id)}>Desactivar</button>}
+                  {u.is_active && <button className="text-zinc-500 hover:text-yellow-400 text-xs" onClick={() => deactivate.mutate(u.id)}>Desactivar</button>}
+                  <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
+                    if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
+                  }}>Eliminar</button>
                 </td>
               </tr>
             ))}

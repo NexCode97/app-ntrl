@@ -704,8 +704,10 @@ function FinancialTab({ order, onRefresh }) {
   const [saving,   setSaving]   = useState(false);
   const [error,    setError]    = useState("");
 
-  const nextNumber = (order.payments?.length ?? 0) + 1;
-  const canAdd = nextNumber <= 3 && order.status !== "delivered" && Number(order.balance) > 0;
+  const nextNumber = order.payments?.length
+    ? Math.max(...order.payments.map((p) => p.payment_number)) + 1
+    : 1;
+  const canAdd = order.status !== "delivered" && Number(order.balance) > 0;
 
   async function handleAddPayment(e) {
     e.preventDefault();

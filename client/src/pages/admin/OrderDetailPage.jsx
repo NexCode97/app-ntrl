@@ -236,6 +236,8 @@ export default function OrderDetailPage() {
             const df = item.design_file_index != null ? designFiles[item.design_file_index] : null;
             const dfUrl = df ? fileUrl(df.url ?? df) : null;
             const dfIsPdf = df ? (String(df.url ?? df).toLowerCase().endsWith(".pdf") || String(df.url ?? df).includes("/raw/upload/")) : false;
+            const itemQty = Object.values(item.sizes).reduce((s, q) => s + (Number(q) || 0), 0);
+            const itemSubtotal = itemQty * (Number(item.unit_price) || 0);
             return (
               <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
@@ -251,16 +253,38 @@ export default function OrderDetailPage() {
                   </div>
                   <span className="text-zinc-400 text-sm">{item.gender} · {item.line_name} / {item.sport_name}</span>
                 </div>
-                <div className="flex gap-2 flex-wrap text-xs">
-                  {Object.entries(item.sizes).filter(([,q]) => q > 0).map(([size, qty]) => (
-                    <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">
-                      {size}: {qty}
-                    </span>
-                  ))}
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap text-xs">
+                    {Object.entries(item.sizes).filter(([,q]) => q > 0).map(([size, qty]) => (
+                      <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">
+                        {size}: {qty}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-zinc-400 shrink-0">
+                    <span>{itemQty} und.</span>
+                    {itemSubtotal > 0 && (
+                      <span className="text-white font-medium">
+                        ${itemSubtotal.toLocaleString("es-CO")}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );
           })}
+
+          {/* Total general */}
+          {data.items?.length > 0 && (() => {
+            const totalQty = data.items.reduce((s, item) =>
+              s + Object.values(item.sizes).reduce((a, q) => a + (Number(q) || 0), 0), 0);
+            return (
+              <div className="border-t border-zinc-700 pt-3 flex justify-between items-center px-1">
+                <span className="text-zinc-400 text-sm">Total unidades</span>
+                <span className="text-white font-bold text-lg">{totalQty}</span>
+              </div>
+            );
+          })()}
         </div>
       )}
 

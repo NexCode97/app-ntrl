@@ -57,7 +57,7 @@ export default function UsersPage() {
                 <td className="px-4 py-3 text-white">{u.name}</td>
                 <td className="px-4 py-3 text-zinc-400">{u.email}</td>
                 <td className="px-4 py-3 text-center"><span className={`badge ${u.role === "admin" ? "badge-completed" : "badge-pending"}`}>{u.role}</span></td>
-                <td className="px-4 py-3 text-zinc-400">{u.role === "admin" ? (u.position || "—") : u.role === "vendedor" ? "—" : (AREA_LABELS[u.area] || "—")}</td>
+                <td className="px-4 py-3 text-zinc-400">{u.role === "admin" || u.role === "vendedor" ? (u.position || "—") : (AREA_LABELS[u.area] || "—")}</td>
                 <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
                 <td className="px-4 py-3 flex gap-2">
                   <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>Editar</button>
@@ -136,6 +136,12 @@ function UserModal({ form, onSave, onClose, saving, error }) {
                   <option value="">Seleccionar área</option>
                   {AREAS.map((a) => <option key={a} value={a}>{AREA_LABELS[a]}</option>)}
                 </select>
+              </div>
+            )}
+            {data.role === "vendedor" && (
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Punto de venta / Cargo</label>
+                <input className="input-field" placeholder="Ej: Almacén Centro, Comercial Norte..." value={data.position || ""} onChange={(e) => set("position", e.target.value)} />
               </div>
             )}
             {data.role === "admin" && (

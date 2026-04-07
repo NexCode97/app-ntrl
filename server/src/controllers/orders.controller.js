@@ -81,13 +81,15 @@ export async function remove(req, res, next) {
   try {
     const order = await orderService.getOrderDetail(req.params.id);
 
-    // Eliminar archivos de diseño del disco
+    // Eliminar archivos de diseño del disco (solo archivos locales, no URLs de Cloudinary)
     const files = order.design_file ? (() => {
       try { const p = JSON.parse(order.design_file); return Array.isArray(p) ? p : [order.design_file]; }
       catch { return [order.design_file]; }
     })() : [];
     for (const f of files) {
-      const filePath = path.join(config.upload.dir, f);
+      const fileStr = typeof f === "object" ? (f.url ?? "") : String(f ?? "");
+      if (!fileStr || fileStr.startsWith("http")) continue; // saltar URLs de Cloudinary
+      const filePath = path.join(config.upload.dir, fileStr);
       if (existsSync(filePath)) unlinkSync(filePath);
     }
 

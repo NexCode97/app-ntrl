@@ -163,7 +163,7 @@ export default function DashboardPage() {
                 </thead>
                 <tbody className="divide-y divide-zinc-800">
                   {pendingBalances.map((o) => (
-                    <tr key={o.id} onClick={() => navigate(`/orders/${o.id}`)} className="hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                    <tr key={o.id} onClick={() => navigate(`/orders/${o.id}?tab=financial`)} className="hover:bg-zinc-800/50 cursor-pointer transition-colors">
                       <td className="px-4 py-3 text-brand-green font-mono font-bold">#{o.order_number_fmt}</td>
                       <td className="px-4 py-3 text-white">{o.customer_name}</td>
                       <td className="px-4 py-3 text-zinc-400 text-right">${Number(o.total).toLocaleString()}</td>

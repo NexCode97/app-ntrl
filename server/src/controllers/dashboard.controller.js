@@ -88,9 +88,8 @@ export async function getPendingBalances(req, res, next) {
        FROM orders o
        JOIN customers c ON c.id = o.customer_id
        WHERE o.balance > 0
-         AND o.status != 'delivered'
        ORDER BY o.balance DESC
-       LIMIT 50`
+       LIMIT 100`
     );
     res.json({ status: "ok", data: rows });
   } catch (err) { next(err); }

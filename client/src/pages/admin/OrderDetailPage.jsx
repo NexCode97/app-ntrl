@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
@@ -64,7 +64,8 @@ export default function OrderDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
-  const [tab,        setTab]        = useState("items");
+  const [searchParams] = useSearchParams();
+  const [tab,        setTab]        = useState(searchParams.get("tab") || "items");
   const [showEdit,   setShowEdit]   = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [pdfSrc,     setPdfSrc]     = useState(null);

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import { api } from "../../config/api.js";
+import { useAuthStore } from "../../stores/authStore.js";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid
@@ -70,18 +71,22 @@ function KanbanCard({ order, onClick }) {
 export default function DashboardPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const user = useAuthStore((s) => s.user);
+  const isVendedor = user?.role === "vendedor";
 
   async function handleRefresh() {
     await api.delete("/dashboard/cache").catch(() => {});
     qc.invalidateQueries({ queryKey: ["dashboard"] });
     qc.invalidateQueries({ queryKey: ["production-overview"] });
     qc.invalidateQueries({ queryKey: ["upcoming-deliveries"] });
+    qc.invalidateQueries({ queryKey: ["pending-balances"] });
   }
 
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn:  () => api.get("/dashboard").then((r) => r.data.data),
     staleTime: 5 * 60 * 1000,
+    enabled: !isVendedor,
   });
 
   const { data: production } = useQuery({
@@ -94,6 +99,14 @@ export default function DashboardPage() {
     queryKey: ["upcoming-deliveries"],
     queryFn:  () => api.get("/dashboard/upcoming-deliveries").then((r) => r.data.data),
     refetchInterval: 60000,
+    enabled: !isVendedor,
+  });
+
+  const { data: pendingBalances } = useQuery({
+    queryKey: ["pending-balances"],
+    queryFn:  () => api.get("/dashboard/pending-balances").then((r) => r.data.data),
+    refetchInterval: 60000,
+    enabled: isVendedor,
   });
 
   // Datos siempre presentes — si no hay info real se muestran en cero
@@ -120,7 +133,86 @@ export default function DashboardPage() {
     return [{ sport: "Sin datos aún", revenue: 0, orders: 0 }];
   }, [data?.bySport]);
 
-  if (isLoading) return <div className="text-zinc-500 text-center py-12">Cargando dashboard...</div>;
+  if (isLoading && !isVendedor) return <div className="text-zinc-500 text-center py-12">Cargando dashboard...</div>;
+
+  /* ── Vista Vendedor ── */
+  if (isVendedor) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-white font-bold text-xl">Dashboard</h1>
+          <button onClick={handleRefresh} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
+        </div>
+
+        {/* Pendiente de cobro */}
+        <div>
+          <h2 className="text-white font-semibold mb-3">Pendiente de cobro</h2>
+          <div className="card p-0 overflow-hidden">
+            {!pendingBalances?.length ? (
+              <p className="text-zinc-600 text-sm text-center py-6">Sin saldos pendientes.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-zinc-800 text-zinc-400">
+                  <tr>
+                    <th className="px-4 py-2 text-left">Pedido</th>
+                    <th className="px-4 py-2 text-left">Cliente</th>
+                    <th className="px-4 py-2 text-right">Total</th>
+                    <th className="px-4 py-2 text-right">Abonado</th>
+                    <th className="px-4 py-2 text-right">Saldo</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800">
+                  {pendingBalances.map((o) => (
+                    <tr key={o.id} onClick={() => navigate(`/orders/${o.id}`)} className="hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                      <td className="px-4 py-3 text-brand-green font-mono font-bold">#{o.order_number_fmt}</td>
+                      <td className="px-4 py-3 text-white">{o.customer_name}</td>
+                      <td className="px-4 py-3 text-zinc-400 text-right">${Number(o.total).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-zinc-400 text-right">${Number(o.amount_paid).toLocaleString()}</td>
+                      <td className="px-4 py-3 text-yellow-400 font-bold text-right">${Number(o.balance).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        {/* Producción en curso */}
+        <div>
+          <h2 className="text-white font-semibold mb-3">Producción en curso</h2>
+          {!production?.length ? (
+            <div className="card text-center py-6">
+              <p className="text-zinc-500 text-sm">No hay pedidos en producción.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {KANBAN_COLUMNS.map((col) => {
+                const orders = (production ?? []).filter((o) => o.order_status === col.key);
+                return (
+                  <div key={col.key} className={`bg-zinc-900/50 border ${col.border} rounded-xl p-3`}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
+                      <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
+                      <span className="ml-auto text-xs text-zinc-600 bg-zinc-800 rounded-full px-2 py-0.5">{orders.length}</span>
+                    </div>
+                    {orders.length === 0 ? (
+                      <p className="text-zinc-700 text-xs text-center py-4">Sin pedidos</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {orders.map((order) => (
+                          <KanbanCard key={order.id} order={order} onClick={() => navigate(`/orders/${order.id}`)} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

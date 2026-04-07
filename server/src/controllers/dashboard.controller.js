@@ -80,6 +80,22 @@ export async function invalidateCache(req, res) {
   res.json({ status: "ok", message: "Caché invalidada." });
 }
 
+export async function getPendingBalances(req, res, next) {
+  try {
+    const { rows } = await pool.query(
+      `SELECT o.id, o.order_number, TO_CHAR(o.order_number,'FM000') AS order_number_fmt,
+              c.name AS customer_name, o.total, o.amount_paid, o.balance
+       FROM orders o
+       JOIN customers c ON c.id = o.customer_id
+       WHERE o.balance > 0
+         AND o.status != 'delivered'
+       ORDER BY o.balance DESC
+       LIMIT 50`
+    );
+    res.json({ status: "ok", data: rows });
+  } catch (err) { next(err); }
+}
+
 export async function getUpcomingDeliveries(req, res, next) {
   try {
     const { rows } = await pool.query(

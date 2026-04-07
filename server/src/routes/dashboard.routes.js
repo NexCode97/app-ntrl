@@ -4,10 +4,11 @@ import { permissiveLimiter, moderateLimiter } from "../middleware/rateLimiter.js
 import * as ctrl from "../controllers/dashboard.controller.js";
 
 const router = Router();
-router.use(requireAuth, requireRole("admin"));
+router.use(requireAuth);
 
-router.get("/",                    permissiveLimiter, ctrl.getSummary);
-router.get("/upcoming-deliveries", permissiveLimiter, ctrl.getUpcomingDeliveries);
-router.delete("/cache",            moderateLimiter,   ctrl.invalidateCache);
+router.get("/",                    requireRole("admin"), permissiveLimiter, ctrl.getSummary);
+router.get("/upcoming-deliveries", requireRole("admin"), permissiveLimiter, ctrl.getUpcomingDeliveries);
+router.get("/pending-balances",    requireRole("admin","vendedor"), permissiveLimiter, ctrl.getPendingBalances);
+router.delete("/cache",            requireRole("admin"), moderateLimiter,   ctrl.invalidateCache);
 
 export default router;

@@ -22,8 +22,8 @@ export default function UsersPage() {
     onSuccess:  () => { qc.invalidateQueries(["users"]); setForm(null); },
   });
 
-  const deactivate = useMutation({
-    mutationFn: (id) => api.put(`/users/${id}`, { is_active: false }),
+  const toggleActive = useMutation({
+    mutationFn: ({ id, is_active }) => api.put(`/users/${id}`, { is_active }),
     onSuccess:  () => qc.invalidateQueries(["users"]),
   });
 
@@ -61,7 +61,10 @@ export default function UsersPage() {
                 <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
                 <td className="px-4 py-3 flex gap-2">
                   <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>Editar</button>
-                  {u.is_active && <button className="text-zinc-500 hover:text-yellow-400 text-xs" onClick={() => deactivate.mutate(u.id)}>Desactivar</button>}
+                  <button className={`text-zinc-500 text-xs ${u.is_active ? "hover:text-yellow-400" : "hover:text-brand-green"}`}
+                    onClick={() => toggleActive.mutate({ id: u.id, is_active: !u.is_active })}>
+                    {u.is_active ? "Desactivar" : "Activar"}
+                  </button>
                   <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
                     if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
                   }}>Eliminar</button>

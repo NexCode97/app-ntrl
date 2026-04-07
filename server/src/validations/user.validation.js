@@ -11,9 +11,10 @@ export const createUserSchema = Joi.object({
 }).unknown(true);
 
 export const updateUserSchema = Joi.object({
-  name:     Joi.string().min(2).max(100).optional(),
-  email:    Joi.string().email().optional(),
-  password: Joi.string().min(8).max(100).optional().allow(""),
-  area:     Joi.string().valid("corte", "diseno", "impresion", "sublimacion", "ensamble", "terminados").optional().allow(null),
+  name:      Joi.string().min(2).max(100).optional(),
+  email:     Joi.string().email().optional(),
+  password:  Joi.string().min(8).max(100).optional().allow(""),
+  role:      Joi.string().valid("admin", "worker", "vendedor").optional(),
+  area:      Joi.string().valid("corte", "diseno", "impresion", "sublimacion", "ensamble", "terminados").optional().allow(null),
   is_active: Joi.boolean().optional(),
 }).unknown(true);

@@ -39,6 +39,19 @@ export default function CatalogPage() {
     onSuccess: () => { qc.invalidateQueries(["products"]); setForm(null); },
   });
 
+  const deleteSport = useMutation({
+    mutationFn: (id) => api.delete(`/catalog/sports/${id}`),
+    onSuccess: () => qc.invalidateQueries(["sports"]),
+  });
+  const deleteLine = useMutation({
+    mutationFn: (id) => api.delete(`/catalog/lines/${id}`),
+    onSuccess: () => qc.invalidateQueries(["lines"]),
+  });
+  const deleteProduct = useMutation({
+    mutationFn: (id) => api.delete(`/catalog/products/${id}`),
+    onSuccess: () => qc.invalidateQueries(["products"]),
+  });
+
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (products.data || []).filter(p =>
@@ -83,6 +96,7 @@ export default function CatalogPage() {
           data={sports.data}
           columns={[["name","Nombre"],["slug","Slug"]]}
           onEdit={(row) => setForm({ type: "sport", ...row })}
+          onDelete={(row) => { if (window.confirm(`¿Eliminar deporte "${row.name}"?`)) deleteSport.mutate(row.id); }}
         />
       )}
       {tab === "lines" && (
@@ -90,6 +104,7 @@ export default function CatalogPage() {
           data={lines.data}
           columns={[["name","Nombre"],["sport_name","Deporte"],["slug","Slug"]]}
           onEdit={(row) => setForm({ type: "line", ...row })}
+          onDelete={(row) => { if (window.confirm(`¿Eliminar línea "${row.name}"?`)) deleteLine.mutate(row.id); }}
         />
       )}
       {tab === "products" && (
@@ -143,8 +158,9 @@ export default function CatalogPage() {
                             ? `$${Number(row[priceTier]).toLocaleString("es-CO")}`
                             : <span className="text-zinc-600">—</span>}
                         </td>
-                        <td className="px-4 py-3 w-16">
+                        <td className="px-4 py-3 w-16 flex gap-3">
                           <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm({ type: "product", ...row })}>Editar</button>
+                          <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => { if (window.confirm(`¿Eliminar producto "${row.name}"?`)) deleteProduct.mutate(row.id); }}>Eliminar</button>
                         </td>
                       </tr>
                     ))}
@@ -163,7 +179,7 @@ export default function CatalogPage() {
   );
 }
 
-function CatalogTable({ data, columns, onEdit }) {
+function CatalogTable({ data, columns, onEdit, onDelete }) {
   return (
     <div className="card overflow-hidden p-0 overflow-x-auto">
       <table className="w-full text-sm min-w-[360px]">
@@ -175,7 +191,10 @@ function CatalogTable({ data, columns, onEdit }) {
             <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors">
               {columns.map(([key]) => <td key={key} className="px-4 py-3 text-zinc-300">{row[key]}</td>)}
               <td className="px-4 py-3">
-                <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => onEdit(row)}>Editar</button>
+                <div className="flex gap-3">
+                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => onEdit(row)}>Editar</button>
+                  {onDelete && <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => onDelete(row)}>Eliminar</button>}
+                </div>
               </td>
             </tr>
           ))}

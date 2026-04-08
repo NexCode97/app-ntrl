@@ -703,6 +703,7 @@ function FinancialTab({ order, onRefresh }) {
   const [method,   setMethod]   = useState("efectivo");
   const [bank,     setBank]     = useState("");
   const [paidAt,   setPaidAt]   = useState(new Date().toISOString().slice(0, 10));
+  const [receipt,  setReceipt]  = useState(null);
   const [saving,   setSaving]   = useState(false);
   const [error,    setError]    = useState("");
 
@@ -718,18 +719,23 @@ function FinancialTab({ order, onRefresh }) {
     setError("");
     setSaving(true);
     try {
-      await api.post(`/financial/${order.id}/payments`, {
-        payment_number: nextNumber,
-        amount: parseFloat(amount),
-        method,
-        bank: method === "transferencia" ? bank : undefined,
-        paid_at: paidAt,
+      const formData = new FormData();
+      formData.append("payment_number", nextNumber);
+      formData.append("amount", parseFloat(amount));
+      formData.append("method", method);
+      if (method === "transferencia") formData.append("bank", bank);
+      formData.append("paid_at", paidAt);
+      if (receipt) formData.append("receipt", receipt);
+
+      await api.post(`/financial/${order.id}/payments`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       setShowForm(false);
       setAmount("");
       setAmountDisplay("");
       setMethod("efectivo");
       setBank("");
+      setReceipt(null);
       onRefresh();
     } catch (err) {
       setError(err.response?.data?.message || "Error al registrar el abono.");
@@ -783,8 +789,16 @@ function FinancialTab({ order, onRefresh }) {
 
         {order.payments?.map((p) => (
           <div key={p.id} className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2 mb-2">
-            <span className="text-zinc-400 text-sm">Abono #{p.payment_number} · {p.method}</span>
-            {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
+            <div className="flex flex-col gap-0.5">
+              <span className="text-zinc-400 text-sm">Abono #{p.payment_number} · {p.method}</span>
+              {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
+              {p.receipt_url && (
+                <a href={fileUrl(p.receipt_url)} target="_blank" rel="noreferrer"
+                  className="text-brand-green text-xs hover:underline">
+                  Ver comprobante
+                </a>
+              )}
+            </div>
             <div className="flex items-center gap-3">
               <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
               {order.status !== "delivered" && (
@@ -835,12 +849,18 @@ function FinancialTab({ order, onRefresh }) {
                 </div>
               )}
             </div>
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Comprobante (opcional · JPG, PNG o PDF)</label>
+              <input type="file" accept=".jpg,.jpeg,.png,.pdf" className="input-field text-sm"
+                onChange={(e) => setReceipt(e.target.files[0] || null)} />
+              {receipt && <p className="text-xs text-zinc-400 mt-1">{receipt.name}</p>}
+            </div>
             {error && (
               <div className="bg-red-950 border border-red-800 text-red-300 text-xs px-3 py-2 rounded-lg">{error}</div>
             )}
             <div className="flex gap-2 justify-end">
               <button type="button" className="btn-secondary text-xs py-1 px-3"
-                onClick={() => { setShowForm(false); setError(""); }}>Cancelar</button>
+                onClick={() => { setShowForm(false); setError(""); setReceipt(null); }}>Cancelar</button>
               <button type="submit" className="btn-primary text-xs py-1 px-3" disabled={saving}>
                 {saving ? "Guardando..." : "Registrar"}
               </button>

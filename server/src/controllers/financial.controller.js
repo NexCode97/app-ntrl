@@ -1,5 +1,6 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
+import { saveFile } from "../utils/fileStorage.js";
 
 export async function getFinancialSummary(req, res, next) {
   try {
@@ -72,11 +73,13 @@ export async function addPayment(req, res, next) {
       return res.json({ status: "ok", message: "Abono ya registrado.", existing: true });
     }
 
+    const receiptUrl = req.file ? await saveFile(req.file, "receipts") : null;
+
     const { rows: [payment] } = await pool.query(
-      `INSERT INTO order_payments (order_id, payment_number, amount, method, bank, paid_at, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO order_payments (order_id, payment_number, amount, method, bank, paid_at, created_by, receipt_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
-      [orderId, payment_number, amount, method, bank || null, paid_at || new Date(), req.user.id]
+      [orderId, payment_number, amount, method, bank || null, paid_at || new Date(), req.user.id, receiptUrl]
     );
 
     res.status(201).json({ status: "ok", data: payment });

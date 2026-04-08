@@ -61,6 +61,13 @@ export default function Sidebar() {
     }
   }, [user]);
 
+  // Solicitar permiso de notificaciones al montar
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
   // SSE: actualizar badges en tiempo real
   useEffect(() => {
     if (!accessToken) return;
@@ -68,7 +75,16 @@ export default function Sidebar() {
     es.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);
-        if (msg.type === "new_message") setChatUnread((n) => n + 1);
+        if (msg.type === "new_message") {
+          setChatUnread((n) => n + 1);
+          // Notificación del sistema si la app está en segundo plano
+          if (document.visibilityState === "hidden" && "Notification" in window && Notification.permission === "granted") {
+            new Notification("Nuevo mensaje - NTRL", {
+              body: msg.sender ? `${msg.sender}: ${msg.text ?? "Mensaje nuevo"}` : "Tienes un mensaje nuevo",
+              icon: "/logo.png",
+            });
+          }
+        }
         // Refrescar tareas y suministros en cualquier evento de producción
         if (["area_completed", "area_started"].includes(msg.type) && user?.role === "worker") {
           api.get("/production/my-tasks")

@@ -30,7 +30,7 @@ export default function Header() {
       <div className="flex items-center gap-3 text-sm text-zinc-400">
         <span>{user?.name}</span>
         <span className="badge badge-completed text-center">
-          {user?.role === "admin" ? "Admin" : (user?.area ? user.area.charAt(0).toUpperCase() + user.area.slice(1) : "")}
+          {user?.role === "admin" ? "Admin" : user?.role === "vendedor" ? "Vendedor" : (user?.area ? user.area.charAt(0).toUpperCase() + user.area.slice(1) : "")}
         </span>
         {user?.role === "admin" && <NotificationBell />}
       </div>

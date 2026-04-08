@@ -55,6 +55,7 @@ export default function OrderCreatePage() {
   const [designFiles,   setDesignFiles]   = useState([]);
   const [designPreviews, setDesignPreviews] = useState([]);
   const [items,         setItems]         = useState([]);
+  const [filterKey,     setFilterKey]     = useState(0);
   const [error,         setError]         = useState("");
   const [saving,        setSaving]        = useState(false);
 
@@ -68,6 +69,7 @@ export default function OrderCreatePage() {
   function addItem(product) {
     if (!product) return;
     setItems((prev) => [...prev, emptyItem(product)]);
+    setFilterKey((k) => k + 1);
   }
 
   function updateItem(index, field, value) {
@@ -187,7 +189,7 @@ export default function OrderCreatePage() {
         {/* Productos */}
         <div className="card space-y-4">
           <h2 className="text-white font-semibold">Productos</h2>
-          <CascadeFilter onProductSelect={addItem} />
+          <CascadeFilter key={filterKey} onProductSelect={addItem} />
 
           {items.map((item, i) => (
             <div key={i} className="bg-zinc-800 rounded-lg p-4 space-y-3">

@@ -33,8 +33,8 @@ export default function Header() {
         <span className="badge badge-completed text-center">
           {user?.role === "admin" ? "Admin" : user?.role === "vendedor" ? "Vendedor" : (user?.area ? user.area.charAt(0).toUpperCase() + user.area.slice(1) : "")}
         </span>
-        {user?.role === "admin" && <NotificationBell />}
       </div>
+      {user?.role === "admin" && <NotificationBell />}
     </header>
   );
 }

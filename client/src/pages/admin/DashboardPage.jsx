@@ -85,7 +85,7 @@ export default function DashboardPage() {
       const keys = await caches.keys();
       await Promise.all(keys.map((k) => caches.delete(k)));
     }
-    window.location.reload(true);
+    window.location.href = window.location.origin + "?r=" + Date.now();
   }
 
   const { data, isLoading } = useQuery({

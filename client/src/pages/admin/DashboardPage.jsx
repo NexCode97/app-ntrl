@@ -76,10 +76,7 @@ export default function DashboardPage() {
 
   async function handleRefresh() {
     await api.delete("/dashboard/cache").catch(() => {});
-    qc.invalidateQueries({ queryKey: ["dashboard"] });
-    qc.invalidateQueries({ queryKey: ["production-overview"] });
-    qc.invalidateQueries({ queryKey: ["upcoming-deliveries"] });
-    qc.invalidateQueries({ queryKey: ["pending-balances"] });
+    window.location.reload();
   }
 
   const { data, isLoading } = useQuery({

@@ -7,7 +7,7 @@ const router = Router();
 router.use(requireAuth);
 
 router.get("/",                    requireRole("admin"), permissiveLimiter, ctrl.getSummary);
-router.get("/upcoming-deliveries", requireRole("admin"), permissiveLimiter, ctrl.getUpcomingDeliveries);
+router.get("/upcoming-deliveries", requireRole("admin","vendedor"), permissiveLimiter, ctrl.getUpcomingDeliveries);
 router.get("/pending-balances",    requireRole("admin","vendedor"), permissiveLimiter, ctrl.getPendingBalances);
 router.delete("/cache",            requireRole("admin"), moderateLimiter,   ctrl.invalidateCache);
 

@@ -698,7 +698,8 @@ const BANKS = ["Bancolombia", "Nequi", "Davivienda", "Bold"];
 
 function FinancialTab({ order, onRefresh }) {
   const [showForm, setShowForm] = useState(false);
-  const [amount,   setAmount]   = useState("");
+  const [amount,        setAmount]        = useState("");
+  const [amountDisplay, setAmountDisplay] = useState("");
   const [method,   setMethod]   = useState("efectivo");
   const [bank,     setBank]     = useState("");
   const [paidAt,   setPaidAt]   = useState(new Date().toISOString().slice(0, 10));
@@ -726,6 +727,7 @@ function FinancialTab({ order, onRefresh }) {
       });
       setShowForm(false);
       setAmount("");
+      setAmountDisplay("");
       setMethod("efectivo");
       setBank("");
       onRefresh();
@@ -800,8 +802,13 @@ function FinancialTab({ order, onRefresh }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Monto</label>
-                <input type="number" min="1" step="any" className="input-field"
-                  value={amount} onChange={(e) => setAmount(e.target.value)}
+                <input type="text" inputMode="numeric" className="input-field"
+                  value={amountDisplay}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, "");
+                    setAmount(digits);
+                    setAmountDisplay(digits ? Number(digits).toLocaleString("es-CO") : "");
+                  }}
                   placeholder="$0" autoFocus />
               </div>
               <div>

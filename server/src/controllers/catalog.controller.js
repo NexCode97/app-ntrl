@@ -11,7 +11,7 @@ function slugify(text) {
 }
 
 async function requireAdmin(req) {
-  if (req.user.role !== "admin") throw new AppError("Solo administradores.", 403, "FORBIDDEN");
+  if (req.user.role !== "admin" && req.user.role !== "vendedor") throw new AppError("Solo administradores.", 403, "FORBIDDEN");
 }
 
 // ── SPORTS ────────────────────────────────────────────────────

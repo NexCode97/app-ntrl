@@ -75,17 +75,18 @@ export default function DashboardPage() {
   const isVendedor = user?.role === "vendedor";
 
   async function handleRefresh() {
-    await api.delete("/dashboard/cache").catch(() => {});
-    // Limpiar service workers y caches del navegador
-    if ("serviceWorker" in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map((r) => r.unregister()));
-    }
-    if ("caches" in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
-    }
-    window.location.href = window.location.origin + "?r=" + Date.now();
+    try {
+      await api.delete("/dashboard/cache").catch(() => {});
+      if ("serviceWorker" in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((r) => r.unregister()));
+      }
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+    } catch (_) {}
+    window.location.replace(window.location.pathname + "?v=" + Date.now());
   }
 
   const { data, isLoading } = useQuery({

@@ -147,7 +147,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="lg:hidden text-white font-bold text-xl">Dashboard</h1>
-          <button onClick={handleRefresh} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
+          <button onClick={handleRefresh} className="ml-auto flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
         </div>
 
         {/* Próximas entregas */}

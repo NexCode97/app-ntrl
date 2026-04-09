@@ -145,7 +145,7 @@ function RequestsTab({ showForm, setShowForm }) {
                     : <span className="text-zinc-600 text-xs">—</span>}
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[r.status]}`}>{STATUS_LABELS[r.status]}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_COLORS[r.status]}`}>{STATUS_LABELS[r.status]}</span>
                 </td>
                 <td className="px-4 py-3 text-zinc-500 text-xs">
                   {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}

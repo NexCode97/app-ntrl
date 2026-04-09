@@ -231,8 +231,11 @@ function SuppliersTab({ showForm, setShowForm }) {
               {s.contact_name && <p className="text-zinc-400">👤 {s.contact_name}</p>}
               {s.phone        && <p className="text-zinc-400">📞 {s.phone}</p>}
               {s.email        && <p className="text-zinc-400">✉️ {s.email}</p>}
-              {s.department   && <p className="text-zinc-400">📍 {s.department}{s.city ? ` — ${s.city}` : ""}</p>}
-              {s.address      && <p className="text-zinc-500 text-xs">{s.address}</p>}
+              {(s.address || s.department || s.city) && (
+                <p className="text-zinc-500 text-xs">
+                  {[s.address, s.city, s.department].filter(Boolean).join(", ")}
+                </p>
+              )}
               {s.notes        && <p className="text-zinc-600 text-xs italic">"{s.notes}"</p>}
             </div>
             <div className="pt-1 border-t border-zinc-800 flex justify-end">

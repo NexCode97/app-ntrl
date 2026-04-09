@@ -116,10 +116,10 @@ function RequestsTab({ showForm, setShowForm }) {
             <tr>
               <th className="px-4 py-3 text-left whitespace-nowrap">Área</th>
               <th className="px-4 py-3 text-left whitespace-nowrap">Insumo</th>
-              <th className="px-4 py-3 text-left whitespace-nowrap">Cantidad</th>
-              <th className="px-4 py-3 text-left whitespace-nowrap">Unidad</th>
-              <th className="px-4 py-3 text-left whitespace-nowrap">Pedido</th>
-              <th className="px-4 py-3 text-left whitespace-nowrap">Estado</th>
+              <th className="px-4 py-3 text-center whitespace-nowrap">Cantidad</th>
+              <th className="px-4 py-3 text-center whitespace-nowrap">Unidad</th>
+              <th className="px-4 py-3 text-center whitespace-nowrap">Pedido</th>
+              <th className="px-4 py-3 text-center whitespace-nowrap">Estado</th>
               <th className="px-4 py-3 text-left whitespace-nowrap">Fecha</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -139,14 +139,14 @@ function RequestsTab({ showForm, setShowForm }) {
                   <p className="text-white">{r.item_name}</p>
                   {r.notes && <p className="text-zinc-500 text-xs truncate max-w-[160px]">{r.notes}</p>}
                 </td>
-                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap">{r.quantity}</td>
-                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap">{r.unit}</td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap text-center">{r.quantity}</td>
+                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap text-center">{r.unit}</td>
+                <td className="px-4 py-3 whitespace-nowrap text-center">
                   {r.order_number
                     ? <button onClick={() => navigate(`/orders/${r.order_id}`)} className="text-brand-green font-mono text-xs hover:underline">#{String(r.order_number).padStart(3,"0")}</button>
                     : <span className="text-zinc-600 text-xs">—</span>}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-4 py-3 whitespace-nowrap text-center">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_COLORS[r.status]}`}>{STATUS_LABELS[r.status]}</span>
                 </td>
                 <td className="px-4 py-3 text-zinc-500 text-xs whitespace-nowrap">

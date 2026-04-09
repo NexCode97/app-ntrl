@@ -15,7 +15,7 @@ export default function SuppliesWorkerPage() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["supplies-worker"],
     queryFn: () => api.get("/supplies").then((r) => r.data.data),
   });
@@ -45,7 +45,8 @@ export default function SuppliesWorkerPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-4">
 
-      <div className="flex justify-start md:justify-end">
+      <div className="flex items-center justify-between">
+        <button onClick={() => refetch()} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
         <button className="btn-primary" onClick={() => setShowForm(true)}>+ Nueva solicitud</button>
       </div>
 

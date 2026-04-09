@@ -54,6 +54,7 @@ function RequestsTab({ showForm, setShowForm }) {
   const navigate = useNavigate();
   const [filter,   setFilter]   = useState("all");
   const [selected, setSelected] = useState(null);
+  const [editing,  setEditing]  = useState(null);
 
   const { data: allData, isLoading } = useQuery({
     queryKey: ["supplies"],
@@ -75,6 +76,11 @@ function RequestsTab({ showForm, setShowForm }) {
   const create = useMutation({
     mutationFn: (d) => api.post("/supplies", d),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["supplies"] }); setShowForm(false); },
+  });
+
+  const editRequest = useMutation({
+    mutationFn: ({ id, ...d }) => api.patch(`/supplies/${id}`, d),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["supplies"] }); setEditing(null); },
   });
 
   const { data: ordersData } = useQuery({
@@ -140,7 +146,7 @@ function RequestsTab({ showForm, setShowForm }) {
                   <p className="text-white">{r.item_name}</p>
                   {r.notes && <p className="text-zinc-500 text-xs truncate max-w-[160px]">{r.notes}</p>}
                 </td>
-                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap text-center">{r.quantity}</td>
+                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap text-center">{parseFloat(r.quantity)}</td>
                 <td className="px-4 py-3 text-zinc-300 whitespace-nowrap text-center">{r.unit}</td>
                 <td className="px-4 py-3 whitespace-nowrap text-center">
                   {r.order_number
@@ -154,7 +160,10 @@ function RequestsTab({ showForm, setShowForm }) {
                   {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <button onClick={() => setSelected(r)} className="text-zinc-500 hover:text-brand-green text-xs">Gestionar</button>
+                  <div className="flex gap-3">
+                    <button onClick={() => setEditing(r)} className="text-zinc-500 hover:text-brand-green text-xs">Editar</button>
+                    <button onClick={() => setSelected(r)} className="text-zinc-500 hover:text-brand-green text-xs">Gestionar</button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -179,6 +188,16 @@ function RequestsTab({ showForm, setShowForm }) {
           onDelete={() => { if (confirm("¿Eliminar esta solicitud?")) remove.mutate(selected.id); }}
           onClose={() => setSelected(null)}
           saving={updateStatus.isPending}
+        />
+      )}
+
+      {editing && (
+        <EditRequestModal
+          request={editing}
+          orders={ordersData ?? []}
+          onSave={(d) => editRequest.mutate({ id: editing.id, ...d })}
+          onClose={() => setEditing(null)}
+          saving={editRequest.isPending}
         />
       )}
     </div>
@@ -381,6 +400,60 @@ function RequestForm({ orders, onSave, onClose, saving, error }) {
           <button className="btn-secondary" onClick={onClose}>Cancelar</button>
           <button className="btn-primary" onClick={handleSubmit} disabled={saving || !data.item_name.trim() || !data.quantity}>
             {saving ? "Enviando..." : "Enviar solicitud"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditRequestModal({ request, orders, onSave, onClose, saving }) {
+  const [data, setData] = useState({
+    item_name: request.item_name,
+    quantity:  parseFloat(request.quantity),
+    unit:      request.unit,
+    order_id:  request.order_id || "",
+    notes:     request.notes || "",
+  });
+  const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-md space-y-4">
+        <h2 className="text-white font-semibold">Editar solicitud</h2>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Insumo</label>
+            <input className="input-field" value={data.item_name} onChange={(e) => set("item_name", e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Cantidad</label>
+              <input className="input-field" type="number" min="0.01" step="0.01" value={data.quantity} onChange={(e) => set("quantity", e.target.value)} />
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Unidad</label>
+              <select className="input-field" value={data.unit} onChange={(e) => set("unit", e.target.value)}>
+                {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Pedido relacionado</label>
+            <select className="input-field" value={data.order_id} onChange={(e) => set("order_id", e.target.value)}>
+              <option value="">Sin pedido específico</option>
+              {orders.map((o) => <option key={o.id} value={o.id}>#{String(o.order_number).padStart(3,"0")} — {o.customer_name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Notas</label>
+            <textarea className="input-field resize-none h-20" value={data.notes} onChange={(e) => set("notes", e.target.value)} />
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary" onClick={() => onSave({ ...data, order_id: data.order_id || null })} disabled={saving || !data.item_name.trim()}>
+            {saving ? "Guardando..." : "Guardar"}
           </button>
         </div>
       </div>

@@ -63,6 +63,28 @@ export async function create(req, res, next) {
   } catch (err) { next(err); }
 }
 
+export async function updateRequest(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { item_name, quantity, unit, order_id, notes } = req.body;
+
+    const { rows: [updated] } = await pool.query(
+      `UPDATE supply_requests
+       SET item_name = COALESCE($1, item_name),
+           quantity  = COALESCE($2, quantity),
+           unit      = COALESCE($3, unit),
+           order_id  = $4,
+           notes     = $5,
+           updated_at = NOW()
+       WHERE id = $6
+       RETURNING *`,
+      [item_name?.trim() || null, quantity || null, unit || null, order_id || null, notes?.trim() || null, id]
+    );
+    if (!updated) throw new AppError("Solicitud no encontrada.", 404, "NOT_FOUND");
+    res.json({ status: "ok", data: updated });
+  } catch (err) { next(err); }
+}
+
 export async function updateStatus(req, res, next) {
   try {
     const { id } = req.params;

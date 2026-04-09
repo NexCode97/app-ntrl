@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/api.js";
+import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
 
 const STATUS_COLORS = {
   pending:     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
@@ -230,6 +231,7 @@ function SuppliersTab({ showForm, setShowForm }) {
               {s.contact_name && <p className="text-zinc-400">👤 {s.contact_name}</p>}
               {s.phone        && <p className="text-zinc-400">📞 {s.phone}</p>}
               {s.email        && <p className="text-zinc-400">✉️ {s.email}</p>}
+              {s.department   && <p className="text-zinc-400">📍 {s.department}{s.city ? ` — ${s.city}` : ""}</p>}
               {s.address      && <p className="text-zinc-500 text-xs">{s.address}</p>}
               {s.notes        && <p className="text-zinc-600 text-xs italic">"{s.notes}"</p>}
             </div>
@@ -255,8 +257,9 @@ function SuppliersTab({ showForm, setShowForm }) {
 }
 
 function SupplierModal({ form, onSave, onClose, saving, error }) {
-  const [data, setData] = useState({ name:"", contact_name:"", phone:"", email:"", address:"", notes:"", is_active:true, ...form });
+  const [data, setData] = useState({ name:"", contact_name:"", phone:"", email:"", department:"", city:"", address:"", notes:"", is_active:true, ...form });
   const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
+  const cities = data.department ? (COLOMBIA[data.department] || []) : [];
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
@@ -281,9 +284,27 @@ function SupplierModal({ form, onSave, onClose, saving, error }) {
               <input className="input-field" type="email" placeholder="correo@proveedor.com" value={data.email} onChange={(e) => set("email", e.target.value)} />
             </div>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Departamento</label>
+              <select className="input-field" value={data.department || ""}
+                onChange={(e) => { set("department", e.target.value); set("city", ""); }}>
+                <option value="">Seleccionar...</option>
+                {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Ciudad / Municipio</label>
+              <select className="input-field" value={data.city || ""}
+                onChange={(e) => set("city", e.target.value)} disabled={!data.department}>
+                <option value="">Seleccionar...</option>
+                {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
           <div>
             <label className="block text-xs text-zinc-400 mb-1">Dirección</label>
-            <input className="input-field" placeholder="Ciudad, dirección..." value={data.address} onChange={(e) => set("address", e.target.value)} />
+            <input className="input-field" placeholder="Calle, carrera, barrio..." value={data.address} onChange={(e) => set("address", e.target.value)} />
           </div>
           <div>
             <label className="block text-xs text-zinc-400 mb-1">Notas</label>

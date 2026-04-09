@@ -474,7 +474,7 @@ function ManageModal({ request, onSave, onDelete, onClose, saving }) {
           <div className="flex justify-between"><span className="text-zinc-400">Área</span><span className="text-white">{AREA_LABELS[request.worker_area] ?? request.worker_area ?? "—"}</span></div>
           <div className="flex justify-between"><span className="text-zinc-400">Trabajador</span><span className="text-white">{request.worker_name}</span></div>
           <div className="flex justify-between"><span className="text-zinc-400">Insumo</span><span className="text-white font-medium">{request.item_name}</span></div>
-          <div className="flex justify-between"><span className="text-zinc-400">Cantidad</span><span className="text-white">{request.quantity} {request.unit}</span></div>
+          <div className="flex justify-between"><span className="text-zinc-400">Cantidad</span><span className="text-white">{parseFloat(request.quantity)} {request.unit}</span></div>
           {request.order_number && <div className="flex justify-between"><span className="text-zinc-400">Pedido</span><span className="text-brand-green font-mono">#{String(request.order_number).padStart(3,"0")}</span></div>}
           {request.notes && <div className="flex justify-between gap-4"><span className="text-zinc-400 shrink-0">Notas</span><span className="text-zinc-300 text-right">{request.notes}</span></div>}
         </div>

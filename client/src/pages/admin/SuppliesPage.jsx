@@ -120,7 +120,7 @@ function RequestsTab({ showForm, setShowForm }) {
               <th className="px-4 py-3 text-center whitespace-nowrap">Unidad</th>
               <th className="px-4 py-3 text-center whitespace-nowrap">Pedido</th>
               <th className="px-4 py-3 text-center whitespace-nowrap">Estado</th>
-              <th className="px-4 py-3 text-left whitespace-nowrap">Fecha</th>
+              <th className="px-4 py-3 text-center whitespace-nowrap">Fecha</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
@@ -149,7 +149,7 @@ function RequestsTab({ showForm, setShowForm }) {
                 <td className="px-4 py-3 whitespace-nowrap text-center">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_COLORS[r.status]}`}>{STATUS_LABELS[r.status]}</span>
                 </td>
-                <td className="px-4 py-3 text-zinc-500 text-xs whitespace-nowrap">
+                <td className="px-4 py-3 text-zinc-500 text-xs whitespace-nowrap text-center">
                   {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">

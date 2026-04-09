@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import { fileUrl } from "../../utils/fileUrl.js";
+import { hardRefresh } from "../../utils/hardRefresh.js";
 
 const AREA_LABELS = {
   corte: "Corte", diseno: "Diseño", impresion: "Impresión",
@@ -43,8 +44,7 @@ export default function TasksPage() {
   const [mutError, setMutError] = useState(null);
 
   function handleRefresh() {
-    qc.invalidateQueries({ queryKey: ["my-tasks"] });
-    qc.invalidateQueries({ queryKey: ["supplies-worker"] });
+    hardRefresh();
   }
 
   const mutation = useMutation({

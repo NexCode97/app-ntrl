@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
+import { hardRefresh } from "../../utils/hardRefresh.js";
 
 const STATUS_COLORS = {
   pending:     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
@@ -46,7 +47,7 @@ export default function SuppliesWorkerPage() {
     <div className="max-w-2xl mx-auto space-y-4">
 
       <div className="flex items-center justify-between">
-        <button onClick={() => refetch()} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
+        <button onClick={hardRefresh} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
         <button className="btn-primary" onClick={() => setShowForm(true)}>+ Nueva solicitud</button>
       </div>
 

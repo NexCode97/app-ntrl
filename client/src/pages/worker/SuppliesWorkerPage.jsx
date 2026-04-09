@@ -81,7 +81,7 @@ export default function SuppliesWorkerPage() {
             <div className="flex flex-col items-end gap-2 shrink-0">
               {(r.status === "pending" || r.status === "in_progress") && (
                 <button onClick={() => { if (confirm("¿Confirmar que recibiste este suministro?")) markReceived.mutate(r.id); }}
-                  className="btn-primary text-xs py-1 px-3">
+                  className="text-brand-green hover:text-brand-green/70 text-xs transition-colors">
                   Recibido
                 </button>
               )}

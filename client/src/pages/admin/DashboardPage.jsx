@@ -126,18 +126,20 @@ export default function DashboardPage() {
   }, [data?.byStatus]);
 
   const monthlyData = useMemo(() => {
-    if (data?.monthly?.length) return data.monthly.map((r) => ({ ...r, revenue: Number(r.revenue) }));
+    if (data?.monthly?.length) return data.monthly.map((r) => ({ ...r, Ingresos: Number(r.revenue) }));
     const now = new Date();
     return Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-      return { month: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`, orders: 0, revenue: 0 };
+      return { month: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`, orders: 0, Ingresos: 0 };
     });
   }, [data?.monthly]);
 
   const bySportData = useMemo(() => {
-    if (data?.bySport?.length) return data.bySport.map((r) => ({ ...r, revenue: Number(r.revenue) }));
-    return [{ sport: "Sin datos aún", revenue: 0, orders: 0 }];
+    if (data?.bySport?.length) return data.bySport.map((r) => ({ ...r, Ingresos: Number(r.revenue) }));
+    return [{ sport: "Sin datos aún", Ingresos: 0, orders: 0 }];
   }, [data?.bySport]);
+
+  const formatPesos = (v) => `$${Number(v).toLocaleString("es-CO")}`;
 
   if (isLoading && !isVendedor) return <div className="text-zinc-500 text-center py-12">Cargando dashboard...</div>;
 
@@ -345,9 +347,9 @@ export default function DashboardPage() {
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                 <XAxis dataKey="month" tick={{ fill: "#71717a", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} />
-                <Bar dataKey="revenue" fill="#98f909" radius={[4,4,0,0]} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatPesos} />
+                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} />
+                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -360,9 +362,9 @@ export default function DashboardPage() {
               <BarChart data={bySportData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                 <XAxis dataKey="sport" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} />
-                <Bar dataKey="revenue" fill="#98f909" radius={[4,4,0,0]} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatPesos} />
+                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} />
+                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

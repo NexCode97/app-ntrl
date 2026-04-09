@@ -42,6 +42,11 @@ export default function TasksPage() {
 
   const [mutError, setMutError] = useState(null);
 
+  function handleRefresh() {
+    qc.invalidateQueries({ queryKey: ["my-tasks"] });
+    qc.invalidateQueries({ queryKey: ["supplies-worker"] });
+  }
+
   const mutation = useMutation({
     mutationFn: ({ taskId, status }) => api.patch(`/production/tasks/${taskId}/status`, { status }),
     onSuccess:  () => {
@@ -118,7 +123,10 @@ export default function TasksPage() {
 
       {/* Tareas */}
       <div>
-        <h2 className="text-zinc-400 text-xs font-medium uppercase tracking-wide mb-3">Mis tareas</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-zinc-400 text-xs font-medium uppercase tracking-wide">Mis tareas</h2>
+          <button onClick={handleRefresh} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors">↻ Actualizar</button>
+        </div>
 
         {mutError && (
           <div className="mb-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">

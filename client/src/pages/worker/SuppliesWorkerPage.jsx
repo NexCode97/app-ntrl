@@ -10,7 +10,7 @@ const STATUS_COLORS = {
 };
 const STATUS_LABELS = { pending: "Pendiente", in_progress: "En proceso", delivered: "Entregado" };
 
-const UNITS = ["unidades", "metros", "kg", "litros", "rollos", "yardas", "piezas"];
+const UNITS = ["unidades", "metros", "kg", "litros", "rollos", "yardas", "piezas", "resma"];
 
 export default function SuppliesWorkerPage() {
   const qc = useQueryClient();

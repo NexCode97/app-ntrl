@@ -16,7 +16,7 @@ const AREA_LABELS = {
   ensamble: "Ensamble", terminados: "Terminados",
 };
 
-const UNITS = ["unidades", "metros", "kg", "litros", "rollos", "yardas", "piezas"];
+const UNITS = ["unidades", "metros", "kg", "litros", "rollos", "yardas", "piezas", "resma"];
 
 export default function SuppliesPage() {
   const [tab, setTab] = useState("requests"); // "requests" | "suppliers"
@@ -114,43 +114,45 @@ function RequestsTab({ showForm, setShowForm }) {
         <table className="w-full text-sm min-w-[600px]">
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>
-              <th className="px-4 py-3 text-left">Área</th>
-              <th className="px-4 py-3 text-left">Insumo</th>
-              <th className="px-4 py-3 text-left">Cantidad</th>
-              <th className="px-4 py-3 text-left">Pedido</th>
-              <th className="px-4 py-3 text-left">Estado</th>
-              <th className="px-4 py-3 text-left">Fecha</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Área</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Insumo</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Cantidad</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Unidad</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Pedido</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Estado</th>
+              <th className="px-4 py-3 text-left whitespace-nowrap">Fecha</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
-            {isLoading && <tr><td colSpan={7} className="text-center py-8 text-zinc-500">Cargando...</td></tr>}
+            {isLoading && <tr><td colSpan={8} className="text-center py-8 text-zinc-500">Cargando...</td></tr>}
             {!isLoading && data?.length === 0 && (
-              <tr><td colSpan={7} className="text-center py-8 text-zinc-600">Sin solicitudes</td></tr>
+              <tr><td colSpan={8} className="text-center py-8 text-zinc-600">Sin solicitudes</td></tr>
             )}
             {data?.map((r) => (
               <tr key={r.id} className="hover:bg-zinc-800/50 transition-colors">
                 <td className="px-4 py-3">
-                  <p className="text-white">{AREA_LABELS[r.worker_area] ?? r.worker_area ?? "—"}</p>
-                  <p className="text-zinc-500 text-xs">{r.worker_name}</p>
+                  <p className="text-white whitespace-nowrap">{AREA_LABELS[r.worker_area] ?? r.worker_area ?? "—"}</p>
+                  <p className="text-zinc-500 text-xs whitespace-nowrap">{r.worker_name}</p>
                 </td>
                 <td className="px-4 py-3">
                   <p className="text-white">{r.item_name}</p>
                   {r.notes && <p className="text-zinc-500 text-xs truncate max-w-[160px]">{r.notes}</p>}
                 </td>
-                <td className="px-4 py-3 text-zinc-300">{r.quantity} {r.unit}</td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap">{r.quantity}</td>
+                <td className="px-4 py-3 text-zinc-300 whitespace-nowrap">{r.unit}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
                   {r.order_number
                     ? <button onClick={() => navigate(`/orders/${r.order_id}`)} className="text-brand-green font-mono text-xs hover:underline">#{String(r.order_number).padStart(3,"0")}</button>
                     : <span className="text-zinc-600 text-xs">—</span>}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 whitespace-nowrap">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${STATUS_COLORS[r.status]}`}>{STATUS_LABELS[r.status]}</span>
                 </td>
-                <td className="px-4 py-3 text-zinc-500 text-xs">
+                <td className="px-4 py-3 text-zinc-500 text-xs whitespace-nowrap">
                   {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 whitespace-nowrap">
                   <button onClick={() => setSelected(r)} className="text-zinc-500 hover:text-brand-green text-xs">Gestionar</button>
                 </td>
               </tr>

@@ -30,10 +30,17 @@ export default function SuppliesWorkerPage() {
     onSuccess: () => { qc.invalidateQueries(["supplies-worker"]); setShowForm(false); },
   });
 
+  const markReceived = useMutation({
+    mutationFn: (id) => api.put(`/supplies/${id}`, { status: "delivered" }),
+    onSuccess: () => qc.invalidateQueries(["supplies-worker"]),
+  });
+
   const remove = useMutation({
     mutationFn: (id) => api.delete(`/supplies/${id}`),
     onSuccess: () => qc.invalidateQueries(["supplies-worker"]),
   });
+
+  const visible = data?.filter((r) => r.status !== "delivered") ?? [];
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -45,13 +52,13 @@ export default function SuppliesWorkerPage() {
       {/* Lista de solicitudes */}
       <div className="space-y-3">
         {isLoading && <p className="text-zinc-500 text-center py-8 text-sm">Cargando...</p>}
-        {!isLoading && data?.length === 0 && (
+        {!isLoading && visible.length === 0 && (
           <div className="card text-center py-8">
             <p className="text-zinc-500 text-sm">No tienes solicitudes de suministros.</p>
             <button className="btn-primary mt-3 text-sm" onClick={() => setShowForm(true)}>Hacer primera solicitud</button>
           </div>
         )}
-        {data?.map((r) => (
+        {visible.map((r) => (
           <div key={r.id} className="card flex items-start gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -70,12 +77,20 @@ export default function SuppliesWorkerPage() {
                 {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short", year:"numeric" })}
               </p>
             </div>
-            {r.status === "pending" && (
-              <button onClick={() => { if (confirm("¿Cancelar esta solicitud?")) remove.mutate(r.id); }}
-                className="text-zinc-600 hover:text-red-400 text-xs shrink-0 transition-colors">
-                Cancelar
-              </button>
-            )}
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              {(r.status === "pending" || r.status === "in_progress") && (
+                <button onClick={() => { if (confirm("¿Confirmar que recibiste este suministro?")) markReceived.mutate(r.id); }}
+                  className="btn-primary text-xs py-1 px-3">
+                  Recibido
+                </button>
+              )}
+              {r.status === "pending" && (
+                <button onClick={() => { if (confirm("¿Cancelar esta solicitud?")) remove.mutate(r.id); }}
+                  className="text-zinc-600 hover:text-red-400 text-xs transition-colors">
+                  Cancelar
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>

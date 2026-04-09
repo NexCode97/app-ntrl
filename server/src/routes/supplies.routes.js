@@ -16,7 +16,7 @@ router.delete("/suppliers/:id", requireRole("admin"), suppliersCtrl.remove);
 // Solicitudes de insumos
 router.get("/",       ctrl.list);
 router.post("/",      ctrl.create);
-router.put("/:id",    requireRole("admin"), ctrl.updateStatus);
+router.put("/:id",    ctrl.updateStatus);
 router.delete("/:id", ctrl.remove);
 
 export default router;

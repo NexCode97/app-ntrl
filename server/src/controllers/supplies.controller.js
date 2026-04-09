@@ -67,8 +67,20 @@ export async function updateStatus(req, res, next) {
   try {
     const { id } = req.params;
     const { status, admin_notes } = req.body;
+    const isAdmin = req.user.role === "admin";
     const VALID = ["pending", "in_progress", "delivered"];
     if (!VALID.includes(status)) throw new AppError("Estado inválido.", 400, "INVALID_STATUS");
+
+    // Worker solo puede marcar como delivered sus propias solicitudes pendientes o en proceso
+    if (!isAdmin) {
+      if (status !== "delivered") throw new AppError("No tienes permisos para este cambio.", 403, "FORBIDDEN");
+      const { rows: [supply] } = await pool.query(
+        "SELECT id, status FROM supply_requests WHERE id = $1 AND worker_id = $2",
+        [id, req.user.id]
+      );
+      if (!supply) throw new AppError("Solicitud no encontrada.", 404, "NOT_FOUND");
+      if (supply.status === "delivered") throw new AppError("Ya fue marcada como entregada.", 400, "ALREADY_DELIVERED");
+    }
 
     const { rows: [updated] } = await pool.query(
       `UPDATE supply_requests

@@ -140,6 +140,16 @@ export default function DashboardPage() {
   }, [data?.bySport]);
 
   const formatPesos = (v) => `$${Number(v).toLocaleString("es-CO")}`;
+  const formatShort = (v) => {
+    if (v >= 1_000_000) return `$${(v / 1_000_000).toLocaleString("es-CO", { maximumFractionDigits: 1 })}M`;
+    if (v >= 1_000)     return `$${(v / 1_000).toLocaleString("es-CO", { maximumFractionDigits: 1 })}K`;
+    return `$${v}`;
+  };
+  const formatMonth = (m) => {
+    if (!m) return "";
+    const [year, month] = m.split("-");
+    return new Date(year, month - 1).toLocaleDateString("es-CO", { month: "short", year: "numeric" });
+  };
 
   if (isLoading && !isVendedor) return <div className="text-zinc-500 text-center py-12">Cargando dashboard...</div>;
 
@@ -346,9 +356,9 @@ export default function DashboardPage() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="month" tick={{ fill: "#71717a", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatPesos} />
-                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} />
+                <XAxis dataKey="month" tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatMonth} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
+                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} labelFormatter={formatMonth} />
                 <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -362,7 +372,7 @@ export default function DashboardPage() {
               <BarChart data={bySportData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                 <XAxis dataKey="sport" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatPesos} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
                 <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} />
                 <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} />
               </BarChart>

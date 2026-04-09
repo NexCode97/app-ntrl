@@ -79,7 +79,7 @@ export default function SuppliesWorkerPage() {
                 {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short", year:"numeric" })}
               </p>
             </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="flex flex-row items-center gap-3 shrink-0">
               {(r.status === "pending" || r.status === "in_progress") && (
                 <button onClick={() => { if (confirm("¿Confirmar que recibiste este suministro?")) markReceived.mutate(r.id); }}
                   className="text-brand-green hover:text-brand-green/70 text-xs transition-colors">

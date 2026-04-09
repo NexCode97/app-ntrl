@@ -306,7 +306,7 @@ export default function OrderDetailPage() {
         <FinancialTab order={data} onRefresh={() => {
           qc.invalidateQueries({ queryKey: ["order", id] });
           qc.invalidateQueries({ queryKey: ["dashboard"] });
-        }} />
+        }} onPreviewImage={setLightboxSrc} onPreviewPdf={setPdfSrc} />
       )}
 
       {/* Tab: Producción */}
@@ -696,7 +696,7 @@ const METHODS = [
 ];
 const BANKS = ["Bancolombia", "Nequi", "Davivienda", "Bold"];
 
-function FinancialTab({ order, onRefresh }) {
+function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
   const [showForm, setShowForm] = useState(false);
   const [amount,        setAmount]        = useState("");
   const [amountDisplay, setAmountDisplay] = useState("");
@@ -793,10 +793,15 @@ function FinancialTab({ order, onRefresh }) {
               <span className="text-zinc-400 text-sm">Abono #{p.payment_number} · {p.method}</span>
               {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
               {p.receipt_url && (
-                <a href={fileUrl(p.receipt_url)} target="_blank" rel="noreferrer"
-                  className="text-brand-green text-xs hover:underline">
+                <button
+                  className="text-brand-green text-xs hover:underline text-left"
+                  onClick={() => {
+                    const url = fileUrl(p.receipt_url);
+                    const isPdf = p.receipt_url.toLowerCase().endsWith(".pdf") || p.receipt_url.includes("/raw/");
+                    isPdf ? onPreviewPdf(url) : onPreviewImage(url);
+                  }}>
                   Ver comprobante
-                </a>
+                </button>
               )}
             </div>
             <div className="flex items-center gap-3">

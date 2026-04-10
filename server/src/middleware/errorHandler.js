@@ -1,6 +1,17 @@
+import multer from "multer";
 import { AppError } from "../utils/AppError.js";
 
 export function errorHandler(err, req, res, next) {
+  // Error de Multer (límite de archivos, tamaño, etc.)
+  if (err instanceof multer.MulterError) {
+    const msg = err.code === "LIMIT_FILE_SIZE"
+      ? "El archivo supera el tamaño máximo permitido."
+      : err.code === "LIMIT_FILE_COUNT"
+      ? "Se superó el número máximo de archivos."
+      : "Error al procesar el archivo adjunto.";
+    return res.status(400).json({ status: "error", code: err.code, message: msg });
+  }
+
   // Error de validación Joi
   if (err.isJoi) {
     return res.status(400).json({

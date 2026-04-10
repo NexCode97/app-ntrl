@@ -171,22 +171,26 @@ export default function TaskDetailPage() {
       <div className="card space-y-2">
         <h3 className="text-white font-medium mb-3">Productos</h3>
         {data.items?.map((item) => {
-          const df     = item.design_file_index != null ? files[item.design_file_index] : null;
-          const dfUrl  = df ? fileUrl(df.url ?? df) : null;
+          const df      = item.design_file_index != null ? files[item.design_file_index] : null;
+          const dfUrl   = df ? fileUrl(df.url ?? df) : null;
           const dfIsPdf = df ? isPdfUrl(df.url ?? df) : false;
+          const itemQty = Object.values(item.sizes).reduce((s, q) => s + (Number(q) || 0), 0);
           return (
             <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-1">
-                {df && (
-                  dfIsPdf ? (
-                    <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" />
-                  ) : (
-                    <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover bg-white shrink-0" />
-                  )
-                )}
-                <p className="text-white font-medium text-sm">
-                  {item.product_name} — {item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : ""}
-                </p>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <div className="flex items-center gap-2">
+                  {df && (
+                    dfIsPdf ? (
+                      <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" />
+                    ) : (
+                      <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover bg-white shrink-0" />
+                    )
+                  )}
+                  <p className="text-white font-medium text-sm">
+                    {item.product_name} — {item.gender ? item.gender.charAt(0).toUpperCase() + item.gender.slice(1) : ""}
+                  </p>
+                </div>
+                <span className="text-zinc-400 text-xs shrink-0">{itemQty} und.</span>
               </div>
               <div className="flex gap-2 flex-wrap text-xs mt-2">
                 {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => (
@@ -196,6 +200,17 @@ export default function TaskDetailPage() {
             </div>
           );
         })}
+        {/* Total general */}
+        {data.items?.length > 0 && (
+          <div className="flex items-center justify-between pt-2 border-t border-zinc-700 mt-2">
+            <span className="text-zinc-400 text-sm font-medium">Total unidades</span>
+            <span className="text-white font-bold text-sm">
+              {data.items.reduce((sum, item) =>
+                sum + Object.values(item.sizes).reduce((s, q) => s + (Number(q) || 0), 0), 0
+              )} und.
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

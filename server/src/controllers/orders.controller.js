@@ -45,10 +45,19 @@ export async function getById(req, res, next) {
   } catch (err) { next(err); }
 }
 
+async function uploadFiles(files, subfolder) {
+  const results = [];
+  for (const f of files) {
+    const url = await saveFile(f, subfolder);
+    results.push({ url, name: f.originalname });
+  }
+  return results;
+}
+
 export async function create(req, res, next) {
   try {
     const files = req.files?.length ? req.files : req.file ? [req.file] : [];
-    const designFiles = await Promise.all(files.map(async (f) => ({ url: await saveFile(f, "designs"), name: f.originalname })));
+    const designFiles = await uploadFiles(files, "designs");
     const order = await orderService.createOrder(req.user.id, req.body, designFiles);
     await invalidateDashboard();
     res.status(201).json({ status: "ok", data: order });
@@ -58,7 +67,7 @@ export async function create(req, res, next) {
 export async function update(req, res, next) {
   try {
     const files = req.files?.length ? req.files : req.file ? [req.file] : [];
-    const designFiles = await Promise.all(files.map(async (f) => ({ url: await saveFile(f, "designs"), name: f.originalname })));
+    const designFiles = await uploadFiles(files, "designs");
 
     await orderService.updateOrder(req.params.id, req.user.id, req.body, designFiles);
     const order = await orderService.getOrderDetail(req.params.id);

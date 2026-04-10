@@ -48,18 +48,19 @@ export async function sanitizeUpload(req, res, next) {
   if (!files.length) return next();
 
   try {
-    await Promise.all(files.map(async (file) => {
+    for (const file of files) {
       const realMime = detectMimeType(file.buffer);
-      if (!realMime) throw new AppError("Tipo de archivo no reconocido.", 400, "FILE_MISMATCH");
+      if (!realMime) return next(new AppError("Tipo de archivo no reconocido.", 400, "FILE_MISMATCH"));
       file.mimetype = realMime;
       if (realMime === "image/jpeg" || realMime === "image/png") {
         const ext = realMime === "image/jpeg" ? "jpeg" : "png";
         file.buffer = await sharp(file.buffer)
           .rotate()
-          .toFormat(ext, { quality: 85 })
+          .resize({ width: 1920, height: 1920, fit: "inside", withoutEnlargement: true })
+          .toFormat(ext, { quality: 80 })
           .toBuffer();
       }
-    }));
+    }
     next();
   } catch (err) {
     if (err.isOperational) return next(err);

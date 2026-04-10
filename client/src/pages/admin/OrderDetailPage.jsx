@@ -220,7 +220,7 @@ export default function OrderDetailPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto">
-        {[["items","Productos"],["financial","Abonos"],["production","Producción"],["history","Historial"]].map(([key, label]) => (
+        {[["items","Productos"],["financial","Abonos"],["production","Producción"],["notes","Observaciones"],["history","Historial"]].map(([key, label]) => (
           <button key={key}
             onClick={() => setTab(key)}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors
@@ -323,6 +323,17 @@ export default function OrderDetailPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Tab: Observaciones */}
+      {tab === "notes" && (
+        <div className="card">
+          {data.description ? (
+            <p className="text-zinc-200 whitespace-pre-wrap text-sm leading-relaxed">{data.description}</p>
+          ) : (
+            <p className="text-zinc-500 text-sm italic">Este pedido no tiene observaciones.</p>
+          )}
         </div>
       )}
 
@@ -578,7 +589,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
           {/* Observaciones */}
           <div>
             <label className="block text-xs text-zinc-400 mb-1">Observaciones</label>
-            <textarea className="input-field resize-none" rows={3} value={description}
+            <textarea className="input-field resize-none" rows={6} value={description}
               onChange={(e) => setDescription(e.target.value)} placeholder="Notas adicionales..." />
           </div>
 

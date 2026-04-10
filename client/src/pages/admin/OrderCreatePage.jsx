@@ -181,7 +181,7 @@ export default function OrderCreatePage() {
           </div>
           <div className="mt-4">
             <label className="block text-xs text-zinc-400 mb-1">Observaciones</label>
-            <textarea className="input-field resize-none" rows={3} value={description}
+            <textarea className="input-field resize-none" rows={6} value={description}
               onChange={(e) => setDescription(e.target.value)} placeholder="Notas adicionales..." />
           </div>
         </div>

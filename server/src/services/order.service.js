@@ -192,7 +192,7 @@ export async function updateOrder(orderId, userId, data, newDesignFiles = []) {
         try { base = JSON.parse(existing); if (!Array.isArray(base)) base = [existing]; }
         catch { base = [existing]; }
       }
-      const combined = [...base, ...newDesignFiles].slice(0, 5);
+      const combined = [...base, ...newDesignFiles];
       const designValue = combined.length === 0 ? null : JSON.stringify(combined.length === 1 ? combined[0] : combined);
       vals.push(designValue);
       sets.push(`design_file = $${vals.length}`);

@@ -402,7 +402,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
   const [saving, setSaving] = useState(false);
 
   const [keptFiles,     setKeptFiles]     = useState(() => parseDesignFiles(order.design_file));
-  const slotsLeft = 5 - keptFiles.length;
+  const slotsLeft = true; // sin límite de diseños
 
   async function searchCustomers(q) {
     setCustomerQuery(q);
@@ -494,7 +494,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
           {/* Diseños */}
           <div>
             <label className="block text-xs text-zinc-400 mb-2">
-              Diseños adjuntos ({keptFiles.length + newFiles.length}/5)
+              Diseños adjuntos ({keptFiles.length + newFiles.length})
             </label>
 
             {/* Miniaturas existentes con opción de eliminar */}
@@ -537,41 +537,33 @@ function EditOrderModal({ order, onClose, onSaved }) {
             )}
 
             {/* Agregar nuevos archivos */}
-            {slotsLeft > 0 && (
-              <>
-                <input type="file" accept=".jpg,.jpeg,.png,.pdf" multiple className="input-field text-sm"
-                  onChange={(e) => {
-                    const picked = Array.from(e.target.files);
-                    e.target.value = "";
-                    setNewFiles(prev => {
-                      const combined = [...prev, ...picked].slice(0, slotsLeft + prev.length > 5 ? 5 - keptFiles.length : slotsLeft);
-                      setNewFilePreviews(combined.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : null));
-                      return combined;
-                    });
-                  }} />
-                <p className="text-xs text-zinc-500 mt-1">
-                  {slotsLeft === 5 ? "Puedes agregar hasta 5 archivos" : `Puedes agregar ${slotsLeft} archivo(s) más`}
-                </p>
-                {newFiles.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {newFiles.map((f, i) => (
-                      <span key={i} className="flex items-center gap-1 text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full">
-                        {f.name}
-                        <button type="button" className="text-zinc-500 hover:text-red-400 ml-1"
-                          onClick={() => setNewFiles(prev => {
-                            const next = prev.filter((_, idx) => idx !== i);
-                            setNewFilePreviews(next.map(f2 => f2.type.startsWith("image/") ? URL.createObjectURL(f2) : null));
-                            return next;
-                          })}>✕</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-            {slotsLeft <= 0 && (
-              <p className="text-xs text-zinc-500">Ya tienes 5 diseños adjuntos (máximo).</p>
-            )}
+            <>
+              <input type="file" accept=".jpg,.jpeg,.png,.pdf" multiple className="input-field text-sm"
+                onChange={(e) => {
+                  const picked = Array.from(e.target.files);
+                  e.target.value = "";
+                  setNewFiles(prev => {
+                    const combined = [...prev, ...picked];
+                    setNewFilePreviews(combined.map(f => f.type.startsWith("image/") ? URL.createObjectURL(f) : null));
+                    return combined;
+                  });
+                }} />
+              {newFiles.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {newFiles.map((f, i) => (
+                    <span key={i} className="flex items-center gap-1 text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded-full">
+                      {f.name}
+                      <button type="button" className="text-zinc-500 hover:text-red-400 ml-1"
+                        onClick={() => setNewFiles(prev => {
+                          const next = prev.filter((_, idx) => idx !== i);
+                          setNewFilePreviews(next.map(f2 => f2.type.startsWith("image/") ? URL.createObjectURL(f2) : null));
+                          return next;
+                        })}>✕</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </>
           </div>
 
           {/* Lightbox */}

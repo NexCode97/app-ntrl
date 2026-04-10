@@ -1,5 +1,5 @@
 import * as orderService from "../services/order.service.js";
-import { saveFile } from "../utils/fileStorage.js";
+import { saveFile, deleteFile } from "../utils/fileStorage.js";
 import { unlinkSync, existsSync } from "fs";
 import path from "path";
 import { config } from "../config/index.js";
@@ -85,17 +85,21 @@ export async function remove(req, res, next) {
   try {
     const order = await orderService.getOrderDetail(req.params.id);
 
-    // Eliminar archivos de diseño del disco (solo archivos locales, no URLs de Cloudinary)
+    // Eliminar archivos de diseño (local y Cloudinary)
     const files = order.design_file ? (() => {
-      try { const p = JSON.parse(order.design_file); return Array.isArray(p) ? p : [order.design_file]; }
+      try { const p = JSON.parse(order.design_file); return Array.isArray(p) ? p : [p]; }
       catch { return [order.design_file]; }
     })() : [];
-    for (const f of files) {
+    await Promise.all(files.map(async (f) => {
       const fileStr = typeof f === "object" ? (f.url ?? "") : String(f ?? "");
-      if (!fileStr || fileStr.startsWith("http")) continue; // saltar URLs de Cloudinary
-      const filePath = path.join(config.upload.dir, fileStr);
-      if (existsSync(filePath)) unlinkSync(filePath);
-    }
+      if (!fileStr) return;
+      if (fileStr.startsWith("http")) {
+        await deleteFile(fileStr).catch(() => {}); // borrar de Cloudinary
+      } else {
+        const filePath = path.join(config.upload.dir, fileStr);
+        if (existsSync(filePath)) unlinkSync(filePath);
+      }
+    }));
 
     await orderService.deleteOrder(req.params.id);
     await invalidateDashboard();

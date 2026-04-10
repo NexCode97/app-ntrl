@@ -46,12 +46,7 @@ export async function getById(req, res, next) {
 }
 
 async function uploadFiles(files, subfolder) {
-  const results = [];
-  for (const f of files) {
-    const url = await saveFile(f, subfolder);
-    results.push({ url, name: f.originalname });
-  }
-  return results;
+  return Promise.all(files.map(async (f) => ({ url: await saveFile(f, subfolder), name: f.originalname })));
 }
 
 export async function create(req, res, next) {

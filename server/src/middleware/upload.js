@@ -48,12 +48,9 @@ export async function sanitizeUpload(req, res, next) {
   if (!files.length) return next();
 
   try {
-    for (const file of files) {
+    await Promise.all(files.map(async (file) => {
       const realMime = detectMimeType(file.buffer);
-      if (!realMime) {
-        return next(new AppError("Tipo de archivo no reconocido.", 400, "FILE_MISMATCH"));
-      }
-      // Corregir el mimetype con el real detectado (por si el browser envió octet-stream)
+      if (!realMime) throw new AppError("Tipo de archivo no reconocido.", 400, "FILE_MISMATCH");
       file.mimetype = realMime;
       if (realMime === "image/jpeg" || realMime === "image/png") {
         const ext = realMime === "image/jpeg" ? "jpeg" : "png";
@@ -61,11 +58,11 @@ export async function sanitizeUpload(req, res, next) {
           .rotate()
           .toFormat(ext, { quality: 85 })
           .toBuffer();
-        file.mimetype = realMime;
       }
-    }
+    }));
     next();
   } catch (err) {
+    if (err.isOperational) return next(err);
     next(new AppError("No se pudo procesar la imagen.", 400, "IMAGE_PROCESSING_ERROR"));
   }
 }

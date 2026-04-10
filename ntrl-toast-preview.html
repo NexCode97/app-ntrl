@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NTRL – Toast Motivacional Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #09090b;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Simulated dashboard background */
+  .dashboard {
+    padding: 1.5rem;
+    opacity: 0.35;
+  }
+  .dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .dash-title { color: #fff; font-size: 1.25rem; font-weight: 700; }
+  .dash-btn {
+    background: #18181b;
+    border: 1px solid #27272a;
+    color: #71717a;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+  }
+  .dash-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .dash-card {
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .dash-card p { color: #71717a; font-size: 0.75rem; margin-bottom: 0.4rem; }
+  .dash-card span { color: #98f909; font-size: 1.4rem; font-weight: 800; }
+  .dash-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .dash-box {
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    height: 140px;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 340px;
+    background: #18181b;
+    border: 1px solid #27272a;
+    border-left: 3px solid #98f909;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 20px 40px #00000060, 0 0 0 1px #ffffff06;
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    opacity: 0;
+    transform: translateX(20px);
+    animation: slideIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards 0.6s,
+               slideOut 0.35s ease forwards 5s;
+  }
+
+  .toast-icon {
+    width: 36px;
+    height: 36px;
+    background: #98f90915;
+    border: 1px solid #98f90930;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .toast-body { flex: 1; min-width: 0; }
+
+  .toast-greeting {
+    font-size: 0.7rem;
+    color: #98f909;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+
+  .toast-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.4rem;
+  }
+
+  .toast-msg {
+    font-size: 0.8rem;
+    color: #71717a;
+    line-height: 1.5;
+  }
+
+  .toast-close {
+    width: 20px;
+    height: 20px;
+    background: none;
+    border: none;
+    color: #52525b;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: -2px;
+  }
+  .toast-close:hover { color: #a1a1aa; }
+
+  /* Progress line */
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 3px;
+    right: 0;
+    height: 2px;
+    background: #27272a;
+    border-radius: 0 0 12px 0;
+    overflow: hidden;
+  }
+  .toast-progress-fill {
+    height: 100%;
+    width: 100%;
+    background: #98f909;
+    transform-origin: left;
+    animation: shrink 4.4s linear forwards 0.6s;
+  }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideOut {
+    to { opacity: 0; transform: translateX(20px); }
+  }
+  @keyframes shrink {
+    to { transform: scaleX(0); }
+  }
+
+  /* Replay button */
+  .replay {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #18181b;
+    border: 1px solid #27272a;
+    color: #71717a;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .replay:hover { color: #fff; border-color: #98f909; }
+</style>
+</head>
+<body>
+
+<!-- Dashboard simulado -->
+<div class="dashboard">
+  <div class="dash-header">
+    <span class="dash-title">Dashboard</span>
+    <span class="dash-btn">↻ Actualizar</span>
+  </div>
+  <div class="dash-cards">
+    <div class="dash-card"><p>Total facturado</p><span>$48.2M</span></div>
+    <div class="dash-card"><p>Recaudado</p><span>$31.5M</span></div>
+    <div class="dash-card"><p>Pendiente</p><span>$16.7M</span></div>
+  </div>
+  <div class="dash-row">
+    <div class="dash-box"></div>
+    <div class="dash-box"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-icon">⚡</div>
+  <div class="toast-body">
+    <p class="toast-greeting">¡Bienvenida de nuevo!</p>
+    <p class="toast-name" id="toast-name">Dina Granados</p>
+    <p class="toast-msg" id="toast-msg">El éxito es el resultado del trabajo en equipo.</p>
+  </div>
+  <button class="toast-close" onclick="dismissToast()">×</button>
+  <div class="toast-progress">
+    <div class="toast-progress-fill" id="progress-fill"></div>
+  </div>
+</div>
+
+<button class="replay" onclick="replay()">↻ Ver de nuevo</button>
+
+<script>
+  const messages = [
+    "El éxito es el resultado del trabajo en equipo.",
+    "Hoy es un gran día para crecer y superar metas.",
+    "La disciplina es el puente entre las metas y los logros.",
+    "Cada pedido es una oportunidad de marcar la diferencia.",
+    "Trabaja con pasión, entrega con excelencia.",
+  ];
+
+  function dismissToast() {
+    const t = document.getElementById('toast');
+    t.style.animation = 'slideOut 0.35s ease forwards';
+  }
+
+  function replay() {
+    const t = document.getElementById('toast');
+    const p = document.getElementById('progress-fill');
+    // Pick random message
+    document.getElementById('toast-msg').textContent =
+      messages[Math.floor(Math.random() * messages.length)];
+    // Reset animations
+    t.style.animation = 'none';
+    p.style.animation = 'none';
+    void t.offsetWidth;
+    t.style.animation = 'slideIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards, slideOut 0.35s ease forwards 5s';
+    p.style.animation = 'shrink 4.4s linear forwards';
+  }
+</script>
+</body>
+</html>

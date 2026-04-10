@@ -30,7 +30,7 @@ router.get("/:id/history", requireRole("admin"), ctrl.getHistory);
 
 router.post("/",
   requireRole("admin", "vendedor"),
-  upload.array("design", 5),
+  upload.array("design", 20),
   sanitizeUpload,
   parseFormDataFields,
   validate(createOrderSchema),
@@ -39,7 +39,7 @@ router.post("/",
 
 router.put("/:id",
   requireRole("admin", "vendedor"),
-  upload.array("design", 5),
+  upload.array("design", 20),
   sanitizeUpload,
   parseFormDataFields,
   validate(updateOrderSchema),

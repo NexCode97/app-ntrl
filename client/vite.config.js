@@ -7,15 +7,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      workbox: {
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.js",
+      injectManifest: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^\/api\/(catalog|customers)/,
-            handler: "NetworkFirst",
-            options: { cacheName: "api-read", expiration: { maxAgeSeconds: 3600 } },
-          },
-        ],
       },
       manifest: {
         name: "Natural Ropa Deportiva - Gestión interna de pedidos",

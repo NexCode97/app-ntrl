@@ -7,9 +7,6 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY
 );
 
-/**
- * Envía notificación push a un usuario específico (todos sus dispositivos).
- */
 export async function pushToUser(userId, payload) {
   if (!process.env.VAPID_PUBLIC_KEY) return;
   try {
@@ -23,12 +20,9 @@ export async function pushToUser(userId, payload) {
         JSON.stringify(payload)
       )
     ));
-  } catch { /* ignorar errores de push */ }
+  } catch { }
 }
 
-/**
- * Envía notificación push a todos los usuarios con uno o varios roles.
- */
 export async function pushToRoles(roles, payload) {
   if (!process.env.VAPID_PUBLIC_KEY) return;
   try {
@@ -45,12 +39,9 @@ export async function pushToRoles(roles, payload) {
         JSON.stringify(payload)
       )
     ));
-  } catch { /* ignorar errores de push */ }
+  } catch { }
 }
 
-/**
- * Envía notificación push a todos los workers.
- */
 export async function pushToWorkers(payload) {
   return pushToRoles(["worker"], payload);
 }

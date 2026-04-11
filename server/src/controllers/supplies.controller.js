@@ -59,6 +59,11 @@ export async function create(req, res, next) {
       `${worker.name} solicitó: ${item_name.trim()} (${quantity} ${unit || "unidades"})`,
       { supplyId: req_.id }
     );
+    pushToRoles(["admin"], {
+      title: "Nuevo suministro solicitado",
+      body: `${worker.name} solicitó: ${item_name.trim()} (${quantity} ${unit || "unidades"})`,
+      url: "/supplies",
+    }).catch(() => {});
 
     res.status(201).json({ status: "ok", data: req_ });
   } catch (err) { next(err); }

@@ -120,8 +120,8 @@ export async function updateTaskStatus(req, res, next) {
     ).catch(() => {});
     if (status === "done") {
       pushToRoles(["admin", "vendedor"], {
-        title: "Área completada",
-        body: `${areaLabel} completó su tarea en el pedido #${orderNum}`,
+        title: "Area completada",
+        body: `${areaLabel} completo su tarea en el pedido #${orderNum}`,
         url: `/orders/${task.order_id}?tab=production`,
       }).catch(() => {});
     }

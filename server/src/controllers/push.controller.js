@@ -8,7 +8,7 @@ export async function subscribe(req, res, next) {
   try {
     const { endpoint, keys } = req.body;
     if (!endpoint || !keys?.p256dh || !keys?.auth) {
-      return res.status(400).json({ status: "error", message: "Suscripción inválida." });
+      return res.status(400).json({ status: "error", message: "Suscripcion invalida." });
     }
     await pool.query(
       `INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth)

@@ -48,18 +48,24 @@ export async function sanitizeUpload(req, res, next) {
   if (!files.length) return next();
 
   try {
+    // Validar todos los archivos primero (rápido)
     for (const file of files) {
       const realMime = detectMimeType(file.buffer);
       if (!realMime) return next(new AppError("Tipo de archivo no reconocido.", 400, "FILE_MISMATCH"));
       file.mimetype = realMime;
-      if (realMime === "image/jpeg" || realMime === "image/png") {
-        const ext = realMime === "image/jpeg" ? "jpeg" : "png";
+    }
+
+    // Procesar imágenes en paralelo con Sharp
+    await Promise.all(files.map(async (file) => {
+      if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
+        const ext = file.mimetype === "image/jpeg" ? "jpeg" : "png";
         file.buffer = await sharp(file.buffer)
           .rotate()
-          .toFormat(ext, { quality: 85 })
+          .toFormat(ext, { quality: 80 })
           .toBuffer();
       }
-    }
+    }));
+
     next();
   } catch (err) {
     if (err.isOperational) return next(err);

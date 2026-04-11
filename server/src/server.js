@@ -21,6 +21,14 @@ async function start() {
       console.log(`APP NTRL API corriendo en puerto ${config.port} [${config.nodeEnv}]`);
     });
 
+    // Auto-ping para evitar cold starts en Render free tier (cada 9 min)
+    if (config.nodeEnv === "production") {
+      const selfUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${config.port}`;
+      setInterval(() => {
+        http.get(`${selfUrl}/api/health`, (res) => res.resume()).on("error", () => {});
+      }, 9 * 60 * 1000);
+    }
+
     // Graceful shutdown
     function shutdown(signal) {
       console.log(`${signal} recibido. Cerrando servidor...`);

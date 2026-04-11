@@ -13,6 +13,8 @@ router.get("/unread-count",      ctrl.unreadCount);
 router.get("/conversations",     ctrl.listConversations);
 router.get("/:userId",                    ctrl.getMessages);
 router.post("/:userId",                   upload.single("file"), sanitizeUpload, ctrl.sendMessage);
-router.post("/messages/:messageId/react", ctrl.reactToMessage);
+router.post("/messages/:messageId/react",  ctrl.reactToMessage);
+router.patch("/messages/:messageId",       ctrl.editMessage);
+router.delete("/messages/:messageId",      ctrl.deleteMessage);
 
 export default router;

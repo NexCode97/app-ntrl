@@ -109,7 +109,7 @@ export async function sendMessage(req, res, next) {
     });
     pushToUser(userId, {
       title: sender?.name ?? "Nuevo mensaje",
-      body: content || "Te envió un archivo",
+      body: content || "Te enviï¿½ un archivo",
       url: `/chat/${req.user.id}`,
     }).catch(() => {});
 
@@ -171,6 +171,55 @@ export async function reactToMessage(req, res, next) {
     sendToUser(otherId, { type: "message_reaction", messageId, reactions });
 
     res.json({ status: "ok", data: reactions });
+  } catch (err) { next(err); }
+}
+
+// Editar mensaje (solo el autor, solo texto, sin archivo)
+export async function editMessage(req, res, next) {
+  try {
+    const { messageId } = req.params;
+    const content = req.body.content?.trim();
+    if (!content) throw new AppError("El contenido no puede estar vacÃ­o.", 400, "EMPTY_CONTENT");
+    if (content.length > 2000) throw new AppError("Mensaje demasiado largo.", 400, "MESSAGE_TOO_LONG");
+
+    const { rows: [msg] } = await pool.query(
+      "SELECT from_user_id, to_user_id FROM messages WHERE id = $1",
+      [messageId]
+    );
+    if (!msg) throw new AppError("Mensaje no encontrado.", 404, "NOT_FOUND");
+    if (msg.from_user_id !== req.user.id) throw new AppError("No puedes editar este mensaje.", 403, "FORBIDDEN");
+
+    const { rows: [updated] } = await pool.query(
+      "UPDATE messages SET content = $1, edited = true WHERE id = $2 RETURNING *",
+      [content, messageId]
+    );
+
+    const otherId = msg.to_user_id;
+    sendToUser(otherId, { type: "message_edited", messageId, content, edited: true });
+    sendToUser(msg.from_user_id, { type: "message_edited", messageId, content, edited: true });
+
+    res.json({ status: "ok", data: updated });
+  } catch (err) { next(err); }
+}
+
+// Eliminar mensaje (solo el autor)
+export async function deleteMessage(req, res, next) {
+  try {
+    const { messageId } = req.params;
+
+    const { rows: [msg] } = await pool.query(
+      "SELECT from_user_id, to_user_id FROM messages WHERE id = $1",
+      [messageId]
+    );
+    if (!msg) throw new AppError("Mensaje no encontrado.", 404, "NOT_FOUND");
+    if (msg.from_user_id !== req.user.id) throw new AppError("No puedes eliminar este mensaje.", 403, "FORBIDDEN");
+
+    await pool.query("DELETE FROM messages WHERE id = $1", [messageId]);
+
+    sendToUser(msg.to_user_id,    { type: "message_deleted", messageId });
+    sendToUser(msg.from_user_id,  { type: "message_deleted", messageId });
+
+    res.json({ status: "ok" });
   } catch (err) { next(err); }
 }
 

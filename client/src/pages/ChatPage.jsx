@@ -78,19 +78,28 @@ function EmojiPicker({ onSelect, onClose }) {
   );
 }
 
-// Burbuja de mensaje con reacciones
-function MessageBubble({ msg, mine, onReact }) {
+// Burbuja de mensaje con reacciones y menú de opciones
+function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
   const [showReactions, setShowReactions] = useState(false);
+  const [showMenu,      setShowMenu]      = useState(false);
+  const menuRef = useRef(null);
   const reactions = msg.reactions ?? [];
+
+  useEffect(() => {
+    if (!showMenu) return;
+    function handler(e) { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showMenu]);
 
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"} group`}
       onMouseEnter={() => setShowReactions(true)}
-      onMouseLeave={() => setShowReactions(false)}>
+      onMouseLeave={() => { setShowReactions(false); }}>
       <div className="relative max-w-[70%] min-w-[80px]">
-        {/* Barra de reacciones rápidas (hover) */}
+        {/* Barra de reacciones rápidas + botón opciones (hover) */}
         {showReactions && (
-          <div className={`absolute ${mine ? "right-0" : "left-0"} -top-9 flex gap-1 bg-zinc-800 border border-zinc-700 rounded-full px-2 py-1 shadow-lg z-10`}>
+          <div className={`absolute ${mine ? "right-0" : "left-0"} -top-9 flex items-center gap-1 bg-zinc-800 border border-zinc-700 rounded-full px-2 py-1 shadow-lg z-10`}>
             {QUICK_REACTIONS.map((em) => {
               const r = reactions.find((x) => x.emoji === em);
               return (
@@ -100,6 +109,26 @@ function MessageBubble({ msg, mine, onReact }) {
                 </button>
               );
             })}
+            {mine && !msg.file_url && (
+              <div className="relative ml-1" ref={menuRef}>
+                <button onClick={() => setShowMenu((v) => !v)}
+                  className="text-zinc-400 hover:text-white text-base leading-none px-1 transition-colors">
+                  ···
+                </button>
+                {showMenu && (
+                  <div className={`absolute ${mine ? "right-0" : "left-0"} top-7 bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl z-20 overflow-hidden min-w-[120px]`}>
+                    <button onClick={() => { setShowMenu(false); onEdit(msg); }}
+                      className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors">
+                      Editar
+                    </button>
+                    <button onClick={() => { setShowMenu(false); onDelete(msg.id); }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-800 transition-colors">
+                      Eliminar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -120,7 +149,10 @@ function MessageBubble({ msg, mine, onReact }) {
             </a>
           )}
           {msg.content && <p className="text-sm leading-relaxed break-words">{msg.content}</p>}
-          <p className={`text-[10px] mt-1 ${mine ? "text-black/60 text-right" : "text-zinc-500"}`}>{formatTime(msg.created_at)}</p>
+          <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-black/60 justify-end" : "text-zinc-500"}`}>
+            {msg.edited && <span className="italic">editado</span>}
+            {formatTime(msg.created_at)}
+          </p>
         </div>
 
         {/* Reacciones existentes */}
@@ -165,6 +197,11 @@ export default function ChatPage() {
   const [filePreview, setFilePreview] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
 
+  // Estado para edición en curso
+  const [editingMsg,  setEditingMsg]  = useState(null); // { id, content }
+  const [editText,    setEditText]    = useState("");
+  const editInputRef = useRef(null);
+
   // Crear/revocar el blob URL solo cuando cambia el archivo
   useEffect(() => {
     if (!file) { setFilePreview(null); return; }
@@ -207,6 +244,11 @@ export default function ChatPage() {
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
+  // Enfocar input de edición al abrir
+  useEffect(() => {
+    if (editingMsg) editInputRef.current?.focus();
+  }, [editingMsg]);
+
   // SSE
   useEffect(() => {
     if (!accessToken) return;
@@ -219,7 +261,6 @@ export default function ChatPage() {
           if (incoming.from_user_id === activeId) {
             setMessages((prev) => [...prev, { ...incoming, from_name: msg.fromName, reactions: [] }]);
           } else {
-            // Actualizar unread y last_message directamente en estado — sin fetch
             setContacts((prev) => prev.map((c) => {
               const id = c.id ?? c.other_user;
               return id === incoming.from_user_id
@@ -232,6 +273,14 @@ export default function ChatPage() {
           setMessages((prev) => prev.map((m) =>
             m.id === msg.messageId ? { ...m, reactions: msg.reactions } : m
           ));
+        }
+        if (msg.type === "message_edited") {
+          setMessages((prev) => prev.map((m) =>
+            m.id === msg.messageId ? { ...m, content: msg.content, edited: true } : m
+          ));
+        }
+        if (msg.type === "message_deleted") {
+          setMessages((prev) => prev.filter((m) => m.id !== msg.messageId));
         }
       } catch { /* ignorar */ }
     };
@@ -265,6 +314,31 @@ export default function ChatPage() {
       setMessages((prev) => prev.map((m) =>
         m.id === messageId ? { ...m, reactions: data.data } : m
       ));
+    } catch { /* ignorar */ }
+  }
+
+  function handleStartEdit(msg) {
+    setEditingMsg(msg);
+    setEditText(msg.content ?? "");
+  }
+
+  async function handleSaveEdit(e) {
+    e.preventDefault();
+    if (!editText.trim() || !editingMsg) return;
+    try {
+      await api.patch(`/chat/messages/${editingMsg.id}`, { content: editText.trim() });
+      setMessages((prev) => prev.map((m) =>
+        m.id === editingMsg.id ? { ...m, content: editText.trim(), edited: true } : m
+      ));
+      setEditingMsg(null);
+    } catch { /* ignorar */ }
+  }
+
+  async function handleDelete(messageId) {
+    if (!confirm("¿Eliminar este mensaje?")) return;
+    try {
+      await api.delete(`/chat/messages/${messageId}`);
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
     } catch { /* ignorar */ }
   }
 
@@ -345,15 +419,38 @@ export default function ChatPage() {
                 return (
                   <div key={msg.id}>
                     {showDate && <p className="text-center text-xs text-zinc-600 my-2">{formatDate(msg.created_at)}</p>}
-                    <MessageBubble msg={msg} mine={mine} onReact={handleReact} />
+                    <MessageBubble
+                      msg={msg}
+                      mine={mine}
+                      onReact={handleReact}
+                      onEdit={handleStartEdit}
+                      onDelete={handleDelete}
+                    />
                   </div>
                 );
               })}
               <div ref={bottomRef} />
             </div>
 
+            {/* Modal de edición */}
+            {editingMsg && (
+              <div className="px-4 py-3 border-t border-yellow-600/40 bg-zinc-950 shrink-0">
+                <p className="text-xs text-yellow-500 mb-1">Editando mensaje</p>
+                <form onSubmit={handleSaveEdit} className="flex gap-2">
+                  <input
+                    ref={editInputRef}
+                    className="input-field flex-1"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                  />
+                  <button type="submit" className="btn-primary px-3 text-sm">Guardar</button>
+                  <button type="button" onClick={() => setEditingMsg(null)} className="btn-secondary px-3 text-sm">Cancelar</button>
+                </form>
+              </div>
+            )}
+
             {/* Preview archivo */}
-            {file && (
+            {file && !editingMsg && (
               <div className="px-4 pt-2 border-t border-zinc-800 bg-zinc-950 flex items-center gap-2">
                 {filePreview
                   ? <img src={filePreview} alt="" className="h-14 w-14 object-cover rounded-lg shrink-0" />
@@ -365,44 +462,46 @@ export default function ChatPage() {
             )}
 
             {/* Input */}
-            <form onSubmit={handleSend} className="px-4 py-3 border-t border-zinc-800 flex items-center gap-2 bg-zinc-950 shrink-0 relative">
-              <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
-                onChange={(e) => setFile(e.target.files[0] ?? null)} />
+            {!editingMsg && (
+              <form onSubmit={handleSend} className="px-4 py-3 border-t border-zinc-800 flex items-center gap-2 bg-zinc-950 shrink-0 relative">
+                <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
+                  onChange={(e) => setFile(e.target.files[0] ?? null)} />
 
-              {/* Adjuntar */}
-              <button type="button" onClick={() => fileRef.current?.click()}
-                className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors shrink-0" title="Adjuntar archivo">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-                </svg>
-              </button>
-
-              {/* Emoji picker */}
-              <div className="relative shrink-0">
-                <button type="button" onClick={() => setShowEmoji((v) => !v)}
-                  className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors" title="Emojis">
+                {/* Adjuntar */}
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors shrink-0" title="Adjuntar archivo">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
-                    <line x1="9" y1="9" x2="9.01" y2="9"/>
-                    <line x1="15" y1="9" x2="15.01" y2="9"/>
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48" />
                   </svg>
                 </button>
-                {showEmoji && (
-                  <EmojiPicker
-                    onSelect={(em) => { setText((t) => t + em); setShowEmoji(false); }}
-                    onClose={() => setShowEmoji(false)}
-                  />
-                )}
-              </div>
 
-              <input className="input-field flex-1" placeholder="Escribe un mensaje..."
-                value={text} onChange={(e) => setText(e.target.value)} autoComplete="off" />
+                {/* Emoji picker */}
+                <div className="relative shrink-0">
+                  <button type="button" onClick={() => setShowEmoji((v) => !v)}
+                    className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors" title="Emojis">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M8 13s1.5 2 4 2 4-2 4-2"/>
+                      <line x1="9" y1="9" x2="9.01" y2="9"/>
+                      <line x1="15" y1="9" x2="15.01" y2="9"/>
+                    </svg>
+                  </button>
+                  {showEmoji && (
+                    <EmojiPicker
+                      onSelect={(em) => { setText((t) => t + em); setShowEmoji(false); }}
+                      onClose={() => setShowEmoji(false)}
+                    />
+                  )}
+                </div>
 
-              <button type="submit" disabled={(!text.trim() && !file) || sending} className="btn-primary px-4 shrink-0">
-                Enviar
-              </button>
-            </form>
+                <input className="input-field flex-1" placeholder="Escribe un mensaje..."
+                  value={text} onChange={(e) => setText(e.target.value)} autoComplete="off" />
+
+                <button type="submit" disabled={(!text.trim() && !file) || sending} className="btn-primary px-4 shrink-0">
+                  Enviar
+                </button>
+              </form>
+            )}
           </>
         )}
       </div>

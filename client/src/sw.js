@@ -8,11 +8,12 @@ self.addEventListener("push", (event) => {
   try { data = event.data.json(); } catch { data = { title: "Notificacion", body: event.data.text() }; }
 
   const { title = "Natural", body = "", url = "/" } = data;
+  const base = self.location.origin;
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: "/icons/icon-192.png",
-      badge: "/icons/icon-192.png",
+      icon: `${base}/icons/icon-192.png`,
+      badge: `${base}/icons/icon-192.png`,
       vibrate: [200, 100, 200],
       data: { url },
     })

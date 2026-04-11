@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
 import AppRouter from "./router/AppRouter.jsx";
 import { useAuthStore } from "./stores/authStore.js";
+import { subscribeToPush } from "./utils/pushSubscription.js";
 
 export default function App() {
   const { setAuth, clearAuth } = useAuthStore();
@@ -17,7 +18,10 @@ export default function App() {
         return axios.get(`${base}/auth/me`, {
           withCredentials: true,
           headers: { Authorization: `Bearer ${data.accessToken}` },
-        }).then(({ data: me }) => setAuth(me.user, data.accessToken));
+        }).then(({ data: me }) => {
+          setAuth(me.user, data.accessToken);
+          subscribeToPush().catch(() => {});
+        });
       })
       .catch(() => {
         clearAuth();

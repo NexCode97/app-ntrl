@@ -1,7 +1,6 @@
-import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
-
-precacheAndRoute(self.__WB_MANIFEST);
-cleanupOutdatedCaches();
+// VitePWA requiere esta referencia para inyectar el manifest de precache
+// No usamos workbox-precaching para evitar dependencias externas en el SW
+self.__WB_MANIFEST;
 
 self.addEventListener("push", (event) => {
   if (!event.data) return;

@@ -56,8 +56,7 @@ export async function sanitizeUpload(req, res, next) {
         const ext = realMime === "image/jpeg" ? "jpeg" : "png";
         file.buffer = await sharp(file.buffer)
           .rotate()
-          .resize({ width: 1920, height: 1920, fit: "inside", withoutEnlargement: true })
-          .toFormat(ext, { quality: 80 })
+          .toFormat(ext, { quality: 85 })
           .toBuffer();
       }
     }

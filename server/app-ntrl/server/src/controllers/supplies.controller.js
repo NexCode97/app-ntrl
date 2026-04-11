@@ -39,7 +39,6 @@ export async function create(req, res, next) {
     if (!item_name?.trim()) throw new AppError("El nombre del insumo es requerido.", 400, "MISSING_ITEM");
     if (!quantity || isNaN(quantity) || quantity <= 0) throw new AppError("La cantidad debe ser mayor a 0.", 400, "INVALID_QTY");
 
-    // Verificar que el pedido pertenece a la empresa (si se especificó)
     if (order_id) {
       const { rows } = await pool.query("SELECT id, order_number FROM orders WHERE id = $1", [order_id]);
       if (!rows.length) throw new AppError("Pedido no encontrado.", 404, "ORDER_NOT_FOUND");
@@ -52,13 +51,11 @@ export async function create(req, res, next) {
       [req.user.id, order_id || null, item_name.trim(), quantity, unit || "unidades", notes?.trim() || null]
     );
 
-    // Notificar a admins
     const { rows: [worker] } = await pool.query("SELECT name FROM users WHERE id = $1", [req.user.id]);
-    await notifyAdmins(
-      "supply_request",
-      `${worker.name} solicitó: ${item_name.trim()} (${quantity} ${unit || "unidades"})`,
-      { supplyId: req_.id }
-    );
+    const body = `${worker.name} solicitó: ${item_name.trim()} (${quantity} ${unit || "unidades"})`;
+
+    await notifyAdmins("supply_request", body, { supplyId: req_.id });
+    pushToRoles(["admin"], { title: "Nuevo suministro solicitado", body, url: "/supplies" }).catch(() => {});
 
     res.status(201).json({ status: "ok", data: req_ });
   } catch (err) { next(err); }
@@ -94,7 +91,6 @@ export async function updateStatus(req, res, next) {
     const VALID = ["pending", "in_progress", "delivered"];
     if (!VALID.includes(status)) throw new AppError("Estado inválido.", 400, "INVALID_STATUS");
 
-    // Worker solo puede marcar como delivered sus propias solicitudes pendientes o en proceso
     if (!isAdmin) {
       if (status !== "delivered") throw new AppError("No tienes permisos para este cambio.", 403, "FORBIDDEN");
       const { rows: [supply] } = await pool.query(
@@ -114,7 +110,6 @@ export async function updateStatus(req, res, next) {
     );
     if (!updated) throw new AppError("Solicitud no encontrada.", 404, "NOT_FOUND");
 
-    // Notificar al trabajador del cambio de estado
     const STATUS_LABELS = { pending:"Pendiente", in_progress:"En proceso", delivered:"Entregado" };
     const { sendToUser } = await import("../utils/sseManager.js");
     sendToUser(updated.worker_id, {
@@ -130,7 +125,6 @@ export async function updateStatus(req, res, next) {
 export async function remove(req, res, next) {
   try {
     const { id } = req.params;
-    // Worker solo puede eliminar sus propias solicitudes pendientes
     const where = req.user.role === "admin"
       ? "WHERE id = $1"
       : "WHERE id = $1 AND worker_id = $2 AND status = 'pending'";

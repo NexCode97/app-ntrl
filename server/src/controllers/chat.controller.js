@@ -2,6 +2,7 @@ import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
 import { sendToUser } from "../utils/sseManager.js";
 import { saveFile } from "../utils/fileStorage.js";
+import { pushToUser } from "../utils/pushNotifications.js";
 
 // Lista de conversaciones del usuario (distintos interlocutores con Ãºltimo mensaje)
 export async function listConversations(req, res, next) {
@@ -106,6 +107,11 @@ export async function sendMessage(req, res, next) {
       message:  msg,
       fromName: sender?.name ?? "Usuario",
     });
+    pushToUser(userId, {
+      title: sender?.name ?? "Nuevo mensaje",
+      body: content || "Te envió un archivo",
+      url: `/chat/${req.user.id}`,
+    }).catch(() => {});
 
     res.status(201).json({ status: "ok", data: msg });
   } catch (err) { next(err); }

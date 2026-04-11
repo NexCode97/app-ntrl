@@ -30,7 +30,8 @@
     "pino": "^9.3.2",
     "pino-http": "^10.2.0",
     "sharp": "^0.33.4",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

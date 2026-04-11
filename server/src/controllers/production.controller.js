@@ -1,6 +1,7 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
 import { notifyAdmins } from "../utils/sseManager.js";
+import { pushToRoles } from "../utils/pushNotifications.js";
 import { redis } from "../config/redis.js";
 
 // Vista general de producciÃ³n para el admin: pedidos activos con estado por Ã¡rea
@@ -117,6 +118,13 @@ export async function updateTaskStatus(req, res, next) {
     notifyAdmins(eventType, eventMsg,
       { orderId: task.order_id, orderNumber: order?.order_number, area: task.area }
     ).catch(() => {});
+    if (status === "done") {
+      pushToRoles(["admin", "vendedor"], {
+        title: "Área completada",
+        body: `${areaLabel} completó su tarea en el pedido #${orderNum}`,
+        url: `/orders/${task.order_id}?tab=production`,
+      }).catch(() => {});
+    }
 
     redis.del("dashboard:summary").catch(() => {});
     res.json({ status: "ok", data: updated });

@@ -4,6 +4,7 @@ import { unlinkSync, existsSync } from "fs";
 import path from "path";
 import { config } from "../config/index.js";
 import { redis, redisPub } from "../config/redis.js";
+import { pushToWorkers } from "../utils/pushNotifications.js";
 
 function invalidateDashboard() {
   return redis.del("dashboard:summary").catch(() => {});
@@ -55,6 +56,7 @@ export async function create(req, res, next) {
     const designFiles = await uploadFiles(files, "designs");
     const order = await orderService.createOrder(req.user.id, req.body, designFiles);
     await invalidateDashboard();
+    pushToWorkers({ title: "Nueva tarea asignada", body: "Se ha creado un nuevo pedido con tareas de produccion", url: "/tasks" }).catch(() => {});
     res.status(201).json({ status: "ok", data: order });
   } catch (err) { next(err); }
 }

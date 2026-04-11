@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../config/api.js";
 import { useAuthStore } from "../stores/authStore.js";
+import { subscribeToPush } from "../utils/pushSubscription.js";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export default function LoginPage() {
     try {
       const { data } = await api.post("/auth/login", { email, password });
       setAuth(data.user, data.accessToken, data.refreshToken);
+      subscribeToPush().catch(() => {});
       navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "Error al iniciar sesión.");

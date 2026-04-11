@@ -85,9 +85,9 @@ export default function Sidebar() {
           setChatUnread((n) => n + 1);
           // Notificación del sistema si la app está en segundo plano
           if (document.visibilityState === "hidden" && "Notification" in window && Notification.permission === "granted") {
-            new Notification("Nuevo mensaje - NTRL", {
-              body: msg.sender ? `${msg.sender}: ${msg.text ?? "Mensaje nuevo"}` : "Tienes un mensaje nuevo",
-              icon: "/logo.png",
+            new Notification(`Mensaje de ${msg.fromName ?? "Usuario"}`, {
+              body: msg.message?.content || "Te envio un archivo adjunto",
+              icon: "/icons/icon-192.png",
             });
           }
         }

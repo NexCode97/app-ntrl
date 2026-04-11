@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { api } from "../../config/api.js";
+import { api, API_BASE } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 
 function timeAgo(dateStr) {
@@ -47,7 +47,7 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!accessToken) return;
 
-    const es = new EventSource(`/api/notifications/stream?token=${accessToken}`);
+    const es = new EventSource(`${API_BASE}/notifications/stream?token=${accessToken}`);
 
     es.onmessage = (e) => {
       try {

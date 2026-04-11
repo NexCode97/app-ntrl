@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { api } from "../config/api.js";
+import { api, API_BASE } from "../config/api.js";
 import { useAuthStore } from "../stores/authStore.js";
 
 import { fileUrl } from "../utils/fileUrl.js";
@@ -210,7 +210,7 @@ export default function ChatPage() {
   // SSE
   useEffect(() => {
     if (!accessToken) return;
-    const es = new EventSource(`/api/notifications/stream?token=${accessToken}`);
+    const es = new EventSource(`${API_BASE}/notifications/stream?token=${accessToken}`);
     es.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);

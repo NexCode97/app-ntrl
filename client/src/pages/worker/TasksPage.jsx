@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../config/api.js";
+import { api, API_BASE } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 import { hardRefresh } from "../../utils/hardRefresh.js";
@@ -63,7 +63,7 @@ export default function TasksPage() {
   useEffect(() => {
     const { accessToken } = useAuthStore.getState();
     if (!accessToken) return;
-    const es = new EventSource(`/api/notifications/stream?token=${accessToken}`);
+    const es = new EventSource(`${API_BASE}/notifications/stream?token=${accessToken}`);
     es.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);

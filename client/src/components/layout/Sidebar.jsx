@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore.js";
-import { api } from "../../config/api.js";
+import { api, API_BASE } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 
 const AREA_LABELS = { corte: "Corte", diseno: "Diseño", sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados" };
@@ -71,7 +71,7 @@ export default function Sidebar() {
   // SSE: actualizar badges en tiempo real
   useEffect(() => {
     if (!accessToken) return;
-    const es = new EventSource(`/api/notifications/stream?token=${accessToken}`);
+    const es = new EventSource(`${API_BASE}/notifications/stream?token=${accessToken}`);
     es.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);

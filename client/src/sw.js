@@ -1,6 +1,17 @@
 // VitePWA reemplaza self.__WB_MANIFEST con la lista de assets al hacer build
-// Usamos push() para evitar que Rollup elimine la referencia por tree-shaking
 (self.__WB_MANIFEST || []).forEach(() => {});
+
+// Cachear el icono al instalar el SW para que esté disponible sin conexión
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open("ntrl-icons").then((cache) => cache.add("/icons/icon-192.png"))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
 
 self.addEventListener("push", (event) => {
   if (!event.data) return;
@@ -8,12 +19,11 @@ self.addEventListener("push", (event) => {
   try { data = event.data.json(); } catch { data = { title: "Notificacion", body: event.data.text() }; }
 
   const { title = "Natural", body = "", url = "/" } = data;
-  const base = self.location.origin;
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
-      icon: `${base}/logo.png`,
-      badge: `${base}/logo.png`,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
       vibrate: [200, 100, 200],
       data: { url },
     })

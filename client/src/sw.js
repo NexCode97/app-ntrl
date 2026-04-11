@@ -1,6 +1,6 @@
-// Service Worker - Natural Ropa Deportiva
-// VitePWA injectManifest reemplaza self.__WB_MANIFEST con los assets
-const manifest = self.__WB_MANIFEST; // eslint-disable-line no-unused-vars
+// VitePWA reemplaza self.__WB_MANIFEST con la lista de assets al hacer build
+// Usamos push() para evitar que Rollup elimine la referencia por tree-shaking
+(self.__WB_MANIFEST || []).forEach(() => {});
 
 self.addEventListener("push", (event) => {
   if (!event.data) return;

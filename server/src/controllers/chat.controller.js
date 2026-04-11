@@ -108,8 +108,8 @@ export async function sendMessage(req, res, next) {
       fromName: sender?.name ?? "Usuario",
     });
     pushToUser(userId, {
-      title: sender?.name ?? "Nuevo mensaje",
-      body: content || "Te envi� un archivo",
+      title: `Mensaje de ${sender?.name ?? "Usuario"}`,
+      body: content || "Te envio un archivo adjunto",
       url: `/chat/${req.user.id}`,
     }).catch(() => {});
 

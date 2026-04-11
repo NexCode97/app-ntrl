@@ -1,6 +1,6 @@
-// VitePWA requiere esta referencia para inyectar el manifest de precache
-// No usamos workbox-precaching para evitar dependencias externas en el SW
-self.__WB_MANIFEST;
+// Service Worker - Natural Ropa Deportiva
+// VitePWA injectManifest reemplaza self.__WB_MANIFEST con los assets
+const manifest = self.__WB_MANIFEST; // eslint-disable-line no-unused-vars
 
 self.addEventListener("push", (event) => {
   if (!event.data) return;
@@ -13,6 +13,7 @@ self.addEventListener("push", (event) => {
       body,
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
+      vibrate: [200, 100, 200],
       data: { url },
     })
   );

@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore.js";
 import { api, API_BASE } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
+import { subscribeToPush } from "../../utils/pushSubscription.js";
 
 const AREA_LABELS = { corte: "Corte", diseno: "Diseño", sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados" };
 
@@ -61,10 +62,15 @@ export default function Sidebar() {
     }
   }, [user]);
 
-  // Solicitar permiso de notificaciones al montar
+  // Solicitar permiso y suscribir a push al montar
   useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
+    if (!("Notification" in window)) return;
+    if (Notification.permission === "granted") {
+      // Ya tiene permiso → asegurar suscripción activa
+      subscribeToPush().catch(() => {});
+    } else if (Notification.permission === "default") {
+      // Pedir permiso y suscribir si acepta
+      subscribeToPush().catch(() => {});
     }
   }, []);
 

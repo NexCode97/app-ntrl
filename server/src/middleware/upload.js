@@ -42,7 +42,19 @@ function makeUpload(allowedExts, errMsg) {
 export const upload      = makeUpload(ALLOWED_EXTENSIONS,       "Solo JPG, PNG o PDF.");
 export const uploadImage = makeUpload(ALLOWED_IMAGE_EXTENSIONS, "Solo JPG o PNG.");
 
-// Middleware: valida magic bytes + sanitiza imágenes con Sharp (soporta array de archivos)
+// Middleware LIGERO: solo valida magic bytes, sin Sharp (para diseños de pedidos)
+export function sanitizeUploadLight(req, res, next) {
+  const files = req.files?.length ? req.files : req.file ? [req.file] : [];
+  if (!files.length) return next();
+  for (const file of files) {
+    const realMime = detectMimeType(file.buffer);
+    if (!realMime) return next(new AppError("Tipo de archivo no reconocido.", 400, "FILE_MISMATCH"));
+    file.mimetype = realMime;
+  }
+  next();
+}
+
+// Middleware COMPLETO: valida magic bytes + recomprime con Sharp (para fotos de perfil/comprobantes)
 export async function sanitizeUpload(req, res, next) {
   const files = req.files?.length ? req.files : req.file ? [req.file] : [];
   if (!files.length) return next();

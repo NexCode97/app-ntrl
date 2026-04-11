@@ -3,7 +3,7 @@ import { requireAuth, requireRole } from "../middleware/auth.js";
 import { pagination } from "../middleware/pagination.js";
 import { validate } from "../middleware/validate.js";
 import { moderateLimiter, permissiveLimiter } from "../middleware/rateLimiter.js";
-import { upload, sanitizeUpload } from "../middleware/upload.js";
+import { upload, sanitizeUploadLight } from "../middleware/upload.js";
 import * as ctrl from "../controllers/orders.controller.js";
 import { createOrderSchema, updateOrderSchema } from "../validations/order.validation.js";
 
@@ -31,7 +31,7 @@ router.get("/:id/history", requireRole("admin"), ctrl.getHistory);
 router.post("/",
   requireRole("admin", "vendedor"),
   upload.array("design"),
-  sanitizeUpload,
+  sanitizeUploadLight,
   parseFormDataFields,
   validate(createOrderSchema),
   ctrl.create
@@ -40,7 +40,7 @@ router.post("/",
 router.put("/:id",
   requireRole("admin", "vendedor"),
   upload.array("design"),
-  sanitizeUpload,
+  sanitizeUploadLight,
   parseFormDataFields,
   validate(updateOrderSchema),
   ctrl.update

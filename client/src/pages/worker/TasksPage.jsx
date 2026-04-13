@@ -131,7 +131,7 @@ export default function TasksPage() {
               <p className={`text-2xl font-black ${color}`}>{value}</p>
               <p className="text-zinc-500 text-xs mt-0.5">{label}</p>
               {sub && <p className="text-zinc-600 text-[10px]">{sub}</p>}
-              {active && <p className="text-brand-green text-[10px] mt-0.5">● filtro activo</p>}
+              {active && <p className="text-brand-green text-[10px] mt-0.5">● Filtro</p>}
             </div>
           );
         })}

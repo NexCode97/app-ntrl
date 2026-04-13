@@ -82,50 +82,74 @@ function EmojiPicker({ onSelect, onClose }) {
 function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
   const [showReactions, setShowReactions] = useState(false);
   const [showMenu,      setShowMenu]      = useState(false);
-  const menuRef    = useRef(null);
+  const menuRef        = useRef(null);
   const longPressTimer = useRef(null);
+  const lastTouchTime  = useRef(0);   // evitar que mouseenter sintético abra reacciones
   const reactions = msg.reactions ?? [];
 
+  // Cerrar menú al tocar fuera
   useEffect(() => {
     if (!showMenu) return;
     function handler(e) { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); }
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
   }, [showMenu]);
 
-  // Cerrar reacciones al tocar fuera en mobile
+  // Cerrar barra de reacciones al tocar fuera (solo touch)
   useEffect(() => {
     if (!showReactions) return;
-    function handler() { setShowReactions(false); }
+    function handler(e) {
+      // Si el toque fue en esta burbuja, no cerrar
+      if (e.target?.closest?.(`[data-msgid="${msg.id}"]`)) return;
+      setShowReactions(false);
+    }
     document.addEventListener("touchstart", handler, { passive: true });
     return () => document.removeEventListener("touchstart", handler);
-  }, [showReactions]);
+  }, [showReactions, msg.id]);
 
-  function handleTouchStart() {
-    longPressTimer.current = setTimeout(() => setShowReactions(true), 500);
+  // ── Touch: long press ──────────────────────────────────────────
+  function onTouchStart(e) {
+    lastTouchTime.current = Date.now();
+    // Solo iniciar long press si el toque es directamente en la burbuja
+    clearTimeout(longPressTimer.current);
+    longPressTimer.current = setTimeout(() => {
+      setShowReactions(true);
+    }, 500);
   }
-  function handleTouchEnd() {
+  function onTouchEnd() {
     clearTimeout(longPressTimer.current);
   }
-  function handleTouchMove() {
+  function onTouchMove() {
+    // Scroll cancela el long press
     clearTimeout(longPressTimer.current);
   }
 
-  function handleMouseEnter() {
-    if (window.matchMedia("(pointer: fine)").matches) setShowReactions(true);
+  // ── Mouse: solo en dispositivos con hover real ─────────────────
+  function onMouseEnter() {
+    // Si hubo un toque reciente (<600ms), ignorar — es el mouseenter sintético de iOS/Android
+    if (Date.now() - lastTouchTime.current < 600) return;
+    setShowReactions(true);
   }
-  function handleMouseLeave() {
-    if (window.matchMedia("(pointer: fine)").matches) setShowReactions(false);
+  function onMouseLeave() {
+    if (Date.now() - lastTouchTime.current < 600) return;
+    setShowReactions(false);
   }
 
   return (
-    <div className={`flex ${mine ? "justify-end" : "justify-start"} group`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      onTouchMove={handleTouchMove}>
-      <div className="relative max-w-[70%] min-w-[80px]">
+    <div
+      data-msgid={msg.id}
+      className={`flex ${mine ? "justify-end" : "justify-start"} group`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onTouchMove={onTouchMove}
+    >
+      <div className="max-w-[70%] min-w-[80px]">
 
         {/* Burbuja */}
         <div className={`rounded-2xl px-4 py-2 ${mine ? "bg-brand-green text-black rounded-br-sm" : "bg-zinc-800 text-white rounded-bl-sm"}`}>
@@ -150,13 +174,15 @@ function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
           </p>
         </div>
 
-        {/* Barra de reacciones rápidas (debajo del mensaje) */}
+        {/* Barra de reacciones rápidas — DEBAJO del mensaje */}
         {showReactions && (
           <div className={`flex items-center gap-1 mt-1 bg-zinc-800 border border-zinc-700 rounded-full px-2 py-1 shadow-lg z-10 ${mine ? "justify-end" : "justify-start"}`}>
             {QUICK_REACTIONS.map((em) => {
               const r = reactions.find((x) => x.emoji === em);
               return (
-                <button key={em} onClick={() => onReact(msg.id, em)}
+                <button key={em}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => { onReact(msg.id, em); setShowReactions(false); }}
                   className={`text-base leading-none hover:scale-125 transition-transform ${r?.reacted_by_me ? "opacity-100" : "opacity-70 hover:opacity-100"}`}>
                   {em}
                 </button>
@@ -164,17 +190,19 @@ function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
             })}
             {mine && !msg.file_url && (
               <div className="relative ml-1" ref={menuRef}>
-                <button onClick={() => setShowMenu((v) => !v)}
+                <button
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={() => setShowMenu((v) => !v)}
                   className="text-zinc-400 hover:text-white text-base leading-none px-1 transition-colors">
                   ···
                 </button>
                 {showMenu && (
                   <div className={`absolute ${mine ? "right-0" : "left-0"} top-7 bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl z-20 overflow-hidden min-w-[120px]`}>
-                    <button onClick={() => { setShowMenu(false); onEdit(msg); }}
+                    <button onClick={() => { setShowMenu(false); setShowReactions(false); onEdit(msg); }}
                       className="w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors">
                       Editar
                     </button>
-                    <button onClick={() => { setShowMenu(false); onDelete(msg.id); }}
+                    <button onClick={() => { setShowMenu(false); setShowReactions(false); onDelete(msg.id); }}
                       className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-800 transition-colors">
                       Eliminar
                     </button>

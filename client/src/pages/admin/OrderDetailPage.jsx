@@ -129,6 +129,11 @@ export default function OrderDetailPage() {
                   Entrega: {new Date(data.delivery_date).toLocaleDateString("es-CO")}
                 </p>
               )}
+              {data.created_by_name && (
+                <p className="text-zinc-500 text-xs mt-0.5">
+                  Creado por: {data.created_by_name}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">

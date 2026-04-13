@@ -48,9 +48,11 @@ export async function getOrderDetail(orderId) {
   const { rows: [order] } = await pool.query(
     `SELECT o.*,
             TO_CHAR(o.order_number, 'FM000') as order_number_fmt,
-            c.name as customer_name, c.document_number, c.phone, c.email as customer_email
+            c.name as customer_name, c.document_number, c.phone, c.email as customer_email,
+            u.name as created_by_name
      FROM orders o
      JOIN customers c ON c.id = o.customer_id
+     LEFT JOIN users u ON u.id = o.created_by
      WHERE o.id = $1`,
     [orderId]
   );

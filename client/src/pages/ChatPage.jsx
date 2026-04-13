@@ -111,17 +111,48 @@ function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
     clearTimeout(longPressTimer.current);
   }
 
+  function handleMouseEnter() {
+    if (window.matchMedia("(pointer: fine)").matches) setShowReactions(true);
+  }
+  function handleMouseLeave() {
+    if (window.matchMedia("(pointer: fine)").matches) setShowReactions(false);
+  }
+
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"} group`}
-      onMouseEnter={() => setShowReactions(true)}
-      onMouseLeave={() => setShowReactions(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}>
       <div className="relative max-w-[70%] min-w-[80px]">
-        {/* Barra de reacciones rápidas + botón opciones (hover) */}
+
+        {/* Burbuja */}
+        <div className={`rounded-2xl px-4 py-2 ${mine ? "bg-brand-green text-black rounded-br-sm" : "bg-zinc-800 text-white rounded-bl-sm"}`}>
+          {msg.file_url && isImage(msg.file_name) && (
+            <a href={fileUrl(msg.file_url)} target="_blank" rel="noreferrer">
+              <img src={fileUrl(msg.file_url)} alt={msg.file_name} className="max-w-[220px] rounded-lg mb-1 cursor-pointer hover:opacity-90" />
+            </a>
+          )}
+          {msg.file_url && !isImage(msg.file_name) && (
+            <a href={fileUrl(msg.file_url)} target="_blank" rel="noreferrer"
+              className={`flex items-center gap-2 text-xs underline mb-1 ${mine ? "text-black/80" : "text-brand-green"}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+              <span className="truncate max-w-[180px]">{msg.file_name}</span>
+            </a>
+          )}
+          {msg.content && <p className="text-sm leading-relaxed break-words">{msg.content}</p>}
+          <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-black/60 justify-end" : "text-zinc-500"}`}>
+            {msg.edited && <span className="italic">editado</span>}
+            {formatTime(msg.created_at)}
+          </p>
+        </div>
+
+        {/* Barra de reacciones rápidas (debajo del mensaje) */}
         {showReactions && (
-          <div className={`absolute ${mine ? "right-0" : "left-0"} -top-9 flex items-center gap-1 bg-zinc-800 border border-zinc-700 rounded-full px-2 py-1 shadow-lg z-10`}>
+          <div className={`flex items-center gap-1 mt-1 bg-zinc-800 border border-zinc-700 rounded-full px-2 py-1 shadow-lg z-10 ${mine ? "justify-end" : "justify-start"}`}>
             {QUICK_REACTIONS.map((em) => {
               const r = reactions.find((x) => x.emoji === em);
               return (
@@ -153,29 +184,6 @@ function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
             )}
           </div>
         )}
-
-        {/* Burbuja */}
-        <div className={`rounded-2xl px-4 py-2 ${mine ? "bg-brand-green text-black rounded-br-sm" : "bg-zinc-800 text-white rounded-bl-sm"}`}>
-          {msg.file_url && isImage(msg.file_name) && (
-            <a href={fileUrl(msg.file_url)} target="_blank" rel="noreferrer">
-              <img src={fileUrl(msg.file_url)} alt={msg.file_name} className="max-w-[220px] rounded-lg mb-1 cursor-pointer hover:opacity-90" />
-            </a>
-          )}
-          {msg.file_url && !isImage(msg.file_name) && (
-            <a href={fileUrl(msg.file_url)} target="_blank" rel="noreferrer"
-              className={`flex items-center gap-2 text-xs underline mb-1 ${mine ? "text-black/80" : "text-brand-green"}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.41 17.41a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-              </svg>
-              <span className="truncate max-w-[180px]">{msg.file_name}</span>
-            </a>
-          )}
-          {msg.content && <p className="text-sm leading-relaxed break-words">{msg.content}</p>}
-          <p className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-black/60 justify-end" : "text-zinc-500"}`}>
-            {msg.edited && <span className="italic">editado</span>}
-            {formatTime(msg.created_at)}
-          </p>
-        </div>
 
         {/* Reacciones existentes */}
         {reactions.length > 0 && (

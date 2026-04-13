@@ -6,7 +6,7 @@ export const itemPriceSchema = Joi.object({
 });
 
 export const paymentSchema = Joi.object({
-  payment_number: Joi.number().integer().min(1).max(3).required(),
+  payment_number: Joi.number().integer().min(1).required(),
   amount:         Joi.number().positive().required(),
   method:         Joi.string().valid("efectivo", "transferencia", "link_bold").required(),
   bank:           Joi.string().valid("Bancolombia", "Nequi", "Davivienda", "Bold").when("method", {

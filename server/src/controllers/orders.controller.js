@@ -5,6 +5,7 @@ import path from "path";
 import { config } from "../config/index.js";
 import { redis, redisPub } from "../config/redis.js";
 import { pushToWorkers } from "../utils/pushNotifications.js";
+import { broadcastInvalidate } from "../utils/sseManager.js";
 
 function invalidateDashboard() {
   return redis.del("dashboard:summary").catch(() => {});
@@ -56,6 +57,7 @@ export async function create(req, res, next) {
     const designFiles = await uploadFiles(files, "designs");
     const order = await orderService.createOrder(req.user.id, req.body, designFiles);
     await invalidateDashboard();
+    broadcastInvalidate("orders", "dashboard");
     pushToWorkers({ title: "Nueva tarea asignada", body: "Se ha creado un nuevo pedido con tareas de produccion", url: "/tasks" }).catch(() => {});
     res.status(201).json({ status: "ok", data: order });
   } catch (err) { next(err); }
@@ -69,6 +71,7 @@ export async function update(req, res, next) {
     await orderService.updateOrder(req.params.id, req.user.id, req.body, designFiles);
     const order = await orderService.getOrderDetail(req.params.id);
     await invalidateDashboard();
+    broadcastInvalidate("orders", ["order", req.params.id], "dashboard");
     res.json({ status: "ok", data: order });
   } catch (err) { next(err); }
 }
@@ -105,6 +108,7 @@ export async function remove(req, res, next) {
 
     await orderService.deleteOrder(req.params.id);
     await invalidateDashboard();
+    broadcastInvalidate("orders", "dashboard");
     await redisPub.publish("ntrl:notifications", JSON.stringify({ targetRole: "worker", type: "order_deleted" })).catch(() => {});
     res.json({ status: "ok", message: "Pedido eliminado." });
   } catch (err) { next(err); }

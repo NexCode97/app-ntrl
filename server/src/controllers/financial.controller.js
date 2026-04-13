@@ -1,6 +1,7 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
 import { saveFile } from "../utils/fileStorage.js";
+import { broadcastInvalidate } from "../utils/sseManager.js";
 
 export async function getFinancialSummary(req, res, next) {
   try {
@@ -82,6 +83,7 @@ export async function addPayment(req, res, next) {
       [orderId, payment_number, amount, method, bank || null, paid_at || new Date(), req.user.id, receiptUrl]
     );
 
+    broadcastInvalidate(["order", orderId], "orders", "dashboard");
     res.status(201).json({ status: "ok", data: payment });
   } catch (err) { next(err); }
 }
@@ -93,6 +95,7 @@ export async function deletePayment(req, res, next) {
       [req.params.paymentId, req.params.orderId]
     );
     if (!rowCount) throw new AppError("Abono no encontrado.", 404, "NOT_FOUND");
+    broadcastInvalidate(["order", req.params.orderId], "orders", "dashboard");
     res.json({ status: "ok", message: "Abono eliminado." });
   } catch (err) { next(err); }
 }

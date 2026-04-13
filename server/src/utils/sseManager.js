@@ -78,6 +78,14 @@ export async function notifyAdmins(type, message, data = {}) {
   }));
 }
 
+// Broadcast de invalidación de cache a todos los clientes conectados
+export function broadcastInvalidate(...queryKeys) {
+  redisPub.publish("ntrl:notifications", JSON.stringify({
+    type: "invalidate",
+    queryKeys,
+  })).catch(() => {});
+}
+
 // Notificación para un usuario específico
 export async function notify(userId, type, message, data = {}) {
   await pool.query(

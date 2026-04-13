@@ -1,6 +1,6 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
-import { notifyAdmins } from "../utils/sseManager.js";
+import { notifyAdmins, broadcastInvalidate } from "../utils/sseManager.js";
 import { pushToRoles } from "../utils/pushNotifications.js";
 import { redis } from "../config/redis.js";
 
@@ -127,6 +127,7 @@ export async function updateTaskStatus(req, res, next) {
     }
 
     redis.del("dashboard:summary").catch(() => {});
+    broadcastInvalidate(["order", task.order_id], "production", "dashboard");
     res.json({ status: "ok", data: updated });
   } catch (err) { next(err); }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../../stores/authStore.js";
 import { api, API_BASE } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
@@ -38,6 +39,7 @@ const WORKER_LINKS = [
 export default function Sidebar() {
   const { user, clearAuth, accessToken } = useAuthStore();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const links = user?.role === "admin" ? ADMIN_LINKS : user?.role === "vendedor" ? VENDEDOR_LINKS : WORKER_LINKS;
   const [chatUnread,     setChatUnread]     = useState(0);
   const [tasksCount,     setTasksCount]     = useState(0);
@@ -84,6 +86,9 @@ export default function Sidebar() {
     es.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);
+        if (msg.type === "invalidate" && msg.queryKeys) {
+          msg.queryKeys.forEach((key) => qc.invalidateQueries({ queryKey: Array.isArray(key) ? key : [key] }));
+        }
         if (msg.type === "new_message") {
           setChatUnread((n) => n + 1);
           // Notificación del sistema si la app está en segundo plano

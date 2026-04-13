@@ -82,7 +82,8 @@ function EmojiPicker({ onSelect, onClose }) {
 function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
   const [showReactions, setShowReactions] = useState(false);
   const [showMenu,      setShowMenu]      = useState(false);
-  const menuRef = useRef(null);
+  const menuRef    = useRef(null);
+  const longPressTimer = useRef(null);
   const reactions = msg.reactions ?? [];
 
   useEffect(() => {
@@ -92,10 +93,31 @@ function MessageBubble({ msg, mine, onReact, onEdit, onDelete }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [showMenu]);
 
+  // Cerrar reacciones al tocar fuera en mobile
+  useEffect(() => {
+    if (!showReactions) return;
+    function handler() { setShowReactions(false); }
+    document.addEventListener("touchstart", handler, { passive: true });
+    return () => document.removeEventListener("touchstart", handler);
+  }, [showReactions]);
+
+  function handleTouchStart() {
+    longPressTimer.current = setTimeout(() => setShowReactions(true), 500);
+  }
+  function handleTouchEnd() {
+    clearTimeout(longPressTimer.current);
+  }
+  function handleTouchMove() {
+    clearTimeout(longPressTimer.current);
+  }
+
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"} group`}
       onMouseEnter={() => setShowReactions(true)}
-      onMouseLeave={() => { setShowReactions(false); }}>
+      onMouseLeave={() => setShowReactions(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}>
       <div className="relative max-w-[70%] min-w-[80px]">
         {/* Barra de reacciones rápidas + botón opciones (hover) */}
         {showReactions && (
@@ -210,6 +232,7 @@ export default function ChatPage() {
     return () => { if (url) URL.revokeObjectURL(url); };
   }, [file]);
   const [sending,     setSending]     = useState(false);
+  const [sendError,   setSendError]   = useState("");
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [showEmoji,   setShowEmoji]   = useState(false);
   const bottomRef = useRef(null);
@@ -305,7 +328,9 @@ export default function ChatPage() {
       setText("");
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
-    } catch { /* ignorar */ } finally { setSending(false); }
+    } catch (err) {
+      setSendError(err.response?.data?.message || "No se pudo enviar el mensaje.");
+    } finally { setSending(false); }
   }
 
   async function handleReact(messageId, emoji) {
@@ -461,9 +486,16 @@ export default function ChatPage() {
               </div>
             )}
 
+            {/* Error de envío */}
+            {sendError && (
+              <div className="px-4 py-2 bg-red-950 border-t border-red-800 text-red-300 text-xs">
+                {sendError}
+              </div>
+            )}
+
             {/* Input */}
             {!editingMsg && (
-              <form onSubmit={handleSend} className="px-4 py-3 border-t border-zinc-800 flex items-center gap-2 bg-zinc-950 shrink-0 relative">
+              <form onSubmit={(e) => { setSendError(""); handleSend(e); }} className="px-4 py-3 border-t border-zinc-800 flex items-center gap-2 bg-zinc-950 shrink-0 relative">
                 <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden"
                   onChange={(e) => setFile(e.target.files[0] ?? null)} />
 

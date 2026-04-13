@@ -15,10 +15,8 @@ export async function getSummary(req, res, next) {
   try {
     const data = await cached("dashboard:summary", async () => {
       const [byStatus, monthly, bySport, byLine, financial, workerPerf] = await Promise.all([
-        // Total pedidos por estado
         pool.query(`SELECT status, COUNT(*) as total FROM orders GROUP BY status`),
 
-        // Ventas mensuales (últimos 12 meses)
         pool.query(`
           SELECT TO_CHAR(created_at, 'YYYY-MM') as month,
                  COUNT(*) as orders, SUM(total) as revenue
@@ -26,7 +24,6 @@ export async function getSummary(req, res, next) {
           WHERE created_at >= NOW() - INTERVAL '12 months'
           GROUP BY month ORDER BY month`),
 
-        // Ventas por deporte
         pool.query(`
           SELECT s.name as sport, COUNT(DISTINCT o.id) as orders, SUM(oi.subtotal) as revenue
           FROM order_items oi
@@ -36,7 +33,6 @@ export async function getSummary(req, res, next) {
           JOIN orders o ON o.id = oi.order_id
           GROUP BY s.name ORDER BY revenue DESC`),
 
-        // Ventas por línea (top 10)
         pool.query(`
           SELECT l.name as line, s.name as sport, COUNT(DISTINCT o.id) as orders, SUM(oi.subtotal) as revenue
           FROM order_items oi
@@ -46,12 +42,10 @@ export async function getSummary(req, res, next) {
           JOIN orders o ON o.id = oi.order_id
           GROUP BY l.name, s.name ORDER BY revenue DESC LIMIT 10`),
 
-        // Financiero global
         pool.query(`
           SELECT SUM(total) as total_revenue, SUM(amount_paid) as collected, SUM(balance) as pending
-          FROM orders WHERE status != 'delivered' OR status = 'delivered'`),
+          FROM orders`),
 
-        // Rendimiento por trabajador
         pool.query(`
           SELECT u.name, u.area, COUNT(*) FILTER (WHERE pt.status = 'done') as completed,
                  COUNT(*) FILTER (WHERE pt.status = 'in_progress') as in_progress

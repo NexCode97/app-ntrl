@@ -42,6 +42,9 @@ export default function Sidebar() {
   const [chatUnread,     setChatUnread]     = useState(0);
   const [tasksCount,     setTasksCount]     = useState(0);
   const [suppliesCount,  setSuppliesCount]  = useState(0);
+  const [notifPerm,      setNotifPerm]      = useState(() =>
+    "Notification" in window ? Notification.permission : "granted"
+  );
 
   // Cargar conteos al montar
   useEffect(() => {

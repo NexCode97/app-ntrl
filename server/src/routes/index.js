@@ -13,8 +13,6 @@ import syncRoutes from "./sync.routes.js";
 import chatRoutes from "./chat.routes.js";
 import suppliesRoutes from "./supplies.routes.js";
 import pushRoutes from "./push.routes.js";
-import demoRoutes from "./demo.routes.js";
-
 const router = Router();
 
 router.get("/health", health);
@@ -31,6 +29,5 @@ router.use("/sync",          syncRoutes);
 router.use("/chat",          chatRoutes);
 router.use("/supplies",      suppliesRoutes);
 router.use("/push",          pushRoutes);
-router.use("/demo",          demoRoutes);
 
 export default router;

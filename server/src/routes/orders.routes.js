@@ -26,7 +26,7 @@ router.use(requireAuth, moderateLimiter);
 router.get("/",          permissiveLimiter, pagination, ctrl.list);
 router.get("/calendar",  permissiveLimiter, ctrl.calendar);
 router.get("/:id",       ctrl.getById);
-router.get("/:id/history", requireRole("admin"), ctrl.getHistory);
+router.get("/:id/history", requireRole("admin", "vendedor"), ctrl.getHistory);
 
 router.post("/",
   requireRole("admin", "vendedor"),

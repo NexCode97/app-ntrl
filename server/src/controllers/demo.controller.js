@@ -49,16 +49,16 @@ export async function seedDemo(req, res) {
 
     const passwordHash = await bcrypt.hash("Demo2024", 10);
 
-    // IDs fijos para poder referenciarlos
-    const adminId    = "a0000000-demo-0000-0000-000000000001";
-    const vendedorId = "a0000000-demo-0000-0000-000000000002";
-    const workerId   = "a0000000-demo-0000-0000-000000000003";
+    // IDs fijos (UUID v4 válidos) para poder referenciarlos entre tablas
+    const adminId    = "a0a0a0a0-1111-4000-8000-000000000001";
+    const vendedorId = "a0a0a0a0-1111-4000-8000-000000000002";
+    const workerId   = "a0a0a0a0-1111-4000-8000-000000000003";
 
     const custIds = [
-      "c0000000-demo-0000-0000-000000000001",
-      "c0000000-demo-0000-0000-000000000002",
-      "c0000000-demo-0000-0000-000000000003",
-      "c0000000-demo-0000-0000-000000000004",
+      "c0c0c0c0-2222-4000-8000-000000000001",
+      "c0c0c0c0-2222-4000-8000-000000000002",
+      "c0c0c0c0-2222-4000-8000-000000000003",
+      "c0c0c0c0-2222-4000-8000-000000000004",
     ];
 
     // 1. Usuarios

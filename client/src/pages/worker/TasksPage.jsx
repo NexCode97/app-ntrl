@@ -75,12 +75,20 @@ export default function TasksPage() {
     return () => es.close();
   }, [qc]);
 
+  const [statusFilter, setStatusFilter] = useState(null);
+
   const pending    = tasks?.filter((t) => t.status === "pending").length ?? 0;
   const inProgress = tasks?.filter((t) => t.status === "in_progress").length ?? 0;
   const done       = tasks?.filter((t) => t.status === "done").length ?? 0;
   const supPending = suppliesData?.filter((s) => s.status === "pending").length ?? 0;
 
-  const activeTasks = tasks?.filter((t) => t.status !== "done") ?? [];
+  const visibleTasks = statusFilter
+    ? (tasks?.filter((t) => t.status === statusFilter) ?? [])
+    : (tasks?.filter((t) => t.status !== "done") ?? []);
+
+  function toggleFilter(status) {
+    setStatusFilter((prev) => (prev === status ? null : status));
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-5">
@@ -108,17 +116,25 @@ export default function TasksPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Pendientes",  value: pending,    color: "text-yellow-400" },
-          { label: "En proceso",  value: inProgress, color: "text-blue-400"   },
-          { label: "Completadas", value: done,       color: "text-brand-green"},
-          { label: "Suministros", value: supPending, color: "text-zinc-400", sub: "pendientes" },
-        ].map(({ label, value, color, sub }) => (
-          <div key={label} className="card py-3 text-center">
-            <p className={`text-2xl font-black ${color}`}>{value}</p>
-            <p className="text-zinc-500 text-xs mt-0.5">{label}</p>
-            {sub && <p className="text-zinc-600 text-[10px]">{sub}</p>}
-          </div>
-        ))}
+          { label: "Pendientes",  value: pending,    color: "text-yellow-400",  status: "pending"     },
+          { label: "En proceso",  value: inProgress, color: "text-blue-400",    status: "in_progress" },
+          { label: "Completadas", value: done,       color: "text-brand-green", status: "done"        },
+          { label: "Suministros", value: supPending, color: "text-zinc-400",    status: null, sub: "pendientes" },
+        ].map(({ label, value, color, status, sub }) => {
+          const active = statusFilter === status && status !== null;
+          return (
+            <div
+              key={label}
+              onClick={() => status && toggleFilter(status)}
+              className={`card py-3 text-center transition-colors ${status ? "cursor-pointer hover:border-zinc-500" : ""} ${active ? "border border-brand-green/60 bg-brand-green/5" : ""}`}
+            >
+              <p className={`text-2xl font-black ${color}`}>{value}</p>
+              <p className="text-zinc-500 text-xs mt-0.5">{label}</p>
+              {sub && <p className="text-zinc-600 text-[10px]">{sub}</p>}
+              {active && <p className="text-brand-green text-[10px] mt-0.5">● filtro activo</p>}
+            </div>
+          );
+        })}
       </div>
 
       {/* Tareas */}
@@ -136,7 +152,7 @@ export default function TasksPage() {
 
         {isLoading && <p className="text-zinc-500 text-center py-8 text-sm">Cargando...</p>}
 
-        {!isLoading && activeTasks.length === 0 && (
+        {!isLoading && visibleTasks.length === 0 && (
           <div className="card text-center py-10">
             <p className="text-4xl mb-3">✅</p>
             <p className="text-white font-medium">¡Todo al día!</p>
@@ -145,7 +161,7 @@ export default function TasksPage() {
         )}
 
         <div className="space-y-3">
-          {activeTasks.map((task) => (
+          {visibleTasks.map((task) => (
             <div key={task.id} className="card">
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="min-w-0">

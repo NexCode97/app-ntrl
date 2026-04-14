@@ -123,10 +123,16 @@ export async function remove(req, res, next) {
 // ── Descargar PDF ─────────────────────────────────────────────────
 export async function downloadPDF(req, res, next) {
   try {
-    const { rows: [quote] } = await pool.query("SELECT * FROM quotes WHERE id=$1", [req.params.id]);
+    const { rows: [quote] } = await pool.query(
+      `SELECT q.*, u.name as created_by_name
+       FROM quotes q
+       LEFT JOIN users u ON u.id::text = q.created_by::text
+       WHERE q.id = $1`,
+      [req.params.id]
+    );
     if (!quote) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
 
-    const pdf = await generateQuotePDF(quote, req.user?.name);
+    const pdf = await generateQuotePDF(quote);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf"`);
     res.send(pdf);

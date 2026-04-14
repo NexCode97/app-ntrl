@@ -180,18 +180,17 @@ export function generateQuotePDF(quote, emittedBy) {
     doc.rect(m, tableY, cW, rowY - tableY).lineWidth(0.5).strokeColor("#cccccc").stroke();
 
     // ── TOTAL ────────────────────────────────────────────────────
-    const totalBoxW = 160;
-    const totalBoxH = 32;
+    const totalBoxW = 130;
+    const totalBoxH = 24;
     const totalBoxX = W - m - totalBoxW;
     rowY += 8;
 
-    doc.roundedRect(totalBoxX, rowY, totalBoxW, totalBoxH, 6).fill(GREEN);
-    // texto centrado verticalmente: fontSize 10 → line height ~13px, centrar en 32px → offset = (32-13)/2 = 9.5 ≈ 10
-    const totalTextY = rowY + (totalBoxH - 13) / 2;
-    doc.fontSize(10).fillColor(WHITE).font("Helvetica")
-       .text("TOTAL", totalBoxX + 12, totalTextY);
-    doc.fontSize(12).font("Helvetica-Bold")
-       .text(fmt(quote.total), totalBoxX, totalTextY - 1, { align: "right", width: totalBoxW - 12 });
+    doc.roundedRect(totalBoxX, rowY, totalBoxW, totalBoxH, 5).fill(GREEN);
+    const totalTextY = rowY + (totalBoxH - 9) / 2;  // centrar fontSize 9 (~9px) en 24px
+    doc.fontSize(9).fillColor(WHITE).font("Helvetica-Bold")
+       .text("TOTAL", totalBoxX + 10, totalTextY);
+    doc.fontSize(9).font("Helvetica-Bold")
+       .text(fmt(quote.total), totalBoxX, totalTextY, { align: "right", width: totalBoxW - 10 });
 
     rowY += totalBoxH + 10;
 
@@ -234,7 +233,7 @@ export function generateQuotePDF(quote, emittedBy) {
     // ── EMITIDO POR ───────────────────────────────────────────────
     doc.fontSize(8).fillColor(BLACK).font("Helvetica-Bold")
        .text("Emitido por: ", m, rowY, { continued: true });
-    doc.font("Helvetica").text(emittedBy || quote.created_by_name || "—");
+    doc.font("Helvetica").text(quote.created_by_name || "—");
 
     // ── PIE ───────────────────────────────────────────────────────
     const pageH = doc.page.height;

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
@@ -44,8 +44,9 @@ function formatPriceCO(raw) {
 }
 
 export default function OrderCreatePage() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const qc        = useQueryClient();
 
   const [customerId,    setCustomerId]    = useState("");
   const [customerQuery, setCustomerQuery] = useState("");
@@ -58,6 +59,23 @@ export default function OrderCreatePage() {
   const [filterKey,     setFilterKey]     = useState(0);
   const [error,         setError]         = useState("");
   const [saving,        setSaving]        = useState(false);
+  const [fromQuoteBanner, setFromQuoteBanner] = useState(false);
+
+  // Pre-cargar items si viene de convertir una cotización
+  useEffect(() => {
+    const state = location.state;
+    if (!state?.fromQuote || !Array.isArray(state.items)) return;
+    setFromQuoteBanner(true);
+    setItems(state.items.map((i) => ({
+      product_id:         i.product_id,
+      product_name:       i.product_name,
+      gender:             i.gender || "hombre",
+      sizes:              i.sizes  || {},
+      unit_price:         i.unit_price || 0,
+      unit_price_display: i.unit_price ? Number(i.unit_price).toLocaleString("es-CO") : "",
+      design_file_index:  null,
+    })));
+  }, []);
 
   async function searchCustomers(q) {
     setCustomerQuery(q);
@@ -115,6 +133,11 @@ export default function OrderCreatePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {fromQuoteBanner && (
+        <div className="bg-blue-950 border border-blue-700 rounded-xl px-4 py-3 text-blue-300 text-sm flex items-center gap-2">
+          📝 <span>Pedido pre-cargado desde una cotización. Selecciona el cliente y adjunta los diseños para continuar.</span>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-6">
 
         {/* Cliente */}

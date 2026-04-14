@@ -6,6 +6,7 @@ import { config } from "../config/index.js";
 import { redis, redisPub } from "../config/redis.js";
 import { pushToWorkers } from "../utils/pushNotifications.js";
 import { broadcastInvalidate } from "../utils/sseManager.js";
+import { generateInvoicePDF } from "../utils/pdfGenerator.js";
 
 function invalidateDashboard() {
   return redis.del("dashboard:summary").catch(() => {});
@@ -125,5 +126,16 @@ export async function getHistory(req, res, next) {
       [req.params.id]
     );
     res.json({ status: "ok", data: rows });
+  } catch (err) { next(err); }
+}
+
+export async function downloadInvoice(req, res, next) {
+  try {
+    const order = await orderService.getOrderDetail(req.params.id);
+    const pdf   = await generateInvoicePDF(order);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition",
+      `attachment; filename="factura-${order.order_number_fmt || order.order_number}.pdf"`);
+    res.send(pdf);
   } catch (err) { next(err); }
 }

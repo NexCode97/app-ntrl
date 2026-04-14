@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../config/api.js";
+import { api, API_BASE } from "../../config/api.js";
+import { useAuthStore } from "../../stores/authStore.js";
 import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
 import { fileUrl } from "../../utils/fileUrl.js";
@@ -64,11 +65,24 @@ export default function OrderDetailPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
 
+  const { accessToken } = useAuthStore();
   const [searchParams] = useSearchParams();
   const [tab,        setTab]        = useState(searchParams.get("tab") || "items");
   const [showEdit,   setShowEdit]   = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [pdfSrc,     setPdfSrc]     = useState(null);
+
+  async function handleDownloadInvoice() {
+    try {
+      const res = await api.get(`/orders/${id}/invoice`, { responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a   = document.createElement("a");
+      a.href     = url;
+      a.download = `factura-${data?.order_number_fmt || id}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* ignorar */ }
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ["order", id],
@@ -144,6 +158,9 @@ export default function OrderDetailPage() {
             {data.status !== "delivered" && data.status === "completed" && (
               <button className="btn-primary" onClick={markDelivered}>Marcar entregado</button>
             )}
+            <button className="btn-secondary" onClick={handleDownloadInvoice} title="Descargar factura PDF">
+              🧾 Factura
+            </button>
             <button
               onClick={handleDelete}
               className="px-3 py-2 text-sm font-medium rounded-lg text-red-400 hover:text-white hover:bg-red-900 border border-red-800 transition-colors"

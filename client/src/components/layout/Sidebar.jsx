@@ -9,24 +9,26 @@ import { subscribeToPush } from "../../utils/pushSubscription.js";
 const AREA_LABELS = { corte: "Corte", diseno: "Diseño", sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados" };
 
 const VENDEDOR_LINKS = [
-  { to: "/dashboard", label: "Dashboard",   icon: "📊" },
-  { to: "/orders",    label: "Pedidos",     icon: "📋" },
-  { to: "/customers", label: "Clientes",    icon: "👥" },
-  { to: "/catalog",   label: "Catálogo",    icon: "🏷️" },
-  { to: "/supplies",  label: "Suministros", icon: "📦" },
-  { to: "/chat",      label: "Mensajes",    icon: "💬" },
+  { to: "/dashboard", label: "Dashboard",    icon: "📊" },
+  { to: "/orders",    label: "Pedidos",      icon: "📋" },
+  { to: "/quotes",    label: "Cotizaciones", icon: "📝" },
+  { to: "/customers", label: "Clientes",     icon: "👥" },
+  { to: "/catalog",   label: "Catálogo",     icon: "🏷️" },
+  { to: "/supplies",  label: "Suministros",  icon: "📦" },
+  { to: "/chat",      label: "Mensajes",     icon: "💬" },
 ];
 
 const ADMIN_LINKS = [
-  { to: "/dashboard", label: "Dashboard",  icon: "📊" },
-  { to: "/orders",    label: "Pedidos",     icon: "📋" },
-  { to: "/customers", label: "Clientes",    icon: "👥" },
-  { to: "/catalog",   label: "Catálogo",    icon: "🏷️" },
-  { to: "/users",     label: "Usuarios",    icon: "👤" },
-  { to: "/supplies",  label: "Suministros", icon: "📦" },
-  { to: "/reports",   label: "Reportes",    icon: "📈" },
-  { to: "/calendar",  label: "Calendario",  icon: "📅" },
-  { to: "/chat",      label: "Mensajes",    icon: "💬" },
+  { to: "/dashboard", label: "Dashboard",    icon: "📊" },
+  { to: "/orders",    label: "Pedidos",      icon: "📋" },
+  { to: "/quotes",    label: "Cotizaciones", icon: "📝" },
+  { to: "/customers", label: "Clientes",     icon: "👥" },
+  { to: "/catalog",   label: "Catálogo",     icon: "🏷️" },
+  { to: "/users",     label: "Usuarios",     icon: "👤" },
+  { to: "/supplies",  label: "Suministros",  icon: "📦" },
+  { to: "/reports",   label: "Reportes",     icon: "📈" },
+  { to: "/calendar",  label: "Calendario",   icon: "📅" },
+  { to: "/chat",      label: "Mensajes",     icon: "💬" },
 ];
 
 const WORKER_LINKS = [

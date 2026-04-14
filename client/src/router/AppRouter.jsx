@@ -16,6 +16,7 @@ import ReportsPage     from "../pages/admin/ReportsPage.jsx";
 import SuppliesPage   from "../pages/admin/SuppliesPage.jsx";
 import ProfilePage    from "../pages/admin/ProfilePage.jsx";
 import CalendarPage   from "../pages/admin/CalendarPage.jsx";
+import QuotesPage     from "../pages/admin/QuotesPage.jsx";
 import ChatPage       from "../pages/ChatPage.jsx";
 
 // Worker pages
@@ -62,6 +63,7 @@ export default function AppRouter() {
         <Route path="orders/:id" element={<RequireAuth roles={["admin","vendedor"]}><OrderDetailPage /></RequireAuth>} />
         <Route path="customers"  element={<RequireAuth roles={["admin","vendedor"]}><CustomersPage /></RequireAuth>} />
         <Route path="catalog"    element={<RequireAuth roles={["admin","vendedor"]}><CatalogPage /></RequireAuth>} />
+        <Route path="quotes"     element={<RequireAuth roles={["admin","vendedor"]}><QuotesPage /></RequireAuth>} />
         <Route path="calendar"   element={<RequireAuth><CalendarPage /></RequireAuth>} />
 
         {/* All authenticated users */}

@@ -12,7 +12,8 @@ import catalogRoutes from "./catalog/index.js";
 import syncRoutes from "./sync.routes.js";
 import chatRoutes from "./chat.routes.js";
 import suppliesRoutes from "./supplies.routes.js";
-import pushRoutes from "./push.routes.js";
+import pushRoutes   from "./push.routes.js";
+import quotesRoutes from "./quotes.routes.js";
 const router = Router();
 
 router.get("/health", health);
@@ -29,5 +30,6 @@ router.use("/sync",          syncRoutes);
 router.use("/chat",          chatRoutes);
 router.use("/supplies",      suppliesRoutes);
 router.use("/push",          pushRoutes);
+router.use("/quotes",        quotesRoutes);
 
 export default router;

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS quotes (
   id            SERIAL PRIMARY KEY,
-  quote_number  INTEGER NOT NULL,
+  quote_number  INTEGER NOT NULL DEFAULT 0,
   customer_name VARCHAR(200) NOT NULL,
   customer_email VARCHAR(200),
   customer_phone VARCHAR(50),
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS quotes (
   notes         TEXT,
   valid_days    INTEGER NOT NULL DEFAULT 15,
   total         NUMERIC(14,2) NOT NULL DEFAULT 0,
-  created_by    INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_by    INTEGER,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

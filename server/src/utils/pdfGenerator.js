@@ -50,24 +50,24 @@ export function generateQuotePDF(quote, emittedBy) {
       doc.image(LOGO_PATH, m, m, { height: 55, fit: [120, 55] });
     } catch { /* si falla, sin logo */ }
 
-    // Título COTIZACIÓN (centro-izquierda)
+    // Título COTIZACIÓN (derecha)
     doc.fontSize(26).fillColor(BLACK).font("Helvetica-Bold")
-       .text("COTIZACIÓN", m + 130, m + 8, { align: "left" });
+       .text("COTIZACIÓN", m, m + 4, { align: "right", width: cW });
 
-    // Número cotización (derecha, misma línea que título)
+    // Número cotización (derecha, debajo del título)
     const numStr = `N° ${String(quote.quote_number).padStart(6, "0")}`;
-    doc.fontSize(11).fillColor(GRAY).font("Helvetica")
-       .text(numStr, m, m + 14, { align: "right", width: cW });
+    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
+       .text(numStr, m, m + 36, { align: "right", width: cW });
 
     // Fecha (derecha, debajo del número)
     const fecha = new Date(quote.created_at).toLocaleDateString("es-CO", {
       day: "2-digit", month: "2-digit", year: "numeric",
     });
     doc.fontSize(9).fillColor(GRAY)
-       .text(fecha, m, m + 30, { align: "right", width: cW });
+       .text(fecha, m, m + 49, { align: "right", width: cW });
 
     // Línea separadora
-    const lineY = m + 65;
+    const lineY = m + 70;
     doc.moveTo(m, lineY).lineTo(W - m, lineY).lineWidth(1.5).strokeColor(GREEN).stroke();
 
     // ── BLOQUE DOS COLUMNAS: CLIENTE | EMPRESA ───────────────────
@@ -131,11 +131,11 @@ export function generateQuotePDF(quote, emittedBy) {
 
     doc.rect(m, tableY, cW, hdrH).fill(BLACK);
     doc.fontSize(8).fillColor(WHITE).font("Helvetica-Bold");
-    doc.text("CANT",      cols.cant.x + 4,     tableY + 6, { width: cols.cant.w });
+    doc.text("CANT",      cols.cant.x,          tableY + 6, { width: cols.cant.w,          align: "center" });
     doc.text("PRODUCTO",  cols.producto.x + 4,  tableY + 6, { width: cols.producto.w });
     doc.text("TALLAS",    cols.tallas.x + 4,    tableY + 6, { width: cols.tallas.w });
-    doc.text("P. UNIT",   cols.precio.x + 4,    tableY + 6, { width: cols.precio.w - 8,   align: "center" });
-    doc.text("SUBTOTAL",  cols.subtotal.x + 4,  tableY + 6, { width: cols.subtotal.w - 8, align: "center" });
+    doc.text("P. UNIT",   cols.precio.x,         tableY + 6, { width: cols.precio.w,        align: "center" });
+    doc.text("SUBTOTAL",  cols.subtotal.x,       tableY + 6, { width: cols.subtotal.w,      align: "center" });
 
     // Filas
     const items = Array.isArray(quote.items) ? quote.items : [];
@@ -148,9 +148,10 @@ export function generateQuotePDF(quote, emittedBy) {
         .filter(([, q]) => q > 0).map(([s, q]) => `${s}:${q}`).join("  ");
       const subtotal = item.subtotal || qty * (item.unit_price || 0);
 
-      // Calcular altura de fila según texto más largo
+      // Calcular altura de fila: nombre + género + padding superior e inferior
       const prodLines = doc.heightOfString(item.product_name || "", { width: cols.producto.w - 8, fontSize: 9 });
-      const rowH = Math.max(prodLines + 14, 28);
+      const rowH = Math.max(prodLines + 28, 38);
+      const midY = rowY + (rowH / 2) - 5;  // centro vertical para valores de una línea
 
       if (i % 2 === 0) doc.rect(m, rowY, cW, rowH).fill(LGRAY);
       else              doc.rect(m, rowY, cW, rowH).fill(WHITE);
@@ -158,16 +159,16 @@ export function generateQuotePDF(quote, emittedBy) {
       doc.fontSize(9).fillColor(BLACK);
 
       doc.font("Helvetica")
-         .text(String(qty), cols.cant.x + 4,    rowY + 8, { width: cols.cant.w, align: "center" });
+         .text(String(qty), cols.cant.x, midY, { width: cols.cant.w, align: "center" });
       doc.font("Helvetica-Bold")
-         .text(item.product_name || "", cols.producto.x + 4, rowY + 8, { width: cols.producto.w - 8 });
+         .text(item.product_name || "", cols.producto.x + 4, rowY + 10, { width: cols.producto.w - 8 });
       doc.font("Helvetica").fillColor(GRAY)
-         .text(item.gender || "", cols.producto.x + 4, rowY + 8 + 12, { width: cols.producto.w - 8 });
+         .text(item.gender || "", cols.producto.x + 4, rowY + 10 + 13, { width: cols.producto.w - 8 });
       doc.fillColor(BLACK)
-         .text(sizesStr, cols.tallas.x + 4,  rowY + 8, { width: cols.tallas.w - 4 });
-      doc.text(fmt(item.unit_price), cols.precio.x + 4, rowY + 8,   { width: cols.precio.w - 8, align: "center" });
+         .text(sizesStr, cols.tallas.x + 4, midY, { width: cols.tallas.w - 4 });
+      doc.text(fmt(item.unit_price), cols.precio.x, midY, { width: cols.precio.w, align: "center" });
       doc.font("Helvetica-Bold")
-         .text(fmt(subtotal), cols.subtotal.x + 4, rowY + 8, { width: cols.subtotal.w - 8, align: "center" });
+         .text(fmt(subtotal), cols.subtotal.x, midY, { width: cols.subtotal.w, align: "center" });
 
       // Línea divisoria fila
       doc.moveTo(m, rowY + rowH).lineTo(W - m, rowY + rowH).lineWidth(0.3).strokeColor("#dddddd").stroke();
@@ -180,16 +181,19 @@ export function generateQuotePDF(quote, emittedBy) {
 
     // ── TOTAL ────────────────────────────────────────────────────
     const totalBoxW = 160;
+    const totalBoxH = 32;
     const totalBoxX = W - m - totalBoxW;
-    rowY += 6;
+    rowY += 8;
 
-    doc.rect(totalBoxX, rowY, totalBoxW, 28).fill(GREEN);
-    doc.fontSize(9).fillColor(WHITE).font("Helvetica")
-       .text("TOTAL", totalBoxX + 10, rowY + 7);
+    doc.roundedRect(totalBoxX, rowY, totalBoxW, totalBoxH, 6).fill(GREEN);
+    // texto centrado verticalmente: fontSize 10 → line height ~13px, centrar en 32px → offset = (32-13)/2 = 9.5 ≈ 10
+    const totalTextY = rowY + (totalBoxH - 13) / 2;
+    doc.fontSize(10).fillColor(WHITE).font("Helvetica")
+       .text("TOTAL", totalBoxX + 12, totalTextY);
     doc.fontSize(12).font("Helvetica-Bold")
-       .text(fmt(quote.total), totalBoxX + 10, rowY + 7, { align: "right", width: totalBoxW - 14 });
+       .text(fmt(quote.total), totalBoxX, totalTextY - 1, { align: "right", width: totalBoxW - 12 });
 
-    rowY += 36;
+    rowY += totalBoxH + 10;
 
     // ── CONDICIONES ──────────────────────────────────────────────
     const validUntil = new Date(

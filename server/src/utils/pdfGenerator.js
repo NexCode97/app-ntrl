@@ -219,16 +219,26 @@ export function generateQuotePDF(quote, emittedBy) {
     rowY += 18;
 
     // ── NOTA IMPORTANTE ──────────────────────────────────────────
-    doc.rect(m, rowY, cW, 38).fill("#fff8e1");
+    const impText =
+      "El procesamiento del pedido esta sujeto a la realizacion de un abono equivalente al 50% del valor total cotizado. " +
+      "El saldo restante debera ser cancelado una vez se notifique al cliente que el pedido esta listo.";
+    const impPadH = 8;  // padding vertical interior
+    const impPadW = 10; // padding horizontal interior
+    const impInnerW = cW - impPadW * 2;
+    // Medir altura real del bloque de texto (título + cuerpo)
+    const impLabelH = doc.heightOfString("IMPORTANTE: ", { width: impInnerW, fontSize: 8 });
+    const impBodyH  = doc.heightOfString(impText, { width: impInnerW, fontSize: 8 });
+    const impBoxH   = impLabelH + impBodyH + impPadH * 2;
+
+    doc.rect(m, rowY, cW, impBoxH).fill("#fff8e1");
+
+    const impTextY = rowY + impPadH;
     doc.fontSize(8).fillColor("#7a5800").font("Helvetica-Bold")
-       .text("IMPORTANTE: ", m + 6, rowY + 6, { continued: true });
+       .text("IMPORTANTE: ", m + impPadW, impTextY, { width: impInnerW, continued: true });
     doc.font("Helvetica")
-       .text(
-         "El procesamiento del pedido esta sujeto a la realizacion de un abono equivalente al 50% del valor total cotizado. " +
-         "El saldo restante debera ser cancelado una vez se notifique al cliente que el pedido esta listo.",
-         { width: cW - 12 }
-       );
-    rowY += 46;
+       .text(impText, { width: impInnerW });
+
+    rowY += impBoxH + 6;
 
     // ── OBSERVACIONES ─────────────────────────────────────────────
     if (quote.notes) {

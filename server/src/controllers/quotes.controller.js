@@ -9,7 +9,7 @@ export async function list(req, res, next) {
     const { rows } = await pool.query(
       `SELECT q.*, u.name as created_by_name
        FROM quotes q
-       LEFT JOIN users u ON u.id = q.created_by
+       LEFT JOIN users u ON u.id::text = q.created_by::text
        ORDER BY q.created_at DESC`
     );
     res.json({ status: "ok", data: rows });
@@ -22,7 +22,7 @@ export async function getById(req, res, next) {
     const { rows: [quote] } = await pool.query(
       `SELECT q.*, u.name as created_by_name
        FROM quotes q
-       LEFT JOIN users u ON u.id = q.created_by
+       LEFT JOIN users u ON u.id::text = q.created_by::text
        WHERE q.id = $1`,
       [req.params.id]
     );
@@ -34,7 +34,7 @@ export async function getById(req, res, next) {
 // ── Crear ─────────────────────────────────────────────────────────
 export async function create(req, res, next) {
   try {
-    const { customer_name, customer_email, customer_phone, items, notes, valid_days } = req.body;
+    const { customer_name, customer_email, customer_phone, customer_document, customer_address, items, notes, valid_days } = req.body;
 
     if (!customer_name) throw new AppError("El nombre del cliente es requerido.", 400, "VALIDATION");
     if (!Array.isArray(items) || items.length === 0)
@@ -43,15 +43,17 @@ export async function create(req, res, next) {
     const total = items.reduce((s, i) => s + Number(i.subtotal || 0), 0);
 
     const { rows: [quote] } = await pool.query(
-      `INSERT INTO quotes (customer_name, customer_email, customer_phone, items, notes, valid_days, total, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      `INSERT INTO quotes (customer_name, customer_email, customer_phone, customer_document, customer_address, items, notes, valid_days, total, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
        RETURNING *`,
       [
         customer_name,
-        customer_email || null,
-        customer_phone || null,
+        customer_email    || null,
+        customer_phone    || null,
+        customer_document || null,
+        customer_address  || null,
         JSON.stringify(items),
-        notes || null,
+        notes      || null,
         valid_days || 15,
         total,
         req.user.id,
@@ -65,38 +67,42 @@ export async function create(req, res, next) {
 // ── Actualizar ────────────────────────────────────────────────────
 export async function update(req, res, next) {
   try {
-    const { customer_name, customer_email, customer_phone, items, notes, valid_days, status } = req.body;
+    const { customer_name, customer_email, customer_phone, customer_document, customer_address, items, notes, valid_days, status } = req.body;
 
     const { rows: [existing] } = await pool.query("SELECT * FROM quotes WHERE id=$1", [req.params.id]);
     if (!existing) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
 
-    const newItems  = items ?? existing.items;
-    const newTotal  = Array.isArray(items)
+    const newItems = items ?? existing.items;
+    const newTotal = Array.isArray(items)
       ? items.reduce((s, i) => s + Number(i.subtotal || 0), 0)
       : existing.total;
 
     const { rows: [quote] } = await pool.query(
       `UPDATE quotes SET
-         customer_name  = COALESCE($1, customer_name),
-         customer_email = COALESCE($2, customer_email),
-         customer_phone = COALESCE($3, customer_phone),
-         items          = COALESCE($4, items),
-         notes          = COALESCE($5, notes),
-         valid_days     = COALESCE($6, valid_days),
-         total          = $7,
-         status         = COALESCE($8, status),
-         updated_at     = NOW()
-       WHERE id = $9
+         customer_name     = COALESCE($1,  customer_name),
+         customer_email    = COALESCE($2,  customer_email),
+         customer_phone    = COALESCE($3,  customer_phone),
+         customer_document = COALESCE($4,  customer_document),
+         customer_address  = COALESCE($5,  customer_address),
+         items             = COALESCE($6,  items),
+         notes             = COALESCE($7,  notes),
+         valid_days        = COALESCE($8,  valid_days),
+         total             = $9,
+         status            = COALESCE($10, status),
+         updated_at        = NOW()
+       WHERE id = $11
        RETURNING *`,
       [
-        customer_name  || null,
-        customer_email || null,
-        customer_phone || null,
+        customer_name     || null,
+        customer_email    || null,
+        customer_phone    || null,
+        customer_document || null,
+        customer_address  || null,
         items ? JSON.stringify(newItems) : null,
-        notes ?? null,
-        valid_days     || null,
+        notes      ?? null,
+        valid_days || null,
         newTotal,
-        status         || null,
+        status     || null,
         req.params.id,
       ]
     );
@@ -157,9 +163,7 @@ export async function sendByEmail(req, res, next) {
       }],
     });
 
-    // Marcar como enviada
     await pool.query("UPDATE quotes SET status='sent', updated_at=NOW() WHERE id=$1", [quote.id]);
-
     res.json({ status: "ok", message: "Cotización enviada correctamente." });
   } catch (err) { next(err); }
 }

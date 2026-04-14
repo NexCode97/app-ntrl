@@ -34,12 +34,14 @@ function emptyItem(product) {
 
 // ── Formulario de nueva cotización ────────────────────────────────
 function QuoteForm({ onClose, onSaved, initial }) {
-  const [customerId,    setCustomerId]    = useState(initial?.customer_id    || null);
-  const [customerQuery, setCustomerQuery] = useState(initial?.customer_name  || "");
-  const [customerName,  setCustomerName]  = useState(initial?.customer_name  || "");
-  const [customerEmail, setCustomerEmail] = useState(initial?.customer_email || "");
-  const [customerPhone, setCustomerPhone] = useState(initial?.customer_phone || "");
-  const [customers,     setCustomers]     = useState([]);
+  const [customerId,       setCustomerId]       = useState(initial?.customer_id       || null);
+  const [customerQuery,    setCustomerQuery]    = useState(initial?.customer_name     || "");
+  const [customerName,     setCustomerName]     = useState(initial?.customer_name     || "");
+  const [customerEmail,    setCustomerEmail]    = useState(initial?.customer_email    || "");
+  const [customerPhone,    setCustomerPhone]    = useState(initial?.customer_phone    || "");
+  const [customerDocument, setCustomerDocument] = useState(initial?.customer_document || "");
+  const [customerAddress,  setCustomerAddress]  = useState(initial?.customer_address  || "");
+  const [customers,        setCustomers]        = useState([]);
   const [notes,         setNotes]         = useState(initial?.notes          || "");
   const [validDays,     setValidDays]     = useState(initial?.valid_days     || 15);
   const [items,         setItems]         = useState(
@@ -58,6 +60,8 @@ function QuoteForm({ onClose, onSaved, initial }) {
     setCustomerName(q);
     setCustomerEmail("");
     setCustomerPhone("");
+    setCustomerDocument("");
+    setCustomerAddress("");
     if (q.length < 2) { setCustomers([]); return; }
     const { data } = await api.get(`/customers?search=${encodeURIComponent(q)}&limit=10`);
     setCustomers(data.data);
@@ -69,6 +73,8 @@ function QuoteForm({ onClose, onSaved, initial }) {
     setCustomerQuery(c.name);
     setCustomerEmail(c.email || "");
     setCustomerPhone(c.phone || "");
+    setCustomerDocument(c.document_number || "");
+    setCustomerAddress(c.address || "");
     setCustomers([]);
   }
 
@@ -94,10 +100,12 @@ function QuoteForm({ onClose, onSaved, initial }) {
     if (items.length === 0)   { setError("Agrega al menos un producto.");         return; }
 
     const payload = {
-      customer_name:  customerName.trim(),
-      customer_email: customerEmail.trim() || null,
-      customer_phone: customerPhone.trim() || null,
-      notes:          notes.trim() || null,
+      customer_name:     customerName.trim(),
+      customer_email:    customerEmail.trim()    || null,
+      customer_phone:    customerPhone.trim()    || null,
+      customer_document: customerDocument.trim() || null,
+      customer_address:  customerAddress.trim()  || null,
+      notes:             notes.trim() || null,
       valid_days:     Number(validDays) || 15,
       items: items.map((item) => {
         const qty      = Object.values(item.sizes || {}).reduce((a, q) => a + (Number(q) || 0), 0);
@@ -174,6 +182,16 @@ function QuoteForm({ onClose, onSaved, initial }) {
                   <label className="text-zinc-400 text-xs mb-1 block">Teléfono</label>
                   <input className="input-field" value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)} placeholder="300 000 0000" />
+                </div>
+                <div>
+                  <label className="text-zinc-400 text-xs mb-1 block">Documento</label>
+                  <input className="input-field" value={customerDocument}
+                    onChange={(e) => setCustomerDocument(e.target.value)} placeholder="NIT / CC" />
+                </div>
+                <div>
+                  <label className="text-zinc-400 text-xs mb-1 block">Dirección</label>
+                  <input className="input-field" value={customerAddress}
+                    onChange={(e) => setCustomerAddress(e.target.value)} placeholder="Dirección" />
                 </div>
               </div>
             )}

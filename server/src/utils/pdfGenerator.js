@@ -15,7 +15,7 @@ const EMPRESA = {
   nombre:    "Natural Ropa Deportiva",
   direccion: "Calle 22#17-21",
   ciudad:    "Bucaramanga, Santander",
-  tel:       "3138296551",
+  tel:       "+57 3138296551",
   web:       "www.naturalropadeportiva.com.co",
 };
 

@@ -7,10 +7,11 @@ import CascadeFilter      from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid   from "../../components/orders/SizeQuantityGrid.jsx";
 
 const GENDERS = [
-  { value: "nino",   label: "Niño"   },
-  { value: "hombre", label: "Hombre" },
-  { value: "mujer",  label: "Mujer"  },
-  { value: "unisex", label: "Unisex" },
+  { value: "nino",   label: "Niño"         },
+  { value: "hombre", label: "Hombre"       },
+  { value: "mujer",  label: "Mujer"        },
+  { value: "unisex", label: "Unisex"       },
+  { value: "unica",  label: "Talla Única"  },
 ];
 
 const STATUS_LABEL = {
@@ -230,7 +231,7 @@ function QuoteForm({ onClose, onSaved, initial }) {
                           placeholder="0" />
                       </div>
                     </div>
-                    <SizeQuantityGrid sizes={item.sizes} onChange={(sizes) => updateItem(i, "sizes", sizes)} />
+                    <SizeQuantityGrid gender={item.gender} sizes={item.sizes} onChange={(sizes) => updateItem(i, "sizes", sizes)} />
                     <div className="text-right mt-2 text-xs text-zinc-400">
                       Subtotal: <span className="text-brand-green font-bold">
                         {fmt(Object.values(item.sizes || {}).reduce((a,q)=>a+(Number(q)||0),0) * (item.unit_price||0))}

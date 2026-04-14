@@ -133,7 +133,7 @@ export function generateQuotePDF(quote, emittedBy) {
     doc.fontSize(8).fillColor(WHITE).font("Helvetica-Bold");
     doc.text("CANT",      cols.cant.x,          tableY + 6, { width: cols.cant.w,          align: "center" });
     doc.text("PRODUCTO",  cols.producto.x + 4,  tableY + 6, { width: cols.producto.w });
-    doc.text("TALLAS",    cols.tallas.x + 4,    tableY + 6, { width: cols.tallas.w });
+    doc.text("TALLAS",    cols.tallas.x,         tableY + 6, { width: cols.tallas.w, align: "center" });
     doc.text("P. UNIT",   cols.precio.x,         tableY + 6, { width: cols.precio.w,        align: "center" });
     doc.text("SUBTOTAL",  cols.subtotal.x,       tableY + 6, { width: cols.subtotal.w,      align: "center" });
 
@@ -165,7 +165,7 @@ export function generateQuotePDF(quote, emittedBy) {
       doc.font("Helvetica").fillColor(GRAY)
          .text(item.gender || "", cols.producto.x + 4, rowY + 10 + 13, { width: cols.producto.w - 8 });
       doc.fillColor(BLACK)
-         .text(sizesStr, cols.tallas.x + 4, midY, { width: cols.tallas.w - 4 });
+         .text(sizesStr, cols.tallas.x, midY, { width: cols.tallas.w, align: "center" });
       doc.text(fmt(item.unit_price), cols.precio.x, midY, { width: cols.precio.w, align: "center" });
       doc.font("Helvetica-Bold")
          .text(fmt(subtotal), cols.subtotal.x, midY, { width: cols.subtotal.w, align: "center" });
@@ -180,27 +180,24 @@ export function generateQuotePDF(quote, emittedBy) {
     doc.rect(m, tableY, cW, rowY - tableY).lineWidth(0.5).strokeColor("#cccccc").stroke();
 
     // ── TOTAL ────────────────────────────────────────────────────
-    // La caja ocupa exactamente las columnas precio + subtotal
-    const totalBoxX = cols.precio.x;
-    const totalBoxW = cols.precio.w + cols.subtotal.w;
+    // La caja ocupa las columnas precio + subtotal con margen interno de 6px a cada lado
+    const totalBoxX = cols.precio.x + 6;
+    const totalBoxW = cols.precio.w + cols.subtotal.w - 12;
     const totalBoxH = 26;
     rowY += 8;
 
-    // Padding: 5px arriba/abajo, 3px lados
-    const pad = 5;
     doc.fontSize(9).font("Helvetica-Bold");
-    const totalLineH  = doc.currentLineHeight(true);
-    const totalBoxHFit = totalLineH + pad * 2;
+    const totalLineH   = doc.currentLineHeight(true);
+    const padTop       = 5;
+    const padBottom    = 2;  // recortado abajo para compensar leading interno
+    const totalBoxHFit = totalLineH + padTop + padBottom;
 
     doc.roundedRect(totalBoxX, rowY, totalBoxW, totalBoxHFit, 3).fill(GREEN);
 
-    const totalTextY = rowY + pad;
+    const totalTextY = rowY + padTop;
 
-    // "TOTAL" centrado horizontalmente dentro de la columna precio
     doc.fillColor(WHITE)
        .text("TOTAL", cols.precio.x, totalTextY, { width: cols.precio.w, align: "center", lineBreak: false });
-
-    // Valor centrado horizontalmente dentro de la columna subtotal
     doc.text(fmt(quote.total), cols.subtotal.x, totalTextY, { width: cols.subtotal.w, align: "center", lineBreak: false });
 
     rowY += totalBoxHFit + 10;

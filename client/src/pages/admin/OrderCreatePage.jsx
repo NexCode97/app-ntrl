@@ -27,10 +27,11 @@ function PdfThumbnail({ url, width = 40 }) {
 }
 
 const GENDERS = [
-  { value: "nino",    label: "Niño" },
-  { value: "hombre",  label: "Hombre" },
-  { value: "mujer",   label: "Mujer" },
-  { value: "unisex",  label: "Unisex" },
+  { value: "nino",    label: "Niño"        },
+  { value: "hombre",  label: "Hombre"      },
+  { value: "mujer",   label: "Mujer"       },
+  { value: "unisex",  label: "Unisex"      },
+  { value: "unica",   label: "Talla Única" },
 ];
 
 function emptyItem(product) {

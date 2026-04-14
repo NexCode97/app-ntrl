@@ -1,8 +1,11 @@
 const SIZES_NINO  = ["T2","T4","T6","T8","T10","T12","T14"];
 const SIZES_ADULT = ["T16","TXS","TS","TM","TL","TXL","T2XL","T3XL"];
+const SIZES_UNICA = ["TU"];
 
 export default function SizeQuantityGrid({ gender, sizes, onChange }) {
-  const sizeList = gender === "nino" ? SIZES_NINO : SIZES_ADULT;
+  const sizeList = gender === "nino" ? SIZES_NINO
+                 : gender === "unica" ? SIZES_UNICA
+                 : SIZES_ADULT;
 
   function handleChange(size, value) {
     const qty = Math.max(0, parseInt(value) || 0);

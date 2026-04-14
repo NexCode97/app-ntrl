@@ -34,9 +34,12 @@ function emptyItem(product) {
 
 // ── Formulario de nueva cotización ────────────────────────────────
 function QuoteForm({ onClose, onSaved, initial }) {
+  const [customerId,    setCustomerId]    = useState(initial?.customer_id    || null);
+  const [customerQuery, setCustomerQuery] = useState(initial?.customer_name  || "");
   const [customerName,  setCustomerName]  = useState(initial?.customer_name  || "");
   const [customerEmail, setCustomerEmail] = useState(initial?.customer_email || "");
   const [customerPhone, setCustomerPhone] = useState(initial?.customer_phone || "");
+  const [customers,     setCustomers]     = useState([]);
   const [notes,         setNotes]         = useState(initial?.notes          || "");
   const [validDays,     setValidDays]     = useState(initial?.valid_days     || 15);
   const [items,         setItems]         = useState(
@@ -48,6 +51,26 @@ function QuoteForm({ onClose, onSaved, initial }) {
   );
   const [saving, setSaving] = useState(false);
   const [error,  setError]  = useState("");
+
+  async function searchCustomers(q) {
+    setCustomerQuery(q);
+    setCustomerId(null);
+    setCustomerName(q);
+    setCustomerEmail("");
+    setCustomerPhone("");
+    if (q.length < 2) { setCustomers([]); return; }
+    const { data } = await api.get(`/customers?search=${encodeURIComponent(q)}&limit=10`);
+    setCustomers(data.data);
+  }
+
+  function selectCustomer(c) {
+    setCustomerId(c.id);
+    setCustomerName(c.name);
+    setCustomerQuery(c.name);
+    setCustomerEmail(c.email || "");
+    setCustomerPhone(c.phone || "");
+    setCustomers([]);
+  }
 
   function addItem(product) {
     setItems((prev) => [...prev, emptyItem(product)]);
@@ -115,24 +138,45 @@ function QuoteForm({ onClose, onSaved, initial }) {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Datos del cliente */}
           <div className="card">
-            <h3 className="text-zinc-300 font-semibold text-sm mb-3">Datos del cliente</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label className="text-zinc-400 text-xs mb-1 block">Nombre *</label>
-                <input className="input-field" value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)} placeholder="Nombre del cliente" />
-              </div>
-              <div>
-                <label className="text-zinc-400 text-xs mb-1 block">Correo</label>
-                <input className="input-field" type="email" value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)} placeholder="correo@ejemplo.com" />
-              </div>
-              <div>
-                <label className="text-zinc-400 text-xs mb-1 block">Teléfono</label>
-                <input className="input-field" value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)} placeholder="300 000 0000" />
-              </div>
+            <h3 className="text-zinc-300 font-semibold text-sm mb-3">Cliente</h3>
+            <div className="relative mb-3">
+              <label className="text-zinc-400 text-xs mb-1 block">Buscar cliente *</label>
+              <input
+                className="input-field"
+                placeholder="Buscar por nombre o documento..."
+                value={customerQuery}
+                onChange={(e) => searchCustomers(e.target.value)}
+                autoComplete="off"
+              />
+              {customers.length > 0 && (
+                <ul className="absolute z-10 w-full bg-zinc-800 border border-zinc-700 rounded-lg mt-1 shadow-xl max-h-48 overflow-y-auto">
+                  {customers.map((c) => (
+                    <li key={c.id}>
+                      <button type="button"
+                        className="w-full text-left px-4 py-2 hover:bg-zinc-700 transition-colors"
+                        onClick={() => selectCustomer(c)}>
+                        <p className="text-white text-sm font-medium">{c.name}</p>
+                        <p className="text-zinc-400 text-xs">{c.document_number} · {c.phone}</p>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+            {customerId && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-zinc-400 text-xs mb-1 block">Correo</label>
+                  <input className="input-field" value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)} placeholder="correo@ejemplo.com" />
+                </div>
+                <div>
+                  <label className="text-zinc-400 text-xs mb-1 block">Teléfono</label>
+                  <input className="input-field" value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)} placeholder="300 000 0000" />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Productos */}

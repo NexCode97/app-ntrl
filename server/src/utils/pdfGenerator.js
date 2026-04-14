@@ -26,6 +26,18 @@ const STATUS_ES = {
   rejected: "Rechazada",
 };
 
+function fmtPhone(raw) {
+  if (!raw) return null;
+  const digits = String(raw).replace(/\D/g, "");
+  // Si ya tiene indicativo colombiano (57 + 10 dígitos)
+  const local = digits.startsWith("57") && digits.length === 12 ? digits.slice(2) : digits;
+  if (local.length === 10) {
+    return `+57 (${local.slice(0,3)}) ${local.slice(3,6)} ${local.slice(6)}`;
+  }
+  // Si no coincide con el formato esperado, devolver con +57 al menos
+  return digits.startsWith("57") ? `+${digits}` : `+57 ${raw}`;
+}
+
 function fmt(n) {
   return `$${Number(n || 0).toLocaleString("es-CO")}`;
 }
@@ -84,9 +96,7 @@ export function generateQuotePDF(quote, emittedBy) {
     let cliY = colY + 27;
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     if (quote.customer_document) { doc.text(`Doc: ${quote.customer_document}`, m, cliY, { width: colW }); cliY += 13; }
-    if (quote.customer_address)  { doc.text(quote.customer_address,  m, cliY, { width: colW }); cliY += 13; }
-    if (quote.customer_phone)    { doc.text(quote.customer_phone,    m, cliY, { width: colW }); cliY += 13; }
-    if (quote.customer_email)    { doc.text(quote.customer_email,    m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_address)  { doc.text(quote.customer_address, m, cliY, { width: colW }); cliY += 13; }
     if (quote.customer_city || quote.customer_department) {
       const locParts = [];
       if (quote.customer_city)       locParts.push(quote.customer_city);
@@ -94,6 +104,9 @@ export function generateQuotePDF(quote, emittedBy) {
       doc.text(locParts.join(", "), m, cliY, { width: colW });
       cliY += 13;
     }
+    const phoneFmt = fmtPhone(quote.customer_phone);
+    if (phoneFmt)                { doc.text(phoneFmt,              m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_email)    { doc.text(quote.customer_email,  m, cliY, { width: colW }); cliY += 13; }
 
     // — Columna derecha: DATOS DE LA EMPRESA (alineada a la derecha) —
     doc.fontSize(8).fillColor(GREEN).font("Helvetica-Bold")

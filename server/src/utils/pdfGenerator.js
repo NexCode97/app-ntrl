@@ -188,16 +188,17 @@ export function generateQuotePDF(quote, emittedBy) {
 
     doc.roundedRect(totalBoxX, rowY, totalBoxW, totalBoxH, 5).fill(GREEN);
 
-    // fontSize 9 → altura real ~9px; centrado vertical = (boxH - 9) / 2
-    const totalTextY = rowY + Math.floor((totalBoxH - 9) / 2);
+    // Usar lineHeight real de pdfkit para centrar verticalmente
+    doc.fontSize(9).font("Helvetica-Bold");
+    const totalLineH = doc.currentLineHeight(true);
+    const totalTextY = rowY + (totalBoxH - totalLineH) / 2;
 
     // "TOTAL" centrado horizontalmente dentro de la columna precio
-    doc.fontSize(9).fillColor(WHITE).font("Helvetica-Bold")
-       .text("TOTAL", cols.precio.x, totalTextY, { width: cols.precio.w, align: "center" });
+    doc.fillColor(WHITE)
+       .text("TOTAL", cols.precio.x, totalTextY, { width: cols.precio.w, align: "center", lineBreak: false });
 
     // Valor centrado horizontalmente dentro de la columna subtotal
-    doc.fontSize(9).fillColor(WHITE).font("Helvetica-Bold")
-       .text(fmt(quote.total), cols.subtotal.x, totalTextY, { width: cols.subtotal.w, align: "center" });
+    doc.text(fmt(quote.total), cols.subtotal.x, totalTextY, { width: cols.subtotal.w, align: "center", lineBreak: false });
 
     rowY += totalBoxH + 10;
 
@@ -222,17 +223,19 @@ export function generateQuotePDF(quote, emittedBy) {
     const impText =
       "El procesamiento del pedido esta sujeto a la realizacion de un abono equivalente al 50% del valor total cotizado. " +
       "El saldo restante debera ser cancelado una vez se notifique al cliente que el pedido esta listo.";
-    const impPadH = 8;  // padding vertical interior
-    const impPadW = 10; // padding horizontal interior
+    const impPadW  = 10;
     const impInnerW = cW - impPadW * 2;
-    // Medir altura real del bloque de texto (título + cuerpo)
-    const impLabelH = doc.heightOfString("IMPORTANTE: ", { width: impInnerW, fontSize: 8 });
-    const impBodyH  = doc.heightOfString(impText, { width: impInnerW, fontSize: 8 });
-    const impBoxH   = impLabelH + impBodyH + impPadH * 2;
+    doc.fontSize(8).font("Helvetica-Bold");
+    const impLineH  = doc.currentLineHeight(true);
+    // Medir altura real del bloque completo de texto
+    const impTextH  = doc.heightOfString("IMPORTANTE: " + impText, { width: impInnerW });
+    const impPadH   = Math.max(8, (impTextH * 0.25));  // padding vertical = 25% del texto, mínimo 8
+    const impBoxH   = impTextH + impPadH * 2;
 
     doc.rect(m, rowY, cW, impBoxH).fill("#fff8e1");
 
-    const impTextY = rowY + impPadH;
+    // Centrar verticalmente: top = rowY + (boxH - textH) / 2
+    const impTextY = rowY + (impBoxH - impTextH) / 2;
     doc.fontSize(8).fillColor("#7a5800").font("Helvetica-Bold")
        .text("IMPORTANTE: ", m + impPadW, impTextY, { width: impInnerW, continued: true });
     doc.font("Helvetica")

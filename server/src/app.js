@@ -12,6 +12,9 @@ import "./controllers/google.auth.controller.js"; // registra la estrategia Goog
 
 const app = express();
 
+// ── Trust proxy (Render usa load balancer con X-Forwarded-For) ─
+app.set("trust proxy", 1);
+
 // ── Logging estructurado ──────────────────────────────────────
 app.use(pinoHttp({ level: config.nodeEnv === "production" ? "info" : "debug" }));
 

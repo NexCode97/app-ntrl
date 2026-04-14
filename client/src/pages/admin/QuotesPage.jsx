@@ -216,7 +216,9 @@ function QuoteForm({ onClose, onSaved, initial }) {
                       <div>
                         <label className="text-zinc-400 text-xs mb-1 block">Género</label>
                         <select className="input-field" value={item.gender}
-                          onChange={(e) => updateItem(i, "gender", e.target.value)}>
+                          onChange={(e) => setItems((prev) => prev.map((item, idx) =>
+                            idx === i ? { ...item, gender: e.target.value, sizes: {} } : item
+                          ))}>
                           {GENDERS.map((g) => <option key={g.value} value={g.value}>{g.label}</option>)}
                         </select>
                       </div>

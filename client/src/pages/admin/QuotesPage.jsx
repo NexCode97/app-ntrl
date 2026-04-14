@@ -307,14 +307,16 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
     } catch { /* ignorar */ }
   }
 
-  function handleDownload() {
-    const url = `${API_BASE}/quotes/${quote.id}/pdf`;
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf`;
-    // Include auth token as query param
-    a.href = `${url}?token=${accessToken}`;
-    a.click();
+  async function handleDownload() {
+    try {
+      const res = await api.get(`/quotes/${quote.id}/pdf`, { responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a   = document.createElement("a");
+      a.href     = url;
+      a.download = `cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* ignorar */ }
   }
 
   if (editing) {

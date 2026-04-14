@@ -41,7 +41,8 @@ function QuoteForm({ onClose, onSaved, initial }) {
   const [customerName,     setCustomerName]     = useState(initial?.customer_name     || "");
   const [customerEmail,    setCustomerEmail]    = useState(initial?.customer_email    || "");
   const [customerPhone,    setCustomerPhone]    = useState(initial?.customer_phone    || "");
-  const [customerDocument, setCustomerDocument] = useState(initial?.customer_document || "");
+  const [customerDocument,     setCustomerDocument]     = useState(initial?.customer_document      || "");
+  const [customerDocumentType, setCustomerDocumentType] = useState(initial?.customer_document_type || "cedula");
   const [customerAddress,    setCustomerAddress]    = useState(initial?.customer_address    || "");
   const [customerCity,       setCustomerCity]       = useState(initial?.customer_city       || "");
   const [customerDepartment, setCustomerDepartment] = useState(initial?.customer_department || "");
@@ -65,6 +66,7 @@ function QuoteForm({ onClose, onSaved, initial }) {
     setCustomerEmail("");
     setCustomerPhone("");
     setCustomerDocument("");
+    setCustomerDocumentType("cedula");
     setCustomerAddress("");
     setCustomerCity("");
     setCustomerDepartment("");
@@ -80,6 +82,7 @@ function QuoteForm({ onClose, onSaved, initial }) {
     setCustomerEmail(c.email || "");
     setCustomerPhone(c.phone || "");
     setCustomerDocument(c.document_number || "");
+    setCustomerDocumentType(c.document_type || "cedula");
     setCustomerAddress(c.address || "");
     setCustomerCity(c.city || "");
     setCustomerDepartment(c.department || "");
@@ -111,7 +114,8 @@ function QuoteForm({ onClose, onSaved, initial }) {
       customer_name:     customerName.trim(),
       customer_email:    customerEmail.trim()    || null,
       customer_phone:    customerPhone.trim()    || null,
-      customer_document: customerDocument.trim() || null,
+      customer_document:      customerDocument.trim()     || null,
+      customer_document_type: customerDocumentType        || null,
       customer_address:    customerAddress.trim()    || null,
       customer_city:       customerCity.trim()       || null,
       customer_department: customerDepartment.trim() || null,

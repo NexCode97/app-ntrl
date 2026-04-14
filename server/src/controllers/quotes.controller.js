@@ -34,7 +34,7 @@ export async function getById(req, res, next) {
 // ── Crear ─────────────────────────────────────────────────────────
 export async function create(req, res, next) {
   try {
-    const { customer_name, customer_email, customer_phone, customer_document, customer_address, customer_city, customer_department, items, notes, valid_days } = req.body;
+    const { customer_name, customer_email, customer_phone, customer_document, customer_document_type, customer_address, customer_city, customer_department, items, notes, valid_days } = req.body;
 
     if (!customer_name) throw new AppError("El nombre del cliente es requerido.", 400, "VALIDATION");
     if (!Array.isArray(items) || items.length === 0)
@@ -43,17 +43,18 @@ export async function create(req, res, next) {
     const total = items.reduce((s, i) => s + Number(i.subtotal || 0), 0);
 
     const { rows: [quote] } = await pool.query(
-      `INSERT INTO quotes (customer_name, customer_email, customer_phone, customer_document, customer_address, customer_city, customer_department, items, notes, valid_days, total, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      `INSERT INTO quotes (customer_name, customer_email, customer_phone, customer_document, customer_document_type, customer_address, customer_city, customer_department, items, notes, valid_days, total, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
        RETURNING *`,
       [
         customer_name,
-        customer_email      || null,
-        customer_phone      || null,
-        customer_document   || null,
-        customer_address    || null,
-        customer_city       || null,
-        customer_department || null,
+        customer_email         || null,
+        customer_phone         || null,
+        customer_document      || null,
+        customer_document_type || null,
+        customer_address       || null,
+        customer_city          || null,
+        customer_department    || null,
         JSON.stringify(items),
         notes      || null,
         valid_days || 15,
@@ -69,7 +70,7 @@ export async function create(req, res, next) {
 // ── Actualizar ────────────────────────────────────────────────────
 export async function update(req, res, next) {
   try {
-    const { customer_name, customer_email, customer_phone, customer_document, customer_address, customer_city, customer_department, items, notes, valid_days, status } = req.body;
+    const { customer_name, customer_email, customer_phone, customer_document, customer_document_type, customer_address, customer_city, customer_department, items, notes, valid_days, status } = req.body;
 
     const { rows: [existing] } = await pool.query("SELECT * FROM quotes WHERE id=$1", [req.params.id]);
     if (!existing) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
@@ -84,26 +85,28 @@ export async function update(req, res, next) {
          customer_name       = COALESCE($1,  customer_name),
          customer_email      = COALESCE($2,  customer_email),
          customer_phone      = COALESCE($3,  customer_phone),
-         customer_document   = COALESCE($4,  customer_document),
-         customer_address    = COALESCE($5,  customer_address),
-         customer_city       = COALESCE($6,  customer_city),
-         customer_department = COALESCE($7,  customer_department),
-         items               = COALESCE($8,  items),
-         notes               = COALESCE($9,  notes),
-         valid_days          = COALESCE($10, valid_days),
-         total               = $11,
-         status              = COALESCE($12, status),
-         updated_at          = NOW()
-       WHERE id = $13
+         customer_document      = COALESCE($4,  customer_document),
+         customer_document_type = COALESCE($5,  customer_document_type),
+         customer_address       = COALESCE($6,  customer_address),
+         customer_city          = COALESCE($7,  customer_city),
+         customer_department    = COALESCE($8,  customer_department),
+         items                  = COALESCE($9,  items),
+         notes                  = COALESCE($10, notes),
+         valid_days             = COALESCE($11, valid_days),
+         total                  = $12,
+         status                 = COALESCE($13, status),
+         updated_at             = NOW()
+       WHERE id = $14
        RETURNING *`,
       [
-        customer_name       || null,
-        customer_email      || null,
-        customer_phone      || null,
-        customer_document   || null,
-        customer_address    || null,
-        customer_city       || null,
-        customer_department || null,
+        customer_name          || null,
+        customer_email         || null,
+        customer_phone         || null,
+        customer_document      || null,
+        customer_document_type || null,
+        customer_address       || null,
+        customer_city          || null,
+        customer_department    || null,
         items ? JSON.stringify(newItems) : null,
         notes      ?? null,
         valid_days || null,

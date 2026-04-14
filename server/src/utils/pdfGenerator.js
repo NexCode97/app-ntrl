@@ -95,7 +95,10 @@ export function generateQuotePDF(quote, emittedBy) {
 
     let cliY = colY + 27;
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
-    if (quote.customer_document) { doc.text(`Doc: ${quote.customer_document}`, m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_document) {
+      const docLabel = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" }[quote.customer_document_type] ?? "Doc.";
+      doc.text(`${docLabel} ${quote.customer_document}`, m, cliY, { width: colW }); cliY += 13;
+    }
     if (quote.customer_address)  { doc.text(quote.customer_address, m, cliY, { width: colW }); cliY += 13; }
     if (quote.customer_city || quote.customer_department) {
       const locParts = [];

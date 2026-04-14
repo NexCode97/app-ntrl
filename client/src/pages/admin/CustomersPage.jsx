@@ -48,7 +48,7 @@ export default function CustomersPage() {
             {data?.data?.map((c) => (
               <tr key={c.id} className="hover:bg-zinc-800/50 transition-colors">
                 <td className="px-4 py-3 text-white">{c.name}</td>
-                <td className="px-4 py-3 text-zinc-400">{c.document_type === "cedula" ? "C.C." : c.document_type.toUpperCase()} {c.document_number}</td>
+                <td className="px-4 py-3 text-zinc-400">{{ cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" }[c.document_type] ?? c.document_type?.toUpperCase()} {c.document_number}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.phone || "—"}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.email || "—"}</td>
                 <td className="px-4 py-3 flex gap-2">
@@ -136,8 +136,10 @@ function CustomerModal({ form, onSave, onClose, saving }) {
           <div>
             <label className="block text-xs text-zinc-400 mb-1">Tipo doc. <span className="text-red-400">*</span></label>
             <select className="input-field" value={data.document_type} onChange={(e) => set("document_type", e.target.value)}>
-              <option value="cedula">Cédula</option>
+              <option value="cedula">Cédula de ciudadanía (C.C.)</option>
               <option value="nit">NIT</option>
+              <option value="ce">Cédula de extranjería (C.E.)</option>
+              <option value="pp">Pasaporte (PP)</option>
             </select>
           </div>
           <div>

@@ -126,7 +126,7 @@ export async function downloadPDF(req, res, next) {
     const { rows: [quote] } = await pool.query("SELECT * FROM quotes WHERE id=$1", [req.params.id]);
     if (!quote) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
 
-    const pdf = await generateQuotePDF(quote);
+    const pdf = await generateQuotePDF(quote, req.user?.name);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf"`);
     res.send(pdf);
@@ -140,7 +140,7 @@ export async function sendByEmail(req, res, next) {
     if (!quote) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
     if (!quote.customer_email) throw new AppError("El cliente no tiene correo registrado.", 400, "NO_EMAIL");
 
-    const pdf = await generateQuotePDF(quote);
+    const pdf = await generateQuotePDF(quote, req.user?.name);
     const num = String(quote.quote_number).padStart(4, "0");
 
     await sendMail({

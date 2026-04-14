@@ -32,7 +32,7 @@ function fmt(n) {
 }
 
 /* ─── COTIZACIÓN ──────────────────────────────────────────────── */
-export function generateQuotePDF(quote) {
+export function generateQuotePDF(quote, emittedBy) {
   return new Promise((resolve, reject) => {
     const doc    = new PDFDocument({ margin: 45, size: "A4", autoFirstPage: true });
     const chunks = [];
@@ -95,12 +95,12 @@ export function generateQuotePDF(quote) {
       cliY += 13;
     });
 
-    // — Columna derecha: DATOS DE LA EMPRESA —
+    // — Columna derecha: DATOS DE LA EMPRESA (alineada a la derecha) —
     doc.fontSize(8).fillColor(GREEN).font("Helvetica-Bold")
-       .text("DATOS DE LA EMPRESA", colRX, colY);
+       .text("DATOS DE LA EMPRESA", colRX, colY, { width: colW, align: "right" });
 
     doc.fontSize(9).fillColor(BLACK).font("Helvetica-Bold")
-       .text(EMPRESA.nombre, colRX, colY + 13, { width: colW });
+       .text(EMPRESA.nombre, colRX, colY + 13, { width: colW, align: "right" });
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     const empLines = [
@@ -112,7 +112,7 @@ export function generateQuotePDF(quote) {
     ];
     let empY = colY + 26;
     empLines.forEach((line) => {
-      doc.text(line, colRX, empY, { width: colW });
+      doc.text(line, colRX, empY, { width: colW, align: "right" });
       empY += 13;
     });
 
@@ -134,8 +134,8 @@ export function generateQuotePDF(quote) {
     doc.text("CANT",      cols.cant.x + 4,     tableY + 6, { width: cols.cant.w });
     doc.text("PRODUCTO",  cols.producto.x + 4,  tableY + 6, { width: cols.producto.w });
     doc.text("TALLAS",    cols.tallas.x + 4,    tableY + 6, { width: cols.tallas.w });
-    doc.text("P. UNIT",   cols.precio.x + 4,    tableY + 6, { width: cols.precio.w });
-    doc.text("SUBTOTAL",  cols.subtotal.x + 4,  tableY + 6, { width: cols.subtotal.w });
+    doc.text("P. UNIT",   cols.precio.x + 4,    tableY + 6, { width: cols.precio.w - 8,   align: "center" });
+    doc.text("SUBTOTAL",  cols.subtotal.x + 4,  tableY + 6, { width: cols.subtotal.w - 8, align: "center" });
 
     // Filas
     const items = Array.isArray(quote.items) ? quote.items : [];
@@ -165,9 +165,9 @@ export function generateQuotePDF(quote) {
          .text(item.gender || "", cols.producto.x + 4, rowY + 8 + 12, { width: cols.producto.w - 8 });
       doc.fillColor(BLACK)
          .text(sizesStr, cols.tallas.x + 4,  rowY + 8, { width: cols.tallas.w - 4 });
-      doc.text(fmt(item.unit_price), cols.precio.x + 4, rowY + 8,   { width: cols.precio.w - 4, align: "right" });
+      doc.text(fmt(item.unit_price), cols.precio.x + 4, rowY + 8,   { width: cols.precio.w - 8, align: "center" });
       doc.font("Helvetica-Bold")
-         .text(fmt(subtotal), cols.subtotal.x + 4, rowY + 8, { width: cols.subtotal.w - 4, align: "right" });
+         .text(fmt(subtotal), cols.subtotal.x + 4, rowY + 8, { width: cols.subtotal.w - 8, align: "center" });
 
       // Línea divisoria fila
       doc.moveTo(m, rowY + rowH).lineTo(W - m, rowY + rowH).lineWidth(0.3).strokeColor("#dddddd").stroke();
@@ -230,7 +230,7 @@ export function generateQuotePDF(quote) {
     // ── EMITIDO POR ───────────────────────────────────────────────
     doc.fontSize(8).fillColor(BLACK).font("Helvetica-Bold")
        .text("Emitido por: ", m, rowY, { continued: true });
-    doc.font("Helvetica").text(quote.created_by_name || "—");
+    doc.font("Helvetica").text(emittedBy || quote.created_by_name || "—");
 
     // ── PIE ───────────────────────────────────────────────────────
     const pageH = doc.page.height;

@@ -180,17 +180,24 @@ export function generateQuotePDF(quote, emittedBy) {
     doc.rect(m, tableY, cW, rowY - tableY).lineWidth(0.5).strokeColor("#cccccc").stroke();
 
     // ── TOTAL ────────────────────────────────────────────────────
-    const totalBoxW = 130;
-    const totalBoxH = 24;
-    const totalBoxX = W - m - totalBoxW;
+    // La caja ocupa exactamente las columnas precio + subtotal
+    const totalBoxX = cols.precio.x;
+    const totalBoxW = cols.precio.w + cols.subtotal.w;
+    const totalBoxH = 26;
     rowY += 8;
 
     doc.roundedRect(totalBoxX, rowY, totalBoxW, totalBoxH, 5).fill(GREEN);
-    const totalTextY = rowY + (totalBoxH - 9) / 2;  // centrar fontSize 9 (~9px) en 24px
+
+    // fontSize 9 → altura real ~9px; centrado vertical = (boxH - 9) / 2
+    const totalTextY = rowY + Math.floor((totalBoxH - 9) / 2);
+
+    // "TOTAL" centrado horizontalmente dentro de la columna precio
     doc.fontSize(9).fillColor(WHITE).font("Helvetica-Bold")
-       .text("TOTAL", totalBoxX + 10, totalTextY);
-    doc.fontSize(9).font("Helvetica-Bold")
-       .text(fmt(quote.total), totalBoxX, totalTextY, { align: "right", width: totalBoxW - 10 });
+       .text("TOTAL", cols.precio.x, totalTextY, { width: cols.precio.w, align: "center" });
+
+    // Valor centrado horizontalmente dentro de la columna subtotal
+    doc.fontSize(9).fillColor(WHITE).font("Helvetica-Bold")
+       .text(fmt(quote.total), cols.subtotal.x, totalTextY, { width: cols.subtotal.w, align: "center" });
 
     rowY += totalBoxH + 10;
 

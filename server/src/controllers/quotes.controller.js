@@ -124,7 +124,7 @@ export async function remove(req, res, next) {
 export async function downloadPDF(req, res, next) {
   try {
     const { rows: [quote] } = await pool.query(
-      `SELECT q.*, u.name as created_by_name
+      `SELECT q.*, u.name as created_by_name, u.email as created_by_email
        FROM quotes q
        LEFT JOIN users u ON u.id::text = q.created_by::text
        WHERE q.id = $1`,
@@ -142,7 +142,13 @@ export async function downloadPDF(req, res, next) {
 // ── Enviar por correo ─────────────────────────────────────────────
 export async function sendByEmail(req, res, next) {
   try {
-    const { rows: [quote] } = await pool.query("SELECT * FROM quotes WHERE id=$1", [req.params.id]);
+    const { rows: [quote] } = await pool.query(
+      `SELECT q.*, u.name as created_by_name, u.email as created_by_email
+       FROM quotes q
+       LEFT JOIN users u ON u.id::text = q.created_by::text
+       WHERE q.id = $1`,
+      [req.params.id]
+    );
     if (!quote) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
     if (!quote.customer_email) throw new AppError("El cliente no tiene correo registrado.", 400, "NO_EMAIL");
 

@@ -49,7 +49,7 @@ export async function getOrderDetail(orderId) {
     `SELECT o.*,
             TO_CHAR(o.order_number, 'FM000') as order_number_fmt,
             c.name as customer_name, c.document_number, c.phone, c.email as customer_email,
-            u.name as created_by_name
+            u.name as created_by_name, u.email as created_by_email
      FROM orders o
      JOIN customers c ON c.id = o.customer_id
      LEFT JOIN users u ON u.id = o.created_by

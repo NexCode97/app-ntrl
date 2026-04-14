@@ -15,8 +15,7 @@ const EMPRESA = {
   nombre:    "Natural Ropa Deportiva",
   direccion: "Calle 22#17-21",
   ciudad:    "Bucaramanga, Santander",
-  tel:       "(350) 438-9293",
-  correo:    "naturalrew@hotmail.com",
+  tel:       "3138296551",
   web:       "www.naturalropadeportiva.com.co",
 };
 
@@ -107,13 +106,15 @@ export function generateQuotePDF(quote, emittedBy) {
       EMPRESA.direccion,
       EMPRESA.ciudad,
       `Tel: ${EMPRESA.tel}`,
-      `Correo: ${EMPRESA.correo}`,
+      `Correo: ${quote.created_by_email || ""}`,
       EMPRESA.web,
     ];
     let empY = colY + 26;
     empLines.forEach((line) => {
-      doc.text(line, colRX, empY, { width: colW, align: "right" });
-      empY += 13;
+      if (!line.endsWith(": ")) {  // omitir si correo vacío
+        doc.text(line, colRX, empY, { width: colW, align: "right" });
+        empY += 13;
+      }
     });
 
     // ── TABLA DE PRODUCTOS ───────────────────────────────────────
@@ -258,7 +259,7 @@ export function generateQuotePDF(quote, emittedBy) {
     rowY += 8;
     doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
        .text(
-         `Tel: ${EMPRESA.tel}   |   Correo: ${EMPRESA.correo}   |   ${EMPRESA.web}`,
+         `Tel: ${EMPRESA.tel}   |   Correo: ${quote.created_by_email || ""}   |   ${EMPRESA.web}`,
          m, rowY, { align: "center", width: cW }
        );
 
@@ -325,9 +326,9 @@ export function generateInvoicePDF(order) {
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     let empY = colY + 26;
-    [EMPRESA.direccion, EMPRESA.ciudad, `Tel: ${EMPRESA.tel}`, `Correo: ${EMPRESA.correo}`].forEach((l) => {
-      doc.text(l, colRX, empY, { width: colW }); empY += 13;
-    });
+    [EMPRESA.direccion, EMPRESA.ciudad, `Tel: ${EMPRESA.tel}`, `Correo: ${order.created_by_email || ""}`]
+      .filter(l => !l.endsWith(": "))
+      .forEach((l) => { doc.text(l, colRX, empY, { width: colW }); empY += 13; });
 
     // ── TABLA ────────────────────────────────────────────────────
     const tableY = Math.max(cliY, empY) + 18;
@@ -429,7 +430,7 @@ export function generateInvoicePDF(order) {
     doc.moveTo(m, pageH - 38).lineTo(W - m, pageH - 38).lineWidth(0.5).strokeColor(GREEN).stroke();
     doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
        .text(
-         `Tel: ${EMPRESA.tel}   |   Correo: ${EMPRESA.correo}   |   ${EMPRESA.web}`,
+         `Tel: ${EMPRESA.tel}   |   Correo: ${order.created_by_email || ""}   |   ${EMPRESA.web}`,
          m, pageH - 28, { align: "center", width: cW }
        );
 

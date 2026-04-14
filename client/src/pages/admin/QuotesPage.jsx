@@ -42,7 +42,9 @@ function QuoteForm({ onClose, onSaved, initial }) {
   const [customerEmail,    setCustomerEmail]    = useState(initial?.customer_email    || "");
   const [customerPhone,    setCustomerPhone]    = useState(initial?.customer_phone    || "");
   const [customerDocument, setCustomerDocument] = useState(initial?.customer_document || "");
-  const [customerAddress,  setCustomerAddress]  = useState(initial?.customer_address  || "");
+  const [customerAddress,    setCustomerAddress]    = useState(initial?.customer_address    || "");
+  const [customerCity,       setCustomerCity]       = useState(initial?.customer_city       || "");
+  const [customerDepartment, setCustomerDepartment] = useState(initial?.customer_department || "");
   const [customers,        setCustomers]        = useState([]);
   const [notes,         setNotes]         = useState(initial?.notes          || "");
   const [validDays,     setValidDays]     = useState(initial?.valid_days     || 15);
@@ -64,6 +66,8 @@ function QuoteForm({ onClose, onSaved, initial }) {
     setCustomerPhone("");
     setCustomerDocument("");
     setCustomerAddress("");
+    setCustomerCity("");
+    setCustomerDepartment("");
     if (q.length < 2) { setCustomers([]); return; }
     const { data } = await api.get(`/customers?search=${encodeURIComponent(q)}&limit=10`);
     setCustomers(data.data);
@@ -77,6 +81,8 @@ function QuoteForm({ onClose, onSaved, initial }) {
     setCustomerPhone(c.phone || "");
     setCustomerDocument(c.document_number || "");
     setCustomerAddress(c.address || "");
+    setCustomerCity(c.city || "");
+    setCustomerDepartment(c.department || "");
     setCustomers([]);
   }
 
@@ -106,7 +112,9 @@ function QuoteForm({ onClose, onSaved, initial }) {
       customer_email:    customerEmail.trim()    || null,
       customer_phone:    customerPhone.trim()    || null,
       customer_document: customerDocument.trim() || null,
-      customer_address:  customerAddress.trim()  || null,
+      customer_address:    customerAddress.trim()    || null,
+      customer_city:       customerCity.trim()       || null,
+      customer_department: customerDepartment.trim() || null,
       notes:             notes.trim() || null,
       valid_days:     Number(validDays) || 15,
       items: items.map((item) => {
@@ -194,6 +202,16 @@ function QuoteForm({ onClose, onSaved, initial }) {
                   <label className="text-zinc-400 text-xs mb-1 block">Dirección</label>
                   <input className="input-field" value={customerAddress}
                     onChange={(e) => setCustomerAddress(e.target.value)} placeholder="Dirección" />
+                </div>
+                <div>
+                  <label className="text-zinc-400 text-xs mb-1 block">Ciudad</label>
+                  <input className="input-field" value={customerCity}
+                    onChange={(e) => setCustomerCity(e.target.value)} placeholder="Ciudad" />
+                </div>
+                <div>
+                  <label className="text-zinc-400 text-xs mb-1 block">Departamento</label>
+                  <input className="input-field" value={customerDepartment}
+                    onChange={(e) => setCustomerDepartment(e.target.value)} placeholder="Departamento" />
                 </div>
               </div>
             )}

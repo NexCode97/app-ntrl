@@ -82,17 +82,19 @@ export function generateQuotePDF(quote, emittedBy) {
        .text(quote.customer_name || "", m, colY + 13, { width: colW });
 
     let cliY = colY + 27;
-    const clientLines = [];
-    if (quote.customer_document) clientLines.push(`Doc: ${quote.customer_document}`);
-    if (quote.customer_address)  clientLines.push(`Dir: ${quote.customer_address}`);
-    if (quote.customer_phone)    clientLines.push(`Tel: ${quote.customer_phone}`);
-    if (quote.customer_email)    clientLines.push(`Correo: ${quote.customer_email}`);
-
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
-    clientLines.forEach((line) => {
-      doc.text(line, m, cliY, { width: colW });
+    if (quote.customer_document) { doc.text(`Doc: ${quote.customer_document}`, m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_address)  { doc.text(`Dir: ${quote.customer_address}`,  m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_phone)    { doc.text(`Tel: ${quote.customer_phone}`,    m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_email)    { doc.text(`Correo: ${quote.customer_email}`, m, cliY, { width: colW }); cliY += 13; }
+    // Ciudad y departamento en la misma fila
+    if (quote.customer_city || quote.customer_department) {
+      const locParts = [];
+      if (quote.customer_city)       locParts.push(quote.customer_city);
+      if (quote.customer_department) locParts.push(quote.customer_department);
+      doc.text(`Ciudad: ${locParts.join(", ")}`, m, cliY, { width: colW });
       cliY += 13;
-    });
+    }
 
     // — Columna derecha: DATOS DE LA EMPRESA (alineada a la derecha) —
     doc.fontSize(8).fillColor(GREEN).font("Helvetica-Bold")
@@ -103,18 +105,17 @@ export function generateQuotePDF(quote, emittedBy) {
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     const empLines = [
-      EMPRESA.direccion,
-      EMPRESA.ciudad,
+      `NIT: 91156614-3`,
+      `Dir: ${EMPRESA.direccion}`,
+      `Ciudad: ${EMPRESA.ciudad}`,
       `Tel: ${EMPRESA.tel}`,
-      `Correo: ${quote.created_by_email || ""}`,
-      EMPRESA.web,
-    ];
+      quote.created_by_email ? `Correo: ${quote.created_by_email}` : null,
+      `Web: ${EMPRESA.web}`,
+    ].filter(Boolean);
     let empY = colY + 26;
     empLines.forEach((line) => {
-      if (!line.endsWith(": ")) {  // omitir si correo vacío
-        doc.text(line, colRX, empY, { width: colW, align: "right" });
-        empY += 13;
-      }
+      doc.text(line, colRX, empY, { width: colW, align: "right" });
+      empY += 13;
     });
 
     // ── TABLA DE PRODUCTOS ───────────────────────────────────────

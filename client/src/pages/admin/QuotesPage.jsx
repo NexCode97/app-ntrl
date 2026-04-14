@@ -5,6 +5,7 @@ import { api, API_BASE } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import CascadeFilter      from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid   from "../../components/orders/SizeQuantityGrid.jsx";
+import DownloadIcon       from "../../components/ui/DownloadIcon.jsx";
 
 const GENDERS = [
   { value: "nino",   label: "Niño"         },
@@ -316,7 +317,8 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
       const url = URL.createObjectURL(res.data);
       const a   = document.createElement("a");
       a.href     = url;
-      a.download = `cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf`;
+      const safeName = (quote.customer_name || "cliente").replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/g, "").trim().replace(/\s+/g, "_");
+      a.download = `cotizacion-${String(quote.quote_number).padStart(4,"0")}-${safeName}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch { /* ignorar */ }
@@ -422,7 +424,7 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
         <div className="flex gap-2 flex-wrap">
           <button onClick={handleDownload}
             className="btn-secondary text-sm px-4 flex items-center gap-2">
-            ⬇ Descargar PDF
+            <DownloadIcon /> Descargar PDF
           </button>
           {quote.customer_email && (
             <button onClick={handleSendEmail} disabled={sending}

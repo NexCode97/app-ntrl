@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
+import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -73,7 +74,7 @@ function PdfViewer({ src, onClose }) {
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 shrink-0">
         <span className="text-white text-sm font-medium">Vista previa PDF</span>
         <div className="flex items-center gap-3">
-          <a href={src} download className="text-zinc-400 hover:text-white text-sm">⬇ Descargar</a>
+          <a href={src} download className="text-zinc-400 hover:text-white text-sm flex items-center gap-1"><DownloadIcon /> Descargar</a>
           <button onClick={onClose} className="text-white text-2xl leading-none hover:text-zinc-300">✕</button>
         </div>
       </div>

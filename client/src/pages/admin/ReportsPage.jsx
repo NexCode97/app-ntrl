@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../../config/api.js";
+import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
 
 export default function ReportsPage() {
   const [loading, setLoading] = useState({ pdf: false, excel: false });
@@ -29,11 +30,11 @@ export default function ReportsPage() {
         <div className="flex gap-3 flex-wrap">
           <button className="btn-primary flex-1" disabled={loading.excel}
             onClick={() => downloadReport("excel")}>
-            {loading.excel ? "Generando..." : "📊 Exportar Excel"}
+            {loading.excel ? "Generando..." : <><DownloadIcon className="w-4 h-4 inline mr-1" /> Exportar Excel</>}
           </button>
           <button className="btn-secondary flex-1" disabled={loading.pdf}
             onClick={() => downloadReport("pdf")}>
-            {loading.pdf ? "Generando..." : "📄 Exportar PDF"}
+            {loading.pdf ? "Generando..." : <><DownloadIcon className="w-4 h-4 inline mr-1" /> Exportar PDF</>}
           </button>
         </div>
       </div>

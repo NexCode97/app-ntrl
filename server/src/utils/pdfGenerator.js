@@ -251,14 +251,15 @@ export function generateQuotePDF(quote, emittedBy) {
     doc.fontSize(8).fillColor(BLACK).font("Helvetica-Bold")
        .text("Emitido por: ", m, rowY, { continued: true });
     doc.font("Helvetica").text(quote.created_by_name || "—");
+    rowY += 20;
 
-    // ── PIE ───────────────────────────────────────────────────────
-    const pageH = doc.page.height;
-    doc.moveTo(m, pageH - 38).lineTo(W - m, pageH - 38).lineWidth(0.5).strokeColor(GREEN).stroke();
+    // ── PIE (flujo normal, siempre en la misma hoja) ──────────────
+    doc.moveTo(m, rowY).lineTo(W - m, rowY).lineWidth(0.5).strokeColor(GREEN).stroke();
+    rowY += 8;
     doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
        .text(
          `Tel: ${EMPRESA.tel}   |   Correo: ${EMPRESA.correo}   |   ${EMPRESA.web}`,
-         m, pageH - 28, { align: "center", width: cW }
+         m, rowY, { align: "center", width: cW }
        );
 
     doc.end();

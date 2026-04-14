@@ -84,15 +84,14 @@ export function generateQuotePDF(quote, emittedBy) {
     let cliY = colY + 27;
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     if (quote.customer_document) { doc.text(`Doc: ${quote.customer_document}`, m, cliY, { width: colW }); cliY += 13; }
-    if (quote.customer_address)  { doc.text(`Dir: ${quote.customer_address}`,  m, cliY, { width: colW }); cliY += 13; }
-    if (quote.customer_phone)    { doc.text(`Tel: ${quote.customer_phone}`,    m, cliY, { width: colW }); cliY += 13; }
-    if (quote.customer_email)    { doc.text(`Correo: ${quote.customer_email}`, m, cliY, { width: colW }); cliY += 13; }
-    // Ciudad y departamento en la misma fila
+    if (quote.customer_address)  { doc.text(quote.customer_address,  m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_phone)    { doc.text(quote.customer_phone,    m, cliY, { width: colW }); cliY += 13; }
+    if (quote.customer_email)    { doc.text(quote.customer_email,    m, cliY, { width: colW }); cliY += 13; }
     if (quote.customer_city || quote.customer_department) {
       const locParts = [];
       if (quote.customer_city)       locParts.push(quote.customer_city);
       if (quote.customer_department) locParts.push(quote.customer_department);
-      doc.text(`Ciudad: ${locParts.join(", ")}`, m, cliY, { width: colW });
+      doc.text(locParts.join(", "), m, cliY, { width: colW });
       cliY += 13;
     }
 
@@ -106,11 +105,11 @@ export function generateQuotePDF(quote, emittedBy) {
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     const empLines = [
       `NIT: 91156614-3`,
-      `Dir: ${EMPRESA.direccion}`,
-      `Ciudad: ${EMPRESA.ciudad}`,
-      `Tel: ${EMPRESA.tel}`,
-      quote.created_by_email ? `Correo: ${quote.created_by_email}` : null,
-      `Web: ${EMPRESA.web}`,
+      EMPRESA.direccion,
+      EMPRESA.ciudad,
+      EMPRESA.tel,
+      quote.created_by_email || null,
+      EMPRESA.web,
     ].filter(Boolean);
     let empY = colY + 26;
     empLines.forEach((line) => {

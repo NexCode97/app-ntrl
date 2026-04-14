@@ -162,7 +162,7 @@ export async function updateProduct(req, res, next) {
   try {
     await requireAdmin(req);
     const { id } = req.params;
-    const { name, is_active, display_order, price_unit, price_group, price_distributor } = req.body;
+    const { name, is_active, display_order, price_unit, price_group, price_distributor, line_id } = req.body;
     const { rows } = await pool.query(
       `UPDATE products SET
         name = COALESCE($2, name),
@@ -171,10 +171,11 @@ export async function updateProduct(req, res, next) {
         display_order = COALESCE($5, display_order),
         price_unit = $6,
         price_group = $7,
-        price_distributor = $8
+        price_distributor = $8,
+        line_id = COALESCE($9, line_id)
        WHERE id = $1 RETURNING *`,
       [id, name || null, name ? slugify(name) : null, is_active ?? null, display_order ?? null,
-       price_unit ?? null, price_group ?? null, price_distributor ?? null]
+       price_unit ?? null, price_group ?? null, price_distributor ?? null, line_id ?? null]
     );
     if (!rows.length) throw new AppError("Producto no encontrado.", 404, "NOT_FOUND");
     res.json({ status: "ok", data: rows[0] });

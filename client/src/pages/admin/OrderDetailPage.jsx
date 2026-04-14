@@ -735,7 +735,7 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
   const nextNumber = order.payments?.length
     ? Math.max(...order.payments.map((p) => p.payment_number)) + 1
     : 1;
-  const canAdd = order.status !== "delivered" && Number(order.balance) > 0;
+  const canAdd = Number(order.balance) > 0;
 
   async function handleAddPayment(e) {
     e.preventDefault();
@@ -831,10 +831,8 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
             </div>
             <div className="flex items-center gap-3">
               <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
-              {order.status !== "delivered" && (
-                <button onClick={() => handleDelete(p.id)}
-                  className="text-zinc-600 hover:text-red-400 transition-colors text-xs">✕</button>
-              )}
+              <button onClick={() => handleDelete(p.id)}
+                className="text-zinc-600 hover:text-red-400 transition-colors text-xs">✕</button>
             </div>
           </div>
         ))}

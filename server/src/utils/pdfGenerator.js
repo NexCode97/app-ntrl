@@ -421,13 +421,13 @@ export function generateInvoicePDF(order) {
     const balance   = Number(order.total || 0) - totalPaid;
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total pedido:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
+       .text("Total pedido:", cols.precio.x, rowY, { width: cols.precio.w, align: "left" });
     doc.fillColor(BLACK).font("Helvetica-Bold")
        .text(fmt(order.total), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
     rowY += 14;
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total abonado:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
+       .text("Total abonado:", cols.precio.x, rowY, { width: cols.precio.w, align: "left" });
     doc.fillColor(GREEN).font("Helvetica-Bold")
        .text(fmt(totalPaid), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
     rowY += 14;
@@ -435,7 +435,7 @@ export function generateInvoicePDF(order) {
     const saldoBoxW = cols.precio.w + cols.subtotal.w;
     doc.roundedRect(cols.precio.x, rowY - 2, saldoBoxW, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
     doc.fontSize(9).fillColor(WHITE).font("Helvetica")
-       .text("Saldo pendiente:", cols.precio.x, rowY + 4, { width: cols.precio.w, align: "center" });
+       .text("Saldo pendiente:", cols.precio.x, rowY + 4, { width: cols.precio.w, align: "left" });
     doc.font("Helvetica-Bold")
        .text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, rowY + 4, { width: cols.subtotal.w, align: "center" });
     rowY += 30;

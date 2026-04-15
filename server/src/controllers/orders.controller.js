@@ -134,8 +134,10 @@ export async function downloadInvoice(req, res, next) {
     const order = await orderService.getOrderDetail(req.params.id);
     const pdf   = await generateInvoicePDF(order);
     res.setHeader("Content-Type", "application/pdf");
+    const num  = order.order_number_fmt || String(order.order_number).padStart(3, "0");
+    const name = (order.customer_name || "cliente").replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_\-]/g, "");
     res.setHeader("Content-Disposition",
-      `attachment; filename="factura-${order.order_number_fmt || order.order_number}.pdf"`);
+      `attachment; filename="Factura_${num}_${name}.pdf"`);
     res.send(pdf);
   } catch (err) { next(err); }
 }

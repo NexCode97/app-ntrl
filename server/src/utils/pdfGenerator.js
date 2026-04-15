@@ -374,37 +374,40 @@ export function generateInvoicePDF(order) {
 
     doc.rect(m, tableY, cW, hdrH).fill(BLACK);
     doc.fontSize(8).fillColor(WHITE).font("Helvetica-Bold");
-    ["CANT","PRODUCTO","TALLAS","P. UNIT","SUBTOTAL"].forEach((txt, i) => {
-      const k = Object.keys(cols)[i];
-      doc.text(txt, cols[k].x + 4, tableY + 6, { width: cols[k].w });
-    });
+    doc.text("CANT",     cols.cant.x,         tableY + 6, { width: cols.cant.w,     align: "center" });
+    doc.text("PRODUCTO", cols.producto.x + 4, tableY + 6, { width: cols.producto.w });
+    doc.text("TALLAS",   cols.tallas.x,       tableY + 6, { width: cols.tallas.w,   align: "center" });
+    doc.text("P. UNIT",  cols.precio.x,       tableY + 6, { width: cols.precio.w,   align: "center" });
+    doc.text("SUBTOTAL", cols.subtotal.x,     tableY + 6, { width: cols.subtotal.w, align: "center" });
 
     const items = Array.isArray(order.items) ? order.items : [];
     let rowY = tableY + hdrH;
 
     items.forEach((item, i) => {
       const sizes = (() => { try { return typeof item.sizes === "string" ? JSON.parse(item.sizes) : item.sizes; } catch { return {}; } })();
-      const qty   = Object.values(sizes).reduce((a, q) => a + (Number(q) || 0), 0);
+      const qty      = Object.values(sizes).reduce((a, q) => a + (Number(q) || 0), 0);
       const sizesStr = Object.entries(sizes).filter(([,q]) => q > 0).map(([s,q]) => `${s}:${q}`).join("  ");
       const subtotal = item.subtotal || qty * (item.unit_price || 0);
-      const rowH = Math.max(doc.heightOfString(item.product_name || "", { width: cols.produto?.w - 8 || 187, fontSize: 9 }) + 14, 28);
+
+      const prodLines = doc.heightOfString(item.product_name || "", { width: cols.producto.w - 8, fontSize: 9 });
+      const rowH = Math.max(prodLines + 28, 38);
+      const midY = rowY + (rowH / 2) - 5;
 
       if (i % 2 === 0) doc.rect(m, rowY, cW, rowH).fill(LGRAY);
       else              doc.rect(m, rowY, cW, rowH).fill(WHITE);
 
-      doc.fontSize(9).fillColor(BLACK).font("Helvetica")
-         .text(String(qty), cols.cant.x + 4, rowY + 8, { width: cols.cant.w, align: "center" });
+      doc.fontSize(9).fillColor(BLACK);
+      doc.font("Helvetica")
+         .text(String(qty), cols.cant.x, midY, { width: cols.cant.w, align: "center" });
       doc.font("Helvetica-Bold")
-         .text(item.product_name || "", cols.produto?.x || cols.producto.x + 4, rowY + 8, { width: cols.producto.w - 8 });
-
-      // fix: use correct col key
+         .text(item.product_name || "", cols.producto.x + 4, rowY + 10, { width: cols.producto.w - 8 });
       doc.font("Helvetica").fillColor(GRAY)
-         .text(item.gender || "", cols.producto.x + 4, rowY + 8 + 12, { width: cols.producto.w - 8 });
+         .text(item.gender || "", cols.producto.x + 4, rowY + 10 + 13, { width: cols.producto.w - 8 });
       doc.fillColor(BLACK)
-         .text(sizesStr, cols.tallas.x + 4, rowY + 8, { width: cols.tallas.w - 4 })
-         .text(fmt(item.unit_price), cols.precio.x + 4, rowY + 8, { width: cols.precio.w - 4, align: "right" });
+         .text(sizesStr,          cols.tallas.x,   midY, { width: cols.tallas.w,   align: "center" });
+      doc.text(fmt(item.unit_price), cols.precio.x, midY, { width: cols.precio.w,   align: "center" });
       doc.font("Helvetica-Bold")
-         .text(fmt(subtotal), cols.subtotal.x + 4, rowY + 8, { width: cols.subtotal.w - 4, align: "right" });
+         .text(fmt(subtotal),    cols.subtotal.x,  midY, { width: cols.subtotal.w,  align: "center" });
 
       doc.moveTo(m, rowY + rowH).lineTo(W - m, rowY + rowH).lineWidth(0.3).strokeColor("#dddddd").stroke();
       rowY += rowH;

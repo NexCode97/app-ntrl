@@ -415,40 +415,36 @@ export function generateInvoicePDF(order) {
 
     doc.rect(m, tableY, cW, rowY - tableY).lineWidth(0.5).strokeColor("#cccccc").stroke();
 
-    // Resumen financiero
+    // Resumen financiero — labels centrados en P. UNIT, valores centrados en SUBTOTAL
     rowY += 6;
     const totalPaid = (order.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0);
     const balance   = Number(order.total || 0) - totalPaid;
-    // Bloque de totales: ancho fijo 200px con padding interno de 10px a cada lado
-    const blkW   = 200;
-    const blkX   = W - m - blkW;   // borde izquierdo del bloque
-    const padH   = 10;              // padding horizontal interno
-    const lblX   = blkX + padH;    // inicio del label
-    const valW   = blkW - padH;    // ancho para el valor (right-aligned dentro del bloque)
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total pedido:", lblX, rowY)
-       .fillColor(BLACK).font("Helvetica-Bold")
-       .text(fmt(order.total), blkX, rowY, { align: "right", width: blkW - padH });
-    rowY += 14;
-    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total abonado:", lblX, rowY)
-       .fillColor(GREEN).font("Helvetica-Bold")
-       .text(fmt(totalPaid), blkX, rowY, { align: "right", width: blkW - padH });
+       .text("Total pedido:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
+    doc.fillColor(BLACK).font("Helvetica-Bold")
+       .text(fmt(order.total), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
     rowY += 14;
 
-    doc.roundedRect(blkX, rowY - 2, blkW, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
+    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
+       .text("Total abonado:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
+    doc.fillColor(GREEN).font("Helvetica-Bold")
+       .text(fmt(totalPaid), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
+    rowY += 14;
+
+    const saldoBoxW = cols.precio.w + cols.subtotal.w;
+    doc.roundedRect(cols.precio.x, rowY - 2, saldoBoxW, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
     doc.fontSize(9).fillColor(WHITE).font("Helvetica")
-       .text("Saldo pendiente:", lblX, rowY + 4);
+       .text("Saldo pendiente:", cols.precio.x, rowY + 4, { width: cols.precio.w, align: "center" });
     doc.font("Helvetica-Bold")
-       .text(fmt(balance <= 0 ? 0 : balance), blkX, rowY + 4, { align: "right", width: blkW - padH });
+       .text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, rowY + 4, { width: cols.subtotal.w, align: "center" });
     rowY += 30;
 
     if (order.payments?.length) {
       doc.fontSize(8).fillColor(GRAY).font("Helvetica").text("Historial de abonos:", m, rowY);
       rowY += 12;
       order.payments.forEach((p) => {
-        const pDate = new Date(p.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Bogota" });
+        const pDate = new Date(p.paid_at).toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Bogota" });
         doc.fontSize(8).fillColor(BLACK)
            .text(`- ${pDate}  ${fmt(p.amount)}  (${p.created_by_name || "-"})`, m + 8, rowY);
         rowY += 12;

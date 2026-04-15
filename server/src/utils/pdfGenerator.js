@@ -419,24 +419,29 @@ export function generateInvoicePDF(order) {
     rowY += 6;
     const totalPaid = (order.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0);
     const balance   = Number(order.total || 0) - totalPaid;
-    const boxX      = W - m - 160;
+    // Bloque de totales: ancho fijo 200px con padding interno de 10px a cada lado
+    const blkW   = 200;
+    const blkX   = W - m - blkW;   // borde izquierdo del bloque
+    const padH   = 10;              // padding horizontal interno
+    const lblX   = blkX + padH;    // inicio del label
+    const valW   = blkW - padH;    // ancho para el valor (right-aligned dentro del bloque)
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total pedido:", boxX, rowY)
+       .text("Total pedido:", lblX, rowY)
        .fillColor(BLACK).font("Helvetica-Bold")
-       .text(fmt(order.total), boxX, rowY, { align: "right", width: 160 });
+       .text(fmt(order.total), blkX, rowY, { align: "right", width: blkW - padH });
     rowY += 14;
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total abonado:", boxX, rowY)
+       .text("Total abonado:", lblX, rowY)
        .fillColor(GREEN).font("Helvetica-Bold")
-       .text(fmt(totalPaid), boxX, rowY, { align: "right", width: 160 });
+       .text(fmt(totalPaid), blkX, rowY, { align: "right", width: blkW - padH });
     rowY += 14;
 
-    doc.roundedRect(boxX - 4, rowY - 2, 164, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
+    doc.roundedRect(blkX, rowY - 2, blkW, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
     doc.fontSize(9).fillColor(WHITE).font("Helvetica")
-       .text("Saldo pendiente:", boxX, rowY + 4);
+       .text("Saldo pendiente:", lblX, rowY + 4);
     doc.font("Helvetica-Bold")
-       .text(fmt(balance <= 0 ? 0 : balance), boxX, rowY + 4, { align: "right", width: 160 });
+       .text(fmt(balance <= 0 ? 0 : balance), blkX, rowY + 4, { align: "right", width: blkW - padH });
     rowY += 30;
 
     if (order.payments?.length) {

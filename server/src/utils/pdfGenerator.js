@@ -442,8 +442,8 @@ export function generateInvoicePDF(order) {
 
     const saldoTextY = rowY + 5;
     doc.fillColor(WHITE)
-       .text("Saldo pendiente:", cols.precio.x, saldoTextY, { width: cols.precio.w, align: "center", lineBreak: false });
-    doc.text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, saldoTextY, { width: cols.subtotal.w, align: "center", lineBreak: false });
+       .text("Saldo pendiente:", cols.precio.x, saldoTextY, { width: saldoBoxW / 2, align: "center", lineBreak: false });
+    doc.text(fmt(balance <= 0 ? 0 : balance), cols.precio.x + saldoBoxW / 2, saldoTextY, { width: saldoBoxW / 2, align: "center", lineBreak: false });
     rowY += 30;
 
     if (order.payments?.length) {

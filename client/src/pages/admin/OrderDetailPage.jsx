@@ -79,7 +79,10 @@ export default function OrderDetailPage() {
       const url = URL.createObjectURL(res.data);
       const a   = document.createElement("a");
       a.href     = url;
-      a.download = `factura-${data?.order_number_fmt || id}.pdf`;
+      const safeName = (data?.customer_name || "cliente")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "_").replace(/[^a-zA-Z0-9_]/g, "");
+      a.download = `Factura_${data?.order_number_fmt || id}_${safeName}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch { /* ignorar */ }

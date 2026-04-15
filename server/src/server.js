@@ -10,10 +10,15 @@ async function start() {
   try {
     await testConnection();
     await runMigrations();
-    await connectRedis();
 
-    const { initSSESubscriber } = await import("./utils/sseManager.js");
-    initSSESubscriber();
+    // Redis es opcional — si falla el servidor sigue funcionando sin SSE en tiempo real
+    try {
+      await connectRedis();
+      const { initSSESubscriber } = await import("./utils/sseManager.js");
+      initSSESubscriber();
+    } catch (redisErr) {
+      console.warn("Redis no disponible, SSE desactivado temporalmente:", redisErr.message);
+    }
 
     const server = http.createServer(app);
 

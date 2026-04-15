@@ -4,12 +4,16 @@ import { config } from "./index.js";
 function createClient(name) {
   const client = new Redis(config.redis.url, {
     lazyConnect: true,
-    maxRetriesPerRequest: 3,
-    retryStrategy: (times) => Math.min(times * 200, 5000),
+    maxRetriesPerRequest: 1,
+    retryStrategy: (times) => {
+      if (times > 10) return null; // dejar de reintentar después de 10 intentos
+      return Math.min(times * 500, 10000);
+    },
+    enableOfflineQueue: false, // no acumular comandos cuando Redis está caído
   });
 
-  client.on("connect",    () => console.log(`Redis [${name}] conectado`));
-  client.on("error",      (err) => console.error(`Redis [${name}] error:`, err.message));
+  client.on("connect",      () => console.log(`Redis [${name}] conectado`));
+  client.on("error",        (err) => console.error(`Redis [${name}] error:`, err.message));
   client.on("reconnecting", () => console.warn(`Redis [${name}] reconectando...`));
 
   return client;

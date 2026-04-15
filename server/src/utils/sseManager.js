@@ -70,12 +70,12 @@ export async function notifyAdmins(type, message, data = {}) {
     `INSERT INTO notifications (user_id, type, message, data) VALUES (NULL, $1, $2, $3)`,
     [type, message, JSON.stringify(data)]
   );
-  await redisPub.publish("ntrl:notifications", JSON.stringify({
+  redisPub.publish("ntrl:notifications", JSON.stringify({
     targetRole: "admin",
     type,
     message,
     data,
-  }));
+  })).catch(() => {});
 }
 
 // Broadcast de invalidación de cache a todos los clientes conectados
@@ -92,5 +92,5 @@ export async function notify(userId, type, message, data = {}) {
     `INSERT INTO notifications (user_id, type, message, data) VALUES ($1, $2, $3, $4)`,
     [userId || null, type, message, JSON.stringify(data)]
   );
-  await redisPub.publish("ntrl:notifications", JSON.stringify({ userId, type, message, data }));
+  redisPub.publish("ntrl:notifications", JSON.stringify({ userId, type, message, data })).catch(() => {});
 }

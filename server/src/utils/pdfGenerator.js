@@ -421,24 +421,29 @@ export function generateInvoicePDF(order) {
     const balance   = Number(order.total || 0) - totalPaid;
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total pedido:", cols.precio.x, rowY, { width: cols.precio.w, align: "left" });
+       .text("Total pedido:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
     doc.fillColor(BLACK).font("Helvetica-Bold")
        .text(fmt(order.total), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
     rowY += 14;
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total abonado:", cols.precio.x, rowY, { width: cols.precio.w, align: "left" });
+       .text("Total abonado:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
     doc.fillColor(GREEN).font("Helvetica-Bold")
        .text(fmt(totalPaid), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
     rowY += 14;
 
+    // Saldo pendiente — mismo estilo que TOTAL en cotización
     const saldoBoxW = cols.precio.w + cols.subtotal.w;
-    const saldoPad  = 4;
-    doc.roundedRect(cols.precio.x, rowY - 2, saldoBoxW, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
-    doc.fontSize(9).fillColor(WHITE).font("Helvetica")
-       .text("Saldo pendiente:", cols.precio.x + saldoPad, rowY + 4, { width: cols.precio.w - saldoPad, align: "left" });
-    doc.font("Helvetica-Bold")
-       .text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, rowY + 4, { width: cols.subtotal.w - saldoPad, align: "center" });
+    doc.fontSize(9).font("Helvetica-Bold");
+    const saldoLineH = doc.currentLineHeight(true);
+    const saldoBoxH  = saldoLineH + 10;
+
+    doc.roundedRect(cols.precio.x, rowY, saldoBoxW, saldoBoxH, 3).fill("#ef4444");
+
+    const saldoTextY = rowY + 5;
+    doc.fillColor(WHITE)
+       .text("Saldo pendiente:", cols.precio.x, saldoTextY, { width: cols.precio.w, align: "center", lineBreak: false });
+    doc.text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, saldoTextY, { width: cols.subtotal.w, align: "center", lineBreak: false });
     rowY += 30;
 
     if (order.payments?.length) {

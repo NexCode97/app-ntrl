@@ -469,12 +469,14 @@ export function generateInvoicePDF(order) {
     doc.font("Helvetica").text(order.created_by_name || "-");
     rowY += 20;
 
-    doc.moveTo(m, rowY).lineTo(W - m, rowY).lineWidth(0.5).strokeColor(GREEN).stroke();
-    rowY += 8;
+    // ── PIE — fijo al final de la primera página ──────────────────
+    const pageH   = doc.page.height;
+    const footerY = pageH - m + 5;
+    doc.moveTo(m, footerY - 10).lineTo(W - m, footerY - 10).lineWidth(0.5).strokeColor(GREEN).stroke();
     doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
        .text(
          `${EMPRESA.tel}   |   ${order.created_by_email || ""}   |   ${EMPRESA.web}`,
-         m, rowY, { align: "center", width: cW }
+         m, footerY, { align: "center", width: cW }
        );
 
     doc.end();

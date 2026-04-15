@@ -433,11 +433,12 @@ export function generateInvoicePDF(order) {
     rowY += 14;
 
     const saldoBoxW = cols.precio.w + cols.subtotal.w;
+    const saldoPad  = 4;
     doc.roundedRect(cols.precio.x, rowY - 2, saldoBoxW, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
     doc.fontSize(9).fillColor(WHITE).font("Helvetica")
-       .text("Saldo pendiente:", cols.precio.x, rowY + 4, { width: cols.precio.w, align: "left" });
+       .text("Saldo pendiente:", cols.precio.x + saldoPad, rowY + 4, { width: cols.precio.w - saldoPad, align: "left" });
     doc.font("Helvetica-Bold")
-       .text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, rowY + 4, { width: cols.subtotal.w, align: "center" });
+       .text(fmt(balance <= 0 ? 0 : balance), cols.subtotal.x, rowY + 4, { width: cols.subtotal.w - saldoPad, align: "center" });
     rowY += 30;
 
     if (order.payments?.length) {

@@ -6,6 +6,14 @@ import { testConnection } from "./config/database.js";
 import { connectRedis } from "./config/redis.js";
 import { runMigrations } from "./utils/runMigrations.js";
 
+// Capturar errores no manejados para evitar que el proceso muera
+process.on("uncaughtException", (err) => {
+  console.error("uncaughtException (proceso continúa):", err.message, err.stack);
+});
+process.on("unhandledRejection", (reason) => {
+  console.error("unhandledRejection (proceso continúa):", reason);
+});
+
 async function start() {
   try {
     await testConnection();

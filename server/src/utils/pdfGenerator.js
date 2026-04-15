@@ -340,7 +340,8 @@ export function generateInvoicePDF(order) {
     if (order.phone)          { doc.text(fmtPhone(order.phone) || order.phone, m, cliY, { width: colW }); cliY += 13; }
     if (order.customer_email) { doc.text(order.customer_email,        m, cliY, { width: colW }); cliY += 13; }
     if (order.delivery_date)  {
-      doc.text(`Entrega: ${new Date(String(order.delivery_date).slice(0,10)+"T12:00:00").toLocaleDateString("es-CO")}`, m, cliY, { width: colW });
+      const dFmt = new Date(order.delivery_date).toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Bogota" });
+      doc.text(`Entrega: ${dFmt}`, m, cliY, { width: colW });
       cliY += 13;
     }
 

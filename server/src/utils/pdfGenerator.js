@@ -96,7 +96,7 @@ export function generateQuotePDF(quote, emittedBy) {
     let cliY = colY + 27;
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
     if (quote.customer_document) {
-      const docLabel = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" }[quote.customer_document_type] ?? "Doc.";
+      const docLabel = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" }[quote.customer_document_type] ?? "C.C.";
       doc.text(`${docLabel} ${quote.customer_document}`, m, cliY, { width: colW }); cliY += 13;
     }
     if (quote.customer_address)  { doc.text(quote.customer_address, m, cliY, { width: colW }); cliY += 13; }
@@ -302,19 +302,19 @@ export function generateInvoicePDF(order) {
     } catch { /* sin logo */ }
 
     doc.fontSize(26).fillColor(BLACK).font("Helvetica-Bold")
-       .text("FACTURA", m + 130, m + 8, { align: "left" });
+       .text("FACTURA", m, m + 4, { align: "right", width: cW });
 
     const numStr = `N° ${order.order_number_fmt || String(order.order_number).padStart(3, "0")}`;
-    doc.fontSize(11).fillColor(GRAY).font("Helvetica")
-       .text(numStr, m, m + 14, { align: "right", width: cW });
+    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
+       .text(numStr, m, m + 36, { align: "right", width: cW });
 
     const fecha = new Date(order.created_at).toLocaleDateString("es-CO", {
       day: "2-digit", month: "2-digit", year: "numeric",
     });
     doc.fontSize(9).fillColor(GRAY)
-       .text(fecha, m, m + 30, { align: "right", width: cW });
+       .text(fecha, m, m + 49, { align: "right", width: cW });
 
-    const lineY = m + 65;
+    const lineY = m + 70;
     doc.moveTo(m, lineY).lineTo(W - m, lineY).lineWidth(1.5).strokeColor(GREEN).stroke();
 
     // ── DOS COLUMNAS ─────────────────────────────────────────────
@@ -322,29 +322,43 @@ export function generateInvoicePDF(order) {
     const colW  = cW / 2 - 10;
     const colRX = m + cW / 2 + 10;
 
-    // Cliente
+    // — Cliente (izquierda) —
     doc.fontSize(8).fillColor(GREEN).font("Helvetica-Bold").text("DATOS DEL CLIENTE", m, colY);
     doc.fontSize(10).fillColor(BLACK).font("Helvetica-Bold").text(order.customer_name || "", m, colY + 13, { width: colW });
 
     let cliY = colY + 27;
-    const clientLines = [];
-    if (order.document_number) clientLines.push(`Doc: ${order.document_number}`);
-    if (order.phone)           clientLines.push(`Tel: ${order.phone}`);
-    if (order.customer_email)  clientLines.push(`Correo: ${order.customer_email}`);
-    if (order.delivery_date)   clientLines.push(`Entrega: ${new Date(order.delivery_date).toLocaleDateString("es-CO")}`);
+    doc.fontSize(9).fillColor(GRAY).font("Helvetica");
+    if (order.document_number) {
+      const docLabel = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" }[order.document_type] ?? "C.C.";
+      doc.text(`${docLabel} ${order.document_number}`, m, cliY, { width: colW }); cliY += 13;
+    }
+    if (order.address)        { doc.text(order.address,               m, cliY, { width: colW }); cliY += 13; }
+    if (order.city || order.department) {
+      const loc = [order.city, order.department].filter(Boolean).join(", ");
+      doc.text(loc, m, cliY, { width: colW }); cliY += 13;
+    }
+    if (order.phone)          { doc.text(fmtPhone(order.phone) || order.phone, m, cliY, { width: colW }); cliY += 13; }
+    if (order.customer_email) { doc.text(order.customer_email,        m, cliY, { width: colW }); cliY += 13; }
+    if (order.delivery_date)  {
+      doc.text(`Entrega: ${new Date(String(order.delivery_date).slice(0,10)+"T12:00:00").toLocaleDateString("es-CO")}`, m, cliY, { width: colW });
+      cliY += 13;
+    }
+
+    // — Empresa (derecha) —
+    doc.fontSize(8).fillColor(GREEN).font("Helvetica-Bold").text("DATOS DE LA EMPRESA", colRX, colY, { width: colW, align: "right" });
+    doc.fontSize(9).fillColor(BLACK).font("Helvetica-Bold").text(EMPRESA.nombre, colRX, colY + 13, { width: colW, align: "right" });
 
     doc.fontSize(9).fillColor(GRAY).font("Helvetica");
-    clientLines.forEach((line) => { doc.text(line, m, cliY, { width: colW }); cliY += 13; });
-
-    // Empresa
-    doc.fontSize(8).fillColor(GREEN).font("Helvetica-Bold").text("DATOS DE LA EMPRESA", colRX, colY);
-    doc.fontSize(9).fillColor(BLACK).font("Helvetica-Bold").text(EMPRESA.nombre, colRX, colY + 13, { width: colW });
-
-    doc.fontSize(9).fillColor(GRAY).font("Helvetica");
+    const empLines = [
+      `NIT: 91156614-3`,
+      EMPRESA.direccion,
+      EMPRESA.ciudad,
+      EMPRESA.tel,
+      order.created_by_email || null,
+      EMPRESA.web,
+    ].filter(Boolean);
     let empY = colY + 26;
-    [EMPRESA.direccion, EMPRESA.ciudad, `Tel: ${EMPRESA.tel}`, `Correo: ${order.created_by_email || ""}`]
-      .filter(l => !l.endsWith(": "))
-      .forEach((l) => { doc.text(l, colRX, empY, { width: colW }); empY += 13; });
+    empLines.forEach((l) => { doc.text(l, colRX, empY, { width: colW, align: "right" }); empY += 13; });
 
     // ── TABLA ────────────────────────────────────────────────────
     const tableY = Math.max(cliY, empY) + 18;
@@ -441,13 +455,14 @@ export function generateInvoicePDF(order) {
     doc.fontSize(8).fillColor(BLACK).font("Helvetica-Bold")
        .text("Emitido por: ", m, rowY, { continued: true });
     doc.font("Helvetica").text(order.created_by_name || "-");
+    rowY += 20;
 
-    const pageH = doc.page.height;
-    doc.moveTo(m, pageH - 38).lineTo(W - m, pageH - 38).lineWidth(0.5).strokeColor(GREEN).stroke();
+    doc.moveTo(m, rowY).lineTo(W - m, rowY).lineWidth(0.5).strokeColor(GREEN).stroke();
+    rowY += 8;
     doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
        .text(
-         `Tel: ${EMPRESA.tel}   |   Correo: ${order.created_by_email || ""}   |   ${EMPRESA.web}`,
-         m, pageH - 28, { align: "center", width: cW }
+         `${EMPRESA.tel}   |   ${order.created_by_email || ""}   |   ${EMPRESA.web}`,
+         m, rowY, { align: "center", width: cW }
        );
 
     doc.end();

@@ -429,7 +429,7 @@ export function generateInvoicePDF(order) {
        .text(fmt(totalPaid), boxX, rowY, { align: "right", width: 160 });
     rowY += 14;
 
-    doc.rect(boxX - 4, rowY - 2, 164, 22).fill(balance <= 0 ? GREEN : "#ef4444");
+    doc.roundedRect(boxX - 4, rowY - 2, 164, 22, 3).fill(balance <= 0 ? GREEN : "#ef4444");
     doc.fontSize(9).fillColor(WHITE).font("Helvetica")
        .text("Saldo pendiente:", boxX, rowY + 4);
     doc.font("Helvetica-Bold")
@@ -440,8 +440,9 @@ export function generateInvoicePDF(order) {
       doc.fontSize(8).fillColor(GRAY).font("Helvetica").text("Historial de abonos:", m, rowY);
       rowY += 12;
       order.payments.forEach((p) => {
+        const pDate = new Date(p.created_at).toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Bogota" });
         doc.fontSize(8).fillColor(BLACK)
-           .text(`- ${new Date(p.created_at).toLocaleDateString("es-CO")}  ${fmt(p.amount)}  (${p.created_by_name || "-"})`, m + 8, rowY);
+           .text(`- ${pDate}  ${fmt(p.amount)}  (${p.created_by_name || "-"})`, m + 8, rowY);
         rowY += 12;
       });
     }

@@ -73,6 +73,25 @@ export default function OrderDetailPage() {
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [pdfSrc,     setPdfSrc]     = useState(null);
 
+  const [sending, setSending] = useState(false);
+
+  async function handleSendInvoice() {
+    if (!data?.customer_email) {
+      alert("El cliente no tiene correo registrado.");
+      return;
+    }
+    if (!confirm(`¿Enviar factura por correo a ${data.customer_email}?`)) return;
+    setSending(true);
+    try {
+      await api.post(`/orders/${id}/send`);
+      alert("Factura enviada correctamente.");
+    } catch (e) {
+      alert(e?.response?.data?.message || "Error al enviar el correo.");
+    } finally {
+      setSending(false);
+    }
+  }
+
   async function handleDownloadInvoice() {
     try {
       const res = await api.get(`/orders/${id}/invoice`, { responseType: "blob" });
@@ -164,6 +183,9 @@ export default function OrderDetailPage() {
             )}
             <button className="btn-secondary" onClick={handleDownloadInvoice} title="Descargar factura PDF">
               🧾 Factura
+            </button>
+            <button className="btn-secondary" onClick={handleSendInvoice} disabled={sending} title="Enviar factura por correo">
+              {sending ? "Enviando..." : "📧 Enviar factura"}
             </button>
             <button
               onClick={handleDelete}

@@ -7,6 +7,8 @@ import { redis, redisPub } from "../config/redis.js";
 import { pushToWorkers } from "../utils/pushNotifications.js";
 import { broadcastInvalidate } from "../utils/sseManager.js";
 import { generateInvoicePDF } from "../utils/pdfGenerator.js";
+import { sendMail } from "../utils/mailer.js";
+import { AppError } from "../utils/AppError.js";
 
 function invalidateDashboard() {
   return redis.del("dashboard:summary").catch(() => {});
@@ -143,5 +145,36 @@ export async function downloadInvoice(req, res, next) {
     res.setHeader("Content-Disposition",
       `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`);
     res.send(pdf);
+  } catch (err) { next(err); }
+}
+
+export async function sendInvoiceByEmail(req, res, next) {
+  try {
+    const order = await orderService.getOrderDetail(req.params.id);
+    if (!order.customer_email) throw new AppError("El cliente no tiene correo registrado.", 400, "NO_EMAIL");
+
+    const pdf = await generateInvoicePDF(order);
+    const num = order.order_number_fmt || String(order.order_number).padStart(3, "0");
+
+    await sendMail({
+      to:      order.customer_email,
+      subject: `Factura N° ${num} — Natural Ropa Deportiva`,
+      html: `
+        <div style="font-family:sans-serif;max-width:560px;margin:auto">
+          <h2 style="color:#22c55e">Hola, ${order.customer_name}</h2>
+          <p>Adjunto encontrarás la factura <strong>N° ${num}</strong> correspondiente a tu pedido.</p>
+          <p>Para cualquier consulta puedes responder a este correo.</p>
+          <br/>
+          <p style="color:#71717a;font-size:12px">Natural Ropa Deportiva — NTRL</p>
+        </div>
+      `,
+      attachments: [{
+        filename:    `Factura_${num}_${order.customer_name?.replace(/\s+/g,"_") || "cliente"}.pdf`,
+        content:     pdf,
+        contentType: "application/pdf",
+      }],
+    });
+
+    res.json({ status: "ok", message: "Factura enviada correctamente." });
   } catch (err) { next(err); }
 }

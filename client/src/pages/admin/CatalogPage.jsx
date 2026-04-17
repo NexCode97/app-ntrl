@@ -160,7 +160,7 @@ export default function CatalogPage() {
                   <thead className="bg-zinc-800 text-zinc-400">
                     <tr>
                       <th className="px-4 py-3 text-left align-middle">Nombre</th>
-                      <th className="px-4 py-3 text-left align-middle">Línea</th>
+                      <th className="px-4 py-3 text-center align-middle">Línea</th>
                       <th className="px-4 py-3 text-center align-middle">
                         Precio {activeTier.label}
                         {activeTier.desc && <span className="ml-1 text-zinc-500 text-xs">({activeTier.desc})</span>}
@@ -172,7 +172,7 @@ export default function CatalogPage() {
                     {prods.map((row) => (
                       <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors">
                         <td className="px-4 py-3 text-zinc-300 align-middle truncate">{row.name}</td>
-                        <td className="px-4 py-3 text-left text-zinc-400 align-middle truncate">{row.line_name}</td>
+                        <td className="px-4 py-3 text-center text-zinc-400 align-middle truncate">{row.line_name}</td>
                         <td className="px-4 py-3 text-center text-zinc-300 align-middle">
                           {row[priceTier]
                             ? `$${Number(row[priceTier]).toLocaleString("es-CO")}`

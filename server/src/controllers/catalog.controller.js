@@ -182,6 +182,7 @@ export async function updateProduct(req, res, next) {
     if (line_id !== undefined)           push("line_id", line_id);
     if (description !== undefined)       push("description", description ?? null);
     if (image_url !== undefined)         push("image_url", image_url);
+    if (req.body.remove_image === "true" && image_url === undefined) push("image_url", null);
 
     if (!sets.length) return res.json({ status: "ok", message: "Sin cambios." });
 

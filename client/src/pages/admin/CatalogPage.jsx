@@ -44,8 +44,9 @@ export default function CatalogPage() {
       if (d.price_unit    != null) fd.append("price_unit",    d.price_unit);
       if (d.price_group   != null) fd.append("price_group",   d.price_group);
       if (d.price_distributor != null) fd.append("price_distributor", d.price_distributor);
-      if (d.description)       fd.append("description",       d.description);
-      if (d._imageFile)        fd.append("image",             d._imageFile);
+      if (d.description !== undefined) fd.append("description", d.description || "");
+      if (d._imageFile)        fd.append("image",        d._imageFile);
+      if (d.image_url === null && !d._imageFile) fd.append("remove_image", "true");
       return d.id
         ? api.put(`/catalog/products/${d.id}`, fd, { headers: { "Content-Type": "multipart/form-data" } })
         : api.post("/catalog/products", fd, { headers: { "Content-Type": "multipart/form-data" } });

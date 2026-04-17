@@ -232,7 +232,15 @@ function ProductModal({ form, onSave, onClose, lines }) {
 
         <div>
           <label className="block text-xs text-zinc-400 mb-2">Imagen del producto (opcional)</label>
-          {preview && <img src={preview} alt="preview" className="w-24 h-24 object-cover rounded-lg mb-2 border border-zinc-700" />}
+          {preview && (
+            <div className="flex items-center gap-3 mb-2">
+              <img src={preview} alt="preview" className="w-24 h-24 object-cover rounded-lg border border-zinc-700" />
+              <button type="button" onClick={() => { setPreview(null); setData((p) => ({ ...p, _imageFile: null, image_url: null })); }}
+                className="text-xs text-red-400 hover:text-red-300">
+                Eliminar imagen
+              </button>
+            </div>
+          )}
           <input type="file" accept="image/jpeg,image/png,image/webp" className="text-sm text-zinc-400" onChange={handleImage} />
         </div>
 

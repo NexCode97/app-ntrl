@@ -150,24 +150,30 @@ export default function CatalogPage() {
             <div key={sport}>
               <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wide mb-2 px-1">{sport}</h3>
               <div className="card overflow-hidden p-0 overflow-x-auto">
-                <table className="w-full text-sm min-w-[360px]">
+                <table className="w-full text-sm min-w-[360px] table-fixed">
+                  <colgroup>
+                    <col className="w-[40%]" />
+                    <col className="w-[20%]" />
+                    <col className="w-[20%]" />
+                    <col className="w-[20%]" />
+                  </colgroup>
                   <thead className="bg-zinc-800 text-zinc-400">
                     <tr>
-                      <th className="px-4 py-3 text-left w-2/5">Nombre</th>
-                      <th className="px-4 py-3 text-left w-1/5">Línea</th>
-                      <th className="px-4 py-3 text-center w-1/5">
+                      <th className="px-4 py-3 text-left align-middle">Nombre</th>
+                      <th className="px-4 py-3 text-left align-middle">Línea</th>
+                      <th className="px-4 py-3 text-center align-middle">
                         Precio {activeTier.label}
                         {activeTier.desc && <span className="ml-1 text-zinc-500 text-xs">({activeTier.desc})</span>}
                       </th>
-                      <th className="px-4 py-3 w-1/5" />
+                      <th className="px-4 py-3 align-middle" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800">
                     {prods.map((row) => (
                       <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors">
-                        <td className="px-4 py-3 text-zinc-300 w-2/5">{row.name}</td>
-                        <td className="px-4 py-3 text-left text-zinc-400 w-1/5">{row.line_name}</td>
-                        <td className="px-4 py-3 text-center text-zinc-300 w-1/5">
+                        <td className="px-4 py-3 text-zinc-300 align-middle truncate">{row.name}</td>
+                        <td className="px-4 py-3 text-left text-zinc-400 align-middle truncate">{row.line_name}</td>
+                        <td className="px-4 py-3 text-center text-zinc-300 align-middle">
                           {row[priceTier]
                             ? `$${Number(row[priceTier]).toLocaleString("es-CO")}`
                             : <span className="text-zinc-600">—</span>}

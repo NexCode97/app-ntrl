@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../config/api.js";
+import { api, API_BASE } from "../../config/api.js";
+import { fileUrl } from "../../utils/fileUrl.js";
 
 function formatPriceCO(raw) {
   const digits = String(raw).replace(/\D/g, "");
@@ -35,7 +36,20 @@ export default function CatalogPage() {
     onSuccess: () => { qc.invalidateQueries(["lines"]); setForm(null); },
   });
   const saveProduct = useMutation({
-    mutationFn: (d) => d.id ? api.put(`/catalog/products/${d.id}`, d) : api.post("/catalog/products", d),
+    mutationFn: (d) => {
+      const fd = new FormData();
+      if (d.line_id)           fd.append("line_id",           d.line_id);
+      if (d.name)              fd.append("name",              d.name);
+      if (d.display_order)     fd.append("display_order",     d.display_order);
+      if (d.price_unit    != null) fd.append("price_unit",    d.price_unit);
+      if (d.price_group   != null) fd.append("price_group",   d.price_group);
+      if (d.price_distributor != null) fd.append("price_distributor", d.price_distributor);
+      if (d.description)       fd.append("description",       d.description);
+      if (d._imageFile)        fd.append("image",             d._imageFile);
+      return d.id
+        ? api.put(`/catalog/products/${d.id}`, fd, { headers: { "Content-Type": "multipart/form-data" } })
+        : api.post("/catalog/products", fd, { headers: { "Content-Type": "multipart/form-data" } });
+    },
     onSuccess: () => { qc.invalidateQueries(["products"]); setForm(null); },
   });
 
@@ -174,7 +188,53 @@ export default function CatalogPage() {
 
       {form?.type === "sport"   && <CatalogModal form={form} fields={[["name","Nombre"]]} onSave={(d) => saveSport.mutate(d)} onClose={() => setForm(null)} sports={sports.data} />}
       {form?.type === "line"    && <CatalogModal form={form} fields={[["name","Nombre"],["sport_id","Deporte"]]} onSave={(d) => saveLine.mutate(d)} onClose={() => setForm(null)} sports={sports.data} />}
-      {form?.type === "product" && <CatalogModal form={form} fields={[["name","Nombre"],["line_id","Línea"],["price_unit","Precio Unitario"],["price_group","Precio Grupo (>6)"],["price_distributor","Precio Distribuidor (>15)"]]} onSave={(d) => saveProduct.mutate(d)} onClose={() => setForm(null)} sports={sports.data} lines={lines.data} />}
+      {form?.type === "product" && <ProductModal form={form} onSave={(d) => saveProduct.mutate(d)} onClose={() => setForm(null)} lines={lines.data} />}
+    </div>
+  );
+}
+
+function ProductModal({ form, onSave, onClose, lines }) {
+  const [data, setData]       = useState({ ...form });
+  const [preview, setPreview] = useState(form.image_url ? fileUrl(form.image_url) : null);
+  const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
+
+  function handleImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    setData((p) => ({ ...p, _imageFile: file }));
+    setPreview(URL.createObjectURL(file));
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-md space-y-4 overflow-y-auto max-h-[90vh]">
+        <h2 className="text-white font-semibold">{data.id ? "Editar producto" : "Nuevo producto"}</h2>
+
+        <select className="input-field" value={data.line_id || ""} onChange={(e) => set("line_id", e.target.value)}>
+          <option value="">Seleccionar línea</option>
+          {lines?.map((l) => <option key={l.id} value={l.id}>{l.name} ({l.sport_name})</option>)}
+        </select>
+
+        <input className="input-field" placeholder="Nombre" value={data.name || ""} onChange={(e) => set("name", e.target.value)} />
+
+        <textarea className="input-field resize-none" rows={3} placeholder="Descripción (opcional)"
+          value={data.description || ""} onChange={(e) => set("description", e.target.value)} />
+
+        <PriceField label="Precio Unitario"            fieldKey="price_unit"        data={data} setData={setData} />
+        <PriceField label="Precio Grupo (>6 uds)"      fieldKey="price_group"       data={data} setData={setData} />
+        <PriceField label="Precio Distribuidor (>15)"  fieldKey="price_distributor" data={data} setData={setData} />
+
+        <div>
+          <label className="block text-xs text-zinc-400 mb-2">Imagen del producto (opcional)</label>
+          {preview && <img src={preview} alt="preview" className="w-24 h-24 object-cover rounded-lg mb-2 border border-zinc-700" />}
+          <input type="file" accept="image/jpeg,image/png,image/webp" className="text-sm text-zinc-400" onChange={handleImage} />
+        </div>
+
+        <div className="flex gap-2 justify-end pt-2">
+          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="btn-primary" onClick={() => onSave(data)}>Guardar</button>
+        </div>
+      </div>
     </div>
   );
 }

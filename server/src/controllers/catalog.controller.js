@@ -1,5 +1,6 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
+import { saveFile } from "../utils/fileStorage.js";
 
 // ── Helpers ────────────────────────────────────────────────────
 
@@ -148,11 +149,13 @@ export async function listProducts(req, res, next) {
 export async function createProduct(req, res, next) {
   try {
     await requireAdmin(req);
-    const { line_id, name, display_order, price_unit, price_group, price_distributor } = req.body;
+    const { line_id, name, display_order, price_unit, price_group, price_distributor, description } = req.body;
+    let image_url = null;
+    if (req.file) image_url = await saveFile(req.file);
     const { rows } = await pool.query(
-      `INSERT INTO products (line_id, name, slug, display_order, price_unit, price_group, price_distributor)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [line_id, name, slugify(name), display_order || 0, price_unit || null, price_group || null, price_distributor || null]
+      `INSERT INTO products (line_id, name, slug, display_order, price_unit, price_group, price_distributor, description, image_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [line_id, name, slugify(name), display_order || 0, price_unit || null, price_group || null, price_distributor || null, description || null, image_url]
     );
     res.status(201).json({ status: "ok", data: rows[0] });
   } catch (err) { next(err); }
@@ -162,20 +165,29 @@ export async function updateProduct(req, res, next) {
   try {
     await requireAdmin(req);
     const { id } = req.params;
-    const { name, is_active, display_order, price_unit, price_group, price_distributor, line_id } = req.body;
+    const { name, is_active, display_order, price_unit, price_group, price_distributor, line_id, description } = req.body;
+    let image_url = undefined; // undefined = no cambiar
+    if (req.file) image_url = await saveFile(req.file);
+
+    const sets  = [];
+    const vals  = [id];
+    const push  = (expr, val) => { vals.push(val); sets.push(`${expr} = $${vals.length}`); };
+
+    if (name !== undefined)              { push("name", name); push("slug", slugify(name)); }
+    if (is_active !== undefined)         push("is_active", is_active);
+    if (display_order !== undefined)     push("display_order", display_order);
+    if (price_unit !== undefined)        push("price_unit", price_unit ?? null);
+    if (price_group !== undefined)       push("price_group", price_group ?? null);
+    if (price_distributor !== undefined) push("price_distributor", price_distributor ?? null);
+    if (line_id !== undefined)           push("line_id", line_id);
+    if (description !== undefined)       push("description", description ?? null);
+    if (image_url !== undefined)         push("image_url", image_url);
+
+    if (!sets.length) return res.json({ status: "ok", message: "Sin cambios." });
+
+    // slug requiere tratamiento especial (2 sets por 1 campo)
     const { rows } = await pool.query(
-      `UPDATE products SET
-        name = COALESCE($2, name),
-        slug = CASE WHEN $2 IS NOT NULL THEN $3 ELSE slug END,
-        is_active = COALESCE($4, is_active),
-        display_order = COALESCE($5, display_order),
-        price_unit = $6,
-        price_group = $7,
-        price_distributor = $8,
-        line_id = COALESCE($9, line_id)
-       WHERE id = $1 RETURNING *`,
-      [id, name || null, name ? slugify(name) : null, is_active ?? null, display_order ?? null,
-       price_unit ?? null, price_group ?? null, price_distributor ?? null, line_id ?? null]
+      `UPDATE products SET ${sets.join(", ")} WHERE id = $1 RETURNING *`, vals
     );
     if (!rows.length) throw new AppError("Producto no encontrado.", 404, "NOT_FOUND");
     res.json({ status: "ok", data: rows[0] });

@@ -415,52 +415,61 @@ export function generateInvoicePDF(order) {
 
     doc.rect(m, tableY, cW, rowY - tableY).lineWidth(0.5).strokeColor("#cccccc").stroke();
 
-    // Resumen financiero — labels centrados en P. UNIT, valores centrados en SUBTOTAL
+    // ── BLOQUE INFERIOR: izquierda = historial + emitido | derecha = totales ──
     rowY += 6;
     const totalPaid = (order.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0);
     const balance   = Number(order.total || 0) - totalPaid;
+    const bloqueY   = rowY; // Y de inicio compartido para ambas columnas
 
-    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total pedido:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
-    doc.fillColor(BLACK).font("Helvetica-Bold")
-       .text(fmt(order.total), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
-    rowY += 14;
-
-    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
-       .text("Total abonado:", cols.precio.x, rowY, { width: cols.precio.w, align: "center" });
-    doc.fillColor(GREEN).font("Helvetica-Bold")
-       .text(fmt(totalPaid), cols.subtotal.x, rowY, { width: cols.subtotal.w, align: "center" });
-    rowY += 14;
-
-    // Saldo pendiente — mismo estilo que TOTAL en cotización
-    const saldoBoxW = cols.precio.w + cols.subtotal.w;
-    doc.fontSize(9).font("Helvetica-Bold");
-    const saldoLineH = doc.currentLineHeight(true);
-    const saldoBoxH  = saldoLineH + 10;
-
-    doc.roundedRect(cols.precio.x, rowY, saldoBoxW, saldoBoxH, 3).fill("#ef4444");
-
-    const saldoTextY = rowY + 5;
-    doc.fillColor(WHITE)
-       .text("Saldo pendiente:", cols.precio.x, saldoTextY, { width: saldoBoxW / 2, align: "center", lineBreak: false });
-    doc.text(fmt(balance <= 0 ? 0 : balance), cols.precio.x + saldoBoxW / 2, saldoTextY, { width: saldoBoxW / 2, align: "center", lineBreak: false });
-    rowY += 30;
+    // — Columna izquierda: historial de abonos + emitido por —
+    const leftW = cols.precio.x - m - 10; // ancho disponible antes de los totales
+    let leftY = bloqueY;
 
     if (order.payments?.length) {
-      doc.fontSize(8).fillColor(GRAY).font("Helvetica").text("Historial de abonos:", m, rowY);
-      rowY += 12;
+      doc.fontSize(8).fillColor(GRAY).font("Helvetica")
+         .text("Historial de abonos:", m, leftY, { width: leftW });
+      leftY += 12;
       order.payments.forEach((p) => {
         const pDate = new Date(p.paid_at).toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "America/Bogota" });
         doc.fontSize(8).fillColor(BLACK)
-           .text(`- ${pDate}  ${fmt(p.amount)}  (${p.created_by_name || "-"})`, m + 8, rowY);
-        rowY += 12;
+           .text(`- ${pDate}  ${fmt(p.amount)}  (${p.created_by_name || "-"})`, m + 8, leftY, { width: leftW });
+        leftY += 12;
       });
+      leftY += 4;
     }
 
     doc.fontSize(8).fillColor(BLACK).font("Helvetica-Bold")
-       .text("Emitido por: ", m, rowY, { continued: true });
+       .text("Emitido por: ", m, leftY, { continued: true, width: leftW });
     doc.font("Helvetica").text(order.created_by_name || "-");
-    rowY += 20;
+    leftY += 14;
+
+    // — Columna derecha: totales —
+    let rightY = bloqueY;
+
+    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
+       .text("Total pedido:", cols.precio.x, rightY, { width: cols.precio.w, align: "center" });
+    doc.fillColor(BLACK).font("Helvetica-Bold")
+       .text(fmt(order.total), cols.subtotal.x, rightY, { width: cols.subtotal.w, align: "center" });
+    rightY += 14;
+
+    doc.fontSize(9).fillColor(GRAY).font("Helvetica")
+       .text("Total abonado:", cols.precio.x, rightY, { width: cols.precio.w, align: "center" });
+    doc.fillColor(GREEN).font("Helvetica-Bold")
+       .text(fmt(totalPaid), cols.subtotal.x, rightY, { width: cols.subtotal.w, align: "center" });
+    rightY += 14;
+
+    const saldoBoxW = cols.precio.w + cols.subtotal.w;
+    doc.fontSize(9).font("Helvetica-Bold");
+    const saldoBoxH = doc.currentLineHeight(true) + 10;
+    doc.roundedRect(cols.precio.x, rightY, saldoBoxW, saldoBoxH, 3).fill("#ef4444");
+    const saldoTextY = rightY + 5;
+    doc.fillColor(WHITE)
+       .text("Saldo pendiente:", cols.precio.x, saldoTextY, { width: saldoBoxW / 2, align: "center", lineBreak: false });
+    doc.text(fmt(balance <= 0 ? 0 : balance), cols.precio.x + saldoBoxW / 2, saldoTextY, { width: saldoBoxW / 2, align: "center", lineBreak: false });
+    rightY += saldoBoxH + 6;
+
+    // rowY avanza al final del bloque más alto
+    rowY = Math.max(leftY, rightY) + 10;
 
     // ── PIE (flujo normal, igual que cotización) ──────────────────
     doc.moveTo(m, rowY).lineTo(W - m, rowY).lineWidth(0.5).strokeColor(GREEN).stroke();

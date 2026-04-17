@@ -153,21 +153,21 @@ export default function CatalogPage() {
                 <table className="w-full text-sm min-w-[360px]">
                   <thead className="bg-zinc-800 text-zinc-400">
                     <tr>
-                      <th className="px-4 py-3 text-left">Nombre</th>
-                      <th className="px-4 py-3 text-left w-28">Línea</th>
-                      <th className="px-4 py-3 text-center w-36">
+                      <th className="px-4 py-3 text-left w-2/5">Nombre</th>
+                      <th className="px-4 py-3 text-left w-1/5">Línea</th>
+                      <th className="px-4 py-3 text-center w-1/5">
                         Precio {activeTier.label}
                         {activeTier.desc && <span className="ml-1 text-zinc-500 text-xs">({activeTier.desc})</span>}
                       </th>
-                      <th className="px-4 py-3 w-24" />
+                      <th className="px-4 py-3 w-1/5" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-800">
                     {prods.map((row) => (
                       <tr key={row.id} className="hover:bg-zinc-800/50 transition-colors">
-                        <td className="px-4 py-3 text-zinc-300">{row.name}</td>
-                        <td className="px-4 py-3 text-zinc-400 w-28">{row.line_name}</td>
-                        <td className="px-4 py-3 text-center text-zinc-300 w-36">
+                        <td className="px-4 py-3 text-zinc-300 w-2/5">{row.name}</td>
+                        <td className="px-4 py-3 text-left text-zinc-400 w-1/5">{row.line_name}</td>
+                        <td className="px-4 py-3 text-center text-zinc-300 w-1/5">
                           {row[priceTier]
                             ? `$${Number(row[priceTier]).toLocaleString("es-CO")}`
                             : <span className="text-zinc-600">—</span>}

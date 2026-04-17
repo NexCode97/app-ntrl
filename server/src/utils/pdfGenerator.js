@@ -286,7 +286,7 @@ export function generateQuotePDF(quote, emittedBy) {
 /* ─── FACTURA ─────────────────────────────────────────────────── */
 export function generateInvoicePDF(order) {
   return new Promise((resolve, reject) => {
-    const doc    = new PDFDocument({ margin: 45, size: "A4", autoFirstPage: true, bufferPages: true });
+    const doc    = new PDFDocument({ margin: 45, size: "A4", autoFirstPage: true });
     const chunks = [];
     doc.on("data",  (c) => chunks.push(c));
     doc.on("end",   () => resolve(Buffer.concat(chunks)));
@@ -457,31 +457,19 @@ export function generateInvoicePDF(order) {
       });
     }
 
-    if (order.description) {
-      rowY += 4;
-      doc.fontSize(8).fillColor(GRAY).font("Helvetica")
-         .text(`Descripcion: ${order.description}`, m, rowY, { width: cW });
-      rowY += 16;
-    }
-
     doc.fontSize(8).fillColor(BLACK).font("Helvetica-Bold")
        .text("Emitido por: ", m, rowY, { continued: true });
     doc.font("Helvetica").text(order.created_by_name || "-");
     rowY += 20;
 
-    // ── PIE — se renderiza en todas las páginas al fondo ─────────
-    const range = doc.bufferedPageRange();
-    for (let i = range.start; i < range.start + range.count; i++) {
-      doc.switchToPage(i);
-      const pageH   = doc.page.height;
-      const footerY = pageH - m + 5;
-      doc.moveTo(m, footerY - 10).lineTo(W - m, footerY - 10).lineWidth(0.5).strokeColor(GREEN).stroke();
-      doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
-         .text(
-           `${EMPRESA.tel}   |   ${order.created_by_email || ""}   |   ${EMPRESA.web}`,
-           m, footerY, { align: "center", width: cW }
-         );
-    }
+    // ── PIE (flujo normal, igual que cotización) ──────────────────
+    doc.moveTo(m, rowY).lineTo(W - m, rowY).lineWidth(0.5).strokeColor(GREEN).stroke();
+    rowY += 8;
+    doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
+       .text(
+         `${EMPRESA.tel}   |   ${order.created_by_email || ""}   |   ${EMPRESA.web}`,
+         m, rowY, { align: "center", width: cW }
+       );
 
     doc.end();
   });

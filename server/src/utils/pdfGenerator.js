@@ -572,8 +572,9 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
          .text(item.product_name || "", textX, ty, { width: textW, ellipsis: true });
       ty += 16;
       if (item.description) {
+        const desc = String(item.description).replace(/\r\n?/g, "\n");
         doc.fontSize(8.5).fillColor(GRAY).font("Helvetica")
-           .text(item.description, textX, ty, { width: textW, height: 40, ellipsis: true });
+           .text(desc, textX, ty, { width: textW, height: 40, ellipsis: true });
       }
 
       const priceY = y + cardH - 22;

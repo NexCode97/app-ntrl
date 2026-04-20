@@ -538,14 +538,6 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
       return lineY + 12;
     }
 
-    function drawFooter() {
-      const fy = H - 40;
-      doc.moveTo(m, fy).lineTo(W - m, fy).lineWidth(0.5).strokeColor(GREEN).stroke();
-      doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
-         .text(`${EMPRESA.tel}   |   ${EMPRESA.web}   |   ${EMPRESA.direccion}, ${EMPRESA.ciudad}`,
-               m, fy + 6, { align: "center", width: cW });
-    }
-
     const cardW = (cW - 15) / 2;
     const cardH = 230;
     let startY = drawHeader();
@@ -553,7 +545,6 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
 
     enriched.forEach((item) => {
       if (y + cardH > H - 60) {
-        drawFooter();
         doc.addPage();
         startY = drawHeader();
         y = startY; x = m; col = 0;
@@ -594,7 +585,14 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
       else { x = m + cardW + 15; }
     });
 
-    drawFooter();
+    // Pie en flujo, justo después del último producto (igual que cotización)
+    const footerY = (col === 0 ? y : y + cardH) + 15;
+    const finalY = footerY + 25 > H - 20 ? H - 45 : footerY;
+    doc.moveTo(m, finalY).lineTo(W - m, finalY).lineWidth(0.5).strokeColor(GREEN).stroke();
+    doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
+       .text(`${EMPRESA.tel}   |   ${EMPRESA.web}   |   ${EMPRESA.direccion}, ${EMPRESA.ciudad}`,
+             m, finalY + 6, { align: "center", width: cW });
+
     doc.end();
   });
 }

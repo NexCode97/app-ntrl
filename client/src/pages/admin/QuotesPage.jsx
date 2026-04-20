@@ -346,6 +346,19 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
     } catch { /* ignorar */ }
   }
 
+  async function handleDownloadCatalog() {
+    try {
+      const res = await api.get(`/quotes/${quote.id}/catalog-pdf`, { responseType: "blob" });
+      const url = URL.createObjectURL(res.data);
+      const a   = document.createElement("a");
+      a.href     = url;
+      const safeName = (quote.customer_name || "cliente").replace(/[^a-zA-Z0-9\u00C0-\u024F\s]/g, "").trim().replace(/\s+/g, "_");
+      a.download = `catalogo-cotizacion-${String(quote.quote_number).padStart(4,"0")}-${safeName}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { /* ignorar */ }
+  }
+
   if (editing) {
     return (
       <QuoteForm
@@ -447,6 +460,10 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
           <button onClick={handleDownload}
             className="btn-secondary text-sm px-4 flex items-center gap-2">
             <DownloadIcon /> Descargar PDF
+          </button>
+          <button onClick={handleDownloadCatalog}
+            className="btn-secondary text-sm px-4 flex items-center gap-2">
+            📄 Descargar catálogo
           </button>
           {quote.customer_email && (
             <button onClick={handleSendEmail} disabled={sending}

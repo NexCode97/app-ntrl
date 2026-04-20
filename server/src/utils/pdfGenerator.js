@@ -1,6 +1,8 @@
 import PDFDocument from "pdfkit";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { readFileSync, existsSync } from "fs";
+import { config } from "../config/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const LOGO_PATH = join(__dirname, "../assets/logo.png");
@@ -480,6 +482,119 @@ export function generateInvoicePDF(order) {
          m, rowY, { align: "center", width: cW }
        );
 
+    doc.end();
+  });
+}
+
+/* ─── CATÁLOGO POR COTIZACIÓN ─────────────────────────────────── */
+async function loadImageBuffer(imageUrl) {
+  if (!imageUrl) return null;
+  try {
+    if (/^https?:\/\//i.test(imageUrl)) {
+      const res = await fetch(imageUrl);
+      if (!res.ok) return null;
+      const arr = await res.arrayBuffer();
+      return Buffer.from(arr);
+    }
+    const full = join(config.upload.dir, imageUrl);
+    if (existsSync(full)) return readFileSync(full);
+    return null;
+  } catch { return null; }
+}
+
+export async function generateQuoteCatalogPDF(quote, productsMap) {
+  const items = Array.isArray(quote.items) ? quote.items : JSON.parse(quote.items || "[]");
+  const enriched = await Promise.all(items.map(async (it) => {
+    const p = productsMap.get(it.product_id) || {};
+    const imgBuf = await loadImageBuffer(p.image_url);
+    return { ...it, description: p.description || "", image_url: p.image_url || null, imgBuf };
+  }));
+
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 40, size: "A4", autoFirstPage: true });
+    const chunks = [];
+    doc.on("data", (c) => chunks.push(c));
+    doc.on("end",  () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const W = doc.page.width;
+    const H = doc.page.height;
+    const m = 40;
+    const cW = W - m * 2;
+
+    function drawHeader() {
+      try { doc.image(LOGO_PATH, m, m, { height: 50, fit: [110, 50] }); } catch {}
+      doc.fontSize(22).fillColor(BLACK).font("Helvetica-Bold")
+         .text("CATÁLOGO", m, m + 4, { align: "right", width: cW });
+      const numStr = `Cotización N° ${String(quote.quote_number || "").padStart(4, "0")}`;
+      doc.fontSize(9).fillColor(GRAY).font("Helvetica")
+         .text(numStr, m, m + 32, { align: "right", width: cW });
+      if (quote.customer_name) {
+        doc.fontSize(9).fillColor(GRAY)
+           .text(`Cliente: ${quote.customer_name}`, m, m + 45, { align: "right", width: cW });
+      }
+      const lineY = m + 68;
+      doc.moveTo(m, lineY).lineTo(W - m, lineY).lineWidth(1.2).strokeColor(GREEN).stroke();
+      return lineY + 12;
+    }
+
+    function drawFooter() {
+      const fy = H - 40;
+      doc.moveTo(m, fy).lineTo(W - m, fy).lineWidth(0.5).strokeColor(GREEN).stroke();
+      doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")
+         .text(`${EMPRESA.tel}   |   ${EMPRESA.web}   |   ${EMPRESA.direccion}, ${EMPRESA.ciudad}`,
+               m, fy + 6, { align: "center", width: cW });
+    }
+
+    const cardW = (cW - 15) / 2;
+    const cardH = 230;
+    let startY = drawHeader();
+    let x = m, y = startY, col = 0;
+
+    enriched.forEach((item) => {
+      if (y + cardH > H - 60) {
+        drawFooter();
+        doc.addPage();
+        startY = drawHeader();
+        y = startY; x = m; col = 0;
+      }
+
+      doc.roundedRect(x, y, cardW, cardH, 8).lineWidth(0.8).strokeColor("#d4d4d8").stroke();
+
+      const imgX = x + 10, imgY = y + 10, imgW = cardW - 20, imgH = 120;
+      let drew = false;
+      if (item.imgBuf) {
+        try {
+          doc.image(item.imgBuf, imgX, imgY, { fit: [imgW, imgH], align: "center", valign: "center" });
+          drew = true;
+        } catch { drew = false; }
+      }
+      if (!drew) {
+        doc.rect(imgX, imgY, imgW, imgH).fillColor(LGRAY).fill();
+        doc.fillColor(GRAY).fontSize(9).font("Helvetica")
+           .text("Sin imagen", imgX, imgY + imgH/2 - 4, { width: imgW, align: "center" });
+      }
+
+      const textX = x + 10, textW = cardW - 20;
+      let ty = imgY + imgH + 8;
+      doc.fontSize(11).fillColor(BLACK).font("Helvetica-Bold")
+         .text(item.product_name || "", textX, ty, { width: textW, ellipsis: true });
+      ty += 16;
+      if (item.description) {
+        doc.fontSize(8.5).fillColor(GRAY).font("Helvetica")
+           .text(item.description, textX, ty, { width: textW, height: 40, ellipsis: true });
+      }
+
+      const priceY = y + cardH - 22;
+      doc.fontSize(12).fillColor(GREEN).font("Helvetica-Bold")
+         .text(fmt(item.unit_price), textX, priceY, { width: textW, align: "right" });
+
+      col++;
+      if (col === 2) { col = 0; x = m; y += cardH + 15; }
+      else { x = m + cardW + 15; }
+    });
+
+    drawFooter();
     doc.end();
   });
 }

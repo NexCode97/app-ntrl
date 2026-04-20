@@ -1,6 +1,6 @@
 import { pool }               from "../config/database.js";
 import { AppError }            from "../utils/AppError.js";
-import { generateQuotePDF }    from "../utils/pdfGenerator.js";
+import { generateQuotePDF, generateQuoteCatalogPDF }    from "../utils/pdfGenerator.js";
 import { sendMail }            from "../utils/mailer.js";
 
 // ── Listar ────────────────────────────────────────────────────────
@@ -144,6 +144,34 @@ export async function downloadPDF(req, res, next) {
     const pdf = await generateQuotePDF(quote);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf"`);
+    res.send(pdf);
+  } catch (err) { next(err); }
+}
+
+// ── Descargar catálogo PDF (productos de la cotización con imagen y descripción) ──
+export async function downloadCatalogPDF(req, res, next) {
+  try {
+    const { rows: [quote] } = await pool.query(
+      `SELECT q.* FROM quotes q WHERE q.id = $1`,
+      [req.params.id]
+    );
+    if (!quote) throw new AppError("Cotización no encontrada.", 404, "NOT_FOUND");
+
+    const items = Array.isArray(quote.items) ? quote.items : JSON.parse(quote.items || "[]");
+    const ids = [...new Set(items.map((i) => i.product_id).filter(Boolean))];
+
+    const productsMap = new Map();
+    if (ids.length) {
+      const { rows } = await pool.query(
+        `SELECT id, description, image_url FROM products WHERE id = ANY($1::uuid[])`,
+        [ids]
+      );
+      rows.forEach((r) => productsMap.set(r.id, r));
+    }
+
+    const pdf = await generateQuoteCatalogPDF(quote, productsMap);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="catalogo-cotizacion-${String(quote.quote_number).padStart(4,"0")}.pdf"`);
     res.send(pdf);
   } catch (err) { next(err); }
 }

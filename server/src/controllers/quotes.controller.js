@@ -192,24 +192,36 @@ export async function sendByEmail(req, res, next) {
     const pdf = await generateQuotePDF(quote, req.user?.name);
     const num = String(quote.quote_number).padStart(4, "0");
 
+    // Catálogo con imágenes y descripciones de los productos cotizados
+    const itemsArr = Array.isArray(quote.items) ? quote.items : JSON.parse(quote.items || "[]");
+    const ids = [...new Set(itemsArr.map((i) => i.product_id).filter(Boolean))];
+    const productsMap = new Map();
+    if (ids.length) {
+      const { rows: prods } = await pool.query(
+        `SELECT id, description, image_url FROM products WHERE id = ANY($1::uuid[])`,
+        [ids]
+      );
+      prods.forEach((r) => productsMap.set(r.id, r));
+    }
+    const catalogPdf = await generateQuoteCatalogPDF(quote, productsMap);
+
     await sendMail({
       to:      quote.customer_email,
       subject: `Cotización N° ${num} — Natural Ropa Deportiva`,
       html: `
         <div style="font-family:sans-serif;max-width:560px;margin:auto">
           <h2 style="color:#22c55e">Hola, ${quote.customer_name}</h2>
-          <p>Adjunto encontrarás la cotización <strong>N° ${num}</strong> solicitada.</p>
+          <p>Adjunto encontrarás la cotización <strong>N° ${num}</strong> y el catálogo con los productos cotizados.</p>
           <p>Esta cotización es válida por <strong>${quote.valid_days} días</strong>.</p>
           <p>Para aprobarla o solicitar cambios, puedes responder a este correo.</p>
           <br/>
           <p style="color:#71717a;font-size:12px">Natural Ropa Deportiva — NTRL</p>
         </div>
       `,
-      attachments: [{
-        filename:    `cotizacion-${num}.pdf`,
-        content:     pdf,
-        contentType: "application/pdf",
-      }],
+      attachments: [
+        { filename: `cotizacion-${num}.pdf`, content: pdf,        contentType: "application/pdf" },
+        { filename: `catalogo-${num}.pdf`,   content: catalogPdf, contentType: "application/pdf" },
+      ],
     });
 
     await pool.query("UPDATE quotes SET status='sent', updated_at=NOW() WHERE id=$1", [quote.id]);

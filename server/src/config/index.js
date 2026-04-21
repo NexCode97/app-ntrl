@@ -54,3 +54,14 @@ for (const key of required) {
     throw new Error(`Variable de entorno requerida no definida: ${key}`);
   }
 }
+
+// Validar fortaleza mínima de secretos JWT (≥ 32 chars)
+const MIN_SECRET_LEN = 32;
+for (const key of ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"]) {
+  if (process.env[key].length < MIN_SECRET_LEN) {
+    throw new Error(
+      `${key} es muy corto (${process.env[key].length} chars). ` +
+      `Mínimo ${MIN_SECRET_LEN} chars. Genera uno con: openssl rand -hex 48`
+    );
+  }
+}

@@ -39,8 +39,16 @@ export function errorHandler(err, req, res, next) {
     });
   }
 
-  // Error inesperado — no exponer detalles en producción
-  console.error("Error no manejado:", err);
+  // Error inesperado — log sanitizado (sin datos sensibles del request)
+  const safeLog = {
+    message: err.message,
+    name:    err.name,
+    code:    err.code,
+    stack:   process.env.NODE_ENV === "production" ? undefined : err.stack,
+    path:    req.path,
+    method:  req.method,
+  };
+  console.error("Error no manejado:", safeLog);
   return res.status(500).json({
     status: "error",
     code: "INTERNAL_ERROR",

@@ -540,8 +540,8 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
 
     // Tarjetas a 1 columna (todo el ancho de la hoja)
     const cardW = cW;
-    const imgH  = 310;
-    const cardH = imgH + 90;  // imagen + nombre + descripción + precio
+    const imgH  = 230;
+    const cardH = imgH + 80;  // imagen + nombre + descripción + precio (2 por página)
     let startY = drawHeader();
     let x = m, y = startY;
 

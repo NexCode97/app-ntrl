@@ -583,12 +583,13 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
       doc.fontSize(14).fillColor(GREEN).font("Helvetica-Bold")
          .text(priceStr, textX, ty - 1, { width: textW, align: "right" });
 
-      // Descripción en línea completa debajo
+      // Descripción: máximo 3 renglones, resto con "..."
       ty += 20;
       if (item.description) {
         const desc = String(item.description).replace(/\r\n?/g, "\n");
-        doc.fontSize(9.5).fillColor(GRAY).font("Helvetica")
-           .text(desc, textX, ty, { width: textW, height: cardH - (ty - y) - 8, ellipsis: true });
+        doc.fontSize(9.5).fillColor(GRAY).font("Helvetica");
+        const lineH = doc.currentLineHeight(true);
+        doc.text(desc, textX, ty, { width: textW, height: lineH * 3 + 1, ellipsis: true });
       }
 
       y += cardH + 18;

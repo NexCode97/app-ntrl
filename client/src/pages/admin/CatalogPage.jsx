@@ -29,11 +29,11 @@ export default function CatalogPage() {
 
   const saveSport = useMutation({
     mutationFn: (d) => d.id ? api.put(`/catalog/sports/${d.id}`, d) : api.post("/catalog/sports", d),
-    onSuccess: () => { qc.invalidateQueries(["sports"]); setForm(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sports"] }); setForm(null); },
   });
   const saveLine = useMutation({
     mutationFn: (d) => d.id ? api.put(`/catalog/lines/${d.id}`, d) : api.post("/catalog/lines", d),
-    onSuccess: () => { qc.invalidateQueries(["lines"]); setForm(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["lines"] }); setForm(null); },
   });
   const saveProduct = useMutation({
     mutationFn: (d) => {
@@ -51,20 +51,20 @@ export default function CatalogPage() {
         ? api.put(`/catalog/products/${d.id}`, fd, { headers: { "Content-Type": "multipart/form-data" } })
         : api.post("/catalog/products", fd, { headers: { "Content-Type": "multipart/form-data" } });
     },
-    onSuccess: () => { qc.invalidateQueries(["products"]); setForm(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); setForm(null); },
   });
 
   const deleteSport = useMutation({
     mutationFn: (id) => api.delete(`/catalog/sports/${id}`),
-    onSuccess: () => qc.invalidateQueries(["sports"]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["sports"] }),
   });
   const deleteLine = useMutation({
     mutationFn: (id) => api.delete(`/catalog/lines/${id}`),
-    onSuccess: () => qc.invalidateQueries(["lines"]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["lines"] }),
   });
   const deleteProduct = useMutation({
     mutationFn: (id) => api.delete(`/catalog/products/${id}`),
-    onSuccess: () => qc.invalidateQueries(["products"]),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
   });
 
   const filteredProducts = useMemo(() => {

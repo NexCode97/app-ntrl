@@ -491,10 +491,14 @@ async function loadImageBuffer(imageUrl) {
   if (!imageUrl) return null;
   try {
     if (/^https?:\/\//i.test(imageUrl)) {
-      const res = await fetch(imageUrl);
-      if (!res.ok) return null;
-      const arr = await res.arrayBuffer();
-      return Buffer.from(arr);
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 5000); // 5s por imagen
+      try {
+        const res = await fetch(imageUrl, { signal: ac.signal });
+        if (!res.ok) return null;
+        const arr = await res.arrayBuffer();
+        return Buffer.from(arr);
+      } finally { clearTimeout(timer); }
     }
     const full = join(config.upload.dir, imageUrl);
     if (existsSync(full)) return readFileSync(full);
@@ -570,18 +574,22 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
 
       const textX = x + 14, textW = cardW - 28;
       let ty = imgY + imgH + 10;
+
+      // Título (izquierda) + precio (derecha) en la misma línea
+      const priceStr = fmt(item.unit_price);
+      const priceW   = doc.fontSize(14).font("Helvetica-Bold").widthOfString(priceStr) + 4;
       doc.fontSize(13).fillColor(BLACK).font("Helvetica-Bold")
-         .text(item.product_name || "", textX, ty, { width: textW, ellipsis: true });
-      ty += 18;
+         .text(item.product_name || "", textX, ty, { width: textW - priceW - 8, ellipsis: true });
+      doc.fontSize(14).fillColor(GREEN).font("Helvetica-Bold")
+         .text(priceStr, textX, ty - 1, { width: textW, align: "right" });
+
+      // Descripción en línea completa debajo
+      ty += 20;
       if (item.description) {
         const desc = String(item.description).replace(/\r\n?/g, "\n");
         doc.fontSize(9.5).fillColor(GRAY).font("Helvetica")
-           .text(desc, textX, ty, { width: textW, height: 40, ellipsis: true });
+           .text(desc, textX, ty, { width: textW, height: cardH - (ty - y) - 8, ellipsis: true });
       }
-
-      const priceY = y + cardH - 24;
-      doc.fontSize(14).fillColor(GREEN).font("Helvetica-Bold")
-         .text(fmt(item.unit_price), textX, priceY, { width: textW, align: "right" });
 
       y += cardH + 18;
     });

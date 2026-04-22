@@ -309,6 +309,7 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
   const [sending,  setSending]  = useState(false);
   const [sendMsg,  setSendMsg]  = useState("");
   const [editing,  setEditing]  = useState(false);
+  const [downloadingCat, setDownloadingCat] = useState(false);
   const { accessToken } = useAuthStore();
 
   const items = Array.isArray(quote.items)
@@ -347,6 +348,7 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
   }
 
   async function handleDownloadCatalog() {
+    setDownloadingCat(true);
     try {
       const res = await api.get(`/quotes/${quote.id}/catalog-pdf`, { responseType: "blob" });
       const url = URL.createObjectURL(res.data);
@@ -357,6 +359,7 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
       a.click();
       URL.revokeObjectURL(url);
     } catch { /* ignorar */ }
+    finally { setDownloadingCat(false); }
   }
 
   if (editing) {
@@ -461,9 +464,9 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
             className="btn-secondary text-sm px-4 flex items-center gap-2">
             <DownloadIcon /> Descargar PDF
           </button>
-          <button onClick={handleDownloadCatalog}
-            className="btn-secondary text-sm px-4 flex items-center gap-2">
-            📄 Descargar catálogo
+          <button onClick={handleDownloadCatalog} disabled={downloadingCat}
+            className="btn-secondary text-sm px-4 flex items-center gap-2 disabled:opacity-60">
+            {downloadingCat ? "Generando..." : "📄 Descargar catálogo"}
           </button>
           {quote.customer_email && (
             <button onClick={handleSendEmail} disabled={sending}

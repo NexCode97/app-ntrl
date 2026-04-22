@@ -538,21 +538,23 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
       return lineY + 12;
     }
 
-    const cardW = (cW - 15) / 2;
-    const cardH = 230;
+    // Tarjetas a 1 columna (todo el ancho de la hoja)
+    const cardW = cW;
+    const imgH  = 310;
+    const cardH = imgH + 90;  // imagen + nombre + descripción + precio
     let startY = drawHeader();
-    let x = m, y = startY, col = 0;
+    let x = m, y = startY;
 
     enriched.forEach((item) => {
       if (y + cardH > H - 60) {
         doc.addPage();
         startY = drawHeader();
-        y = startY; x = m; col = 0;
+        y = startY; x = m;
       }
 
       doc.roundedRect(x, y, cardW, cardH, 8).lineWidth(0.8).strokeColor("#d4d4d8").stroke();
 
-      const imgX = x + 10, imgY = y + 10, imgW = cardW - 20, imgH = 120;
+      const imgX = x + 10, imgY = y + 10, imgW = cardW - 20;
       let drew = false;
       if (item.imgBuf) {
         try {
@@ -562,32 +564,30 @@ export async function generateQuoteCatalogPDF(quote, productsMap) {
       }
       if (!drew) {
         doc.rect(imgX, imgY, imgW, imgH).fillColor(LGRAY).fill();
-        doc.fillColor(GRAY).fontSize(9).font("Helvetica")
-           .text("Sin imagen", imgX, imgY + imgH/2 - 4, { width: imgW, align: "center" });
+        doc.fillColor(GRAY).fontSize(10).font("Helvetica")
+           .text("Sin imagen", imgX, imgY + imgH/2 - 5, { width: imgW, align: "center" });
       }
 
-      const textX = x + 10, textW = cardW - 20;
-      let ty = imgY + imgH + 8;
-      doc.fontSize(11).fillColor(BLACK).font("Helvetica-Bold")
+      const textX = x + 14, textW = cardW - 28;
+      let ty = imgY + imgH + 10;
+      doc.fontSize(13).fillColor(BLACK).font("Helvetica-Bold")
          .text(item.product_name || "", textX, ty, { width: textW, ellipsis: true });
-      ty += 16;
+      ty += 18;
       if (item.description) {
         const desc = String(item.description).replace(/\r\n?/g, "\n");
-        doc.fontSize(8.5).fillColor(GRAY).font("Helvetica")
+        doc.fontSize(9.5).fillColor(GRAY).font("Helvetica")
            .text(desc, textX, ty, { width: textW, height: 40, ellipsis: true });
       }
 
-      const priceY = y + cardH - 22;
-      doc.fontSize(12).fillColor(GREEN).font("Helvetica-Bold")
+      const priceY = y + cardH - 24;
+      doc.fontSize(14).fillColor(GREEN).font("Helvetica-Bold")
          .text(fmt(item.unit_price), textX, priceY, { width: textW, align: "right" });
 
-      col++;
-      if (col === 2) { col = 0; x = m; y += cardH + 15; }
-      else { x = m + cardW + 15; }
+      y += cardH + 18;
     });
 
-    // Pie en flujo, justo después del último producto (igual que cotización)
-    const footerY = (col === 0 ? y : y + cardH) + 15;
+    // Pie en flujo, justo después del último producto
+    const footerY = y + 2;
     const finalY = footerY + 25 > H - 20 ? H - 45 : footerY;
     doc.moveTo(m, finalY).lineTo(W - m, finalY).lineWidth(0.5).strokeColor(GREEN).stroke();
     doc.fontSize(7.5).fillColor(GRAY).font("Helvetica")

@@ -539,7 +539,7 @@ export default function QuotesPage() {
           <h1 className="text-white font-black text-2xl">Cotizaciones</h1>
           <p className="text-zinc-500 text-sm">{quotes.length} cotizaciones en total</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-primary">
+        <button onClick={() => setShowForm(true)} className="btn-primary text-sm px-3 py-1.5 md:text-base md:px-4 md:py-2 whitespace-nowrap">
           + Nueva cotización
         </button>
       </div>

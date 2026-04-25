@@ -76,15 +76,25 @@ export default function TasksPage() {
   }, [qc]);
 
   const [statusFilter, setStatusFilter] = useState(null);
+  const [search, setSearch] = useState("");
 
   const pending    = tasks?.filter((t) => t.status === "pending").length ?? 0;
   const inProgress = tasks?.filter((t) => t.status === "in_progress").length ?? 0;
   const done       = tasks?.filter((t) => t.status === "done").length ?? 0;
   const supPending = suppliesData?.filter((s) => s.status === "pending").length ?? 0;
 
-  const visibleTasks = statusFilter
+  const baseTasks = statusFilter
     ? (tasks?.filter((t) => t.status === statusFilter) ?? [])
     : (tasks?.filter((t) => t.status !== "done") ?? []);
+
+  const q = search.trim().toLowerCase();
+  const visibleTasks = q
+    ? baseTasks.filter((t) =>
+        String(t.order_number_fmt ?? "").toLowerCase().includes(q) ||
+        String(t.order_number ?? "").toLowerCase().includes(q) ||
+        String(t.customer_name ?? "").toLowerCase().includes(q)
+      )
+    : baseTasks;
 
   function toggleFilter(status) {
     setStatusFilter((prev) => (prev === status ? null : status));
@@ -142,6 +152,26 @@ export default function TasksPage() {
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-zinc-400 text-xs font-medium uppercase tracking-wide">Mis tareas</h2>
           <button onClick={handleRefresh} className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg px-3 py-1.5 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Actualizar</button>
+        </div>
+
+        <div className="relative mb-3">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por número o cliente..."
+            className="input-field w-full pr-8 text-sm"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white text-lg leading-none"
+              aria-label="Limpiar búsqueda"
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {mutError && (

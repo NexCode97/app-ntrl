@@ -134,6 +134,17 @@ export default function OrderCreatePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-white font-bold text-lg">Nuevo pedido</h1>
+        <button
+          type="button"
+          onClick={() => navigate("/orders")}
+          className="text-zinc-400 hover:text-white text-2xl leading-none px-2"
+          aria-label="Cerrar"
+        >
+          ✕
+        </button>
+      </div>
       {fromQuoteBanner && (
         <div className="bg-blue-950 border border-blue-700 rounded-xl px-4 py-3 text-blue-300 text-sm flex items-center gap-2">
           📝 <span>Pedido pre-cargado desde una cotización. Selecciona el cliente y adjunta los diseños para continuar.</span>

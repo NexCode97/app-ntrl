@@ -221,24 +221,39 @@ export default function TaskDetailPage() {
                 {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => {
                   const key  = `${item.id}|${myArea}|${size}`;
                   const done = doneSet.has(key);
+                  const disabled = !myArea || toggleProgress.isPending;
                   return (
-                    <label key={size}
-                      className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors
-                        ${done ? "bg-brand-green/10 border border-brand-green/40" : "bg-zinc-700 border border-zinc-700 hover:border-zinc-500"}`}>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={done}
-                          disabled={!myArea || toggleProgress.isPending}
-                          onChange={(e) => toggleProgress.mutate({ itemId: item.id, size, isDone: e.target.checked })}
-                          className="w-5 h-5 accent-brand-green cursor-pointer"
-                        />
+                    <button
+                      key={size}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => toggleProgress.mutate({ itemId: item.id, size, isDone: !done })}
+                      className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg transition-all duration-150 text-left
+                        ${done
+                          ? "bg-brand-green/15 border border-brand-green/50"
+                          : "bg-zinc-800 border border-zinc-700 hover:border-zinc-500"}
+                        ${disabled ? "cursor-not-allowed opacity-70" : "cursor-pointer active:scale-[0.99]"}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          aria-hidden
+                          className={`flex items-center justify-center w-6 h-6 rounded-full border-2 transition-all duration-150
+                            ${done
+                              ? "bg-brand-green border-brand-green scale-100"
+                              : "bg-zinc-700 border-zinc-500"}`}
+                        >
+                          {done && (
+                            <svg viewBox="0 0 20 20" className="w-4 h-4 text-black" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="4 11 8 15 16 6" />
+                            </svg>
+                          )}
+                        </span>
                         <span className={`text-sm ${done ? "text-brand-green line-through" : "text-white"}`}>
                           Talla {size} — {qty} und.
                         </span>
                       </div>
-                      {done && <span className="text-brand-green text-xs">✓ Hecho</span>}
-                    </label>
+                      {done && <span className="text-brand-green text-xs font-medium">Hecho</span>}
+                    </button>
                   );
                 })}
               </div>

@@ -131,3 +131,46 @@ export async function updateTaskStatus(req, res, next) {
     res.json({ status: "ok", data: updated });
   } catch (err) { next(err); }
 }
+
+// Avance detallado por producto + talla + área dentro de un pedido
+export async function getOrderProgress(req, res, next) {
+  try {
+    const { orderId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT pip.order_item_id, pip.area, pip.size, pip.is_done,
+              pip.updated_at, u.name AS updated_by_name
+       FROM production_item_progress pip
+       LEFT JOIN users u ON u.id = pip.updated_by
+       WHERE pip.order_item_id IN (SELECT id FROM order_items WHERE order_id = $1)`,
+      [orderId]
+    );
+    res.json({ status: "ok", data: rows });
+  } catch (err) { next(err); }
+}
+
+// Marcar / desmarcar un item+talla+area como hecho
+export async function setItemProgress(req, res, next) {
+  try {
+    const { itemId, area, size } = req.params;
+    const { is_done } = req.body;
+
+    const userAreas = req.user.area === "diseno" ? ["diseno_disenar"] : [req.user.area];
+    if (req.user.role !== "admin" && !userAreas.includes(area)) {
+      throw new AppError("No puedes modificar el avance de otra área.", 403, "FORBIDDEN");
+    }
+
+    await pool.query(
+      `INSERT INTO production_item_progress (order_item_id, area, size, is_done, updated_by, updated_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       ON CONFLICT (order_item_id, area, size) DO UPDATE
+       SET is_done = $4, updated_by = $5, updated_at = NOW()`,
+      [itemId, area, size, !!is_done, req.user.id]
+    );
+
+    // Invalidar caches del pedido
+    const { rows: [it] } = await pool.query("SELECT order_id FROM order_items WHERE id = $1", [itemId]);
+    if (it?.order_id) broadcastInvalidate(["order", it.order_id], "production");
+
+    res.json({ status: "ok" });
+  } catch (err) { next(err); }
+}

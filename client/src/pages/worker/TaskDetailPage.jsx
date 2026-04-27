@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
+import { useAuthStore } from "../../stores/authStore.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
 import { Document, Page, pdfjs } from "react-pdf";
@@ -91,12 +92,35 @@ function PdfViewer({ src, onClose }) {
 export default function TaskDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const qc = useQueryClient();
+  const { user } = useAuthStore();
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [pdfSrc,      setPdfSrc]      = useState(null);
+
+  // Área del trabajador (mapeo "diseno" → "diseno_disenar")
+  const myArea = user?.area === "diseno" ? "diseno_disenar" : user?.area;
 
   const { data, isLoading } = useQuery({
     queryKey: ["order-for-worker", id],
     queryFn:  () => api.get(`/orders/${id}`).then((r) => r.data.data),
+  });
+
+  const { data: progress } = useQuery({
+    queryKey: ["order-progress", id],
+    queryFn:  () => api.get(`/production/order/${id}/progress`).then((r) => r.data.data),
+  });
+
+  // Set de "itemId|area|size" que están done
+  const doneSet = new Set(
+    (progress || [])
+      .filter((p) => p.is_done)
+      .map((p) => `${p.order_item_id}|${p.area}|${p.size}`)
+  );
+
+  const toggleProgress = useMutation({
+    mutationFn: ({ itemId, size, isDone }) =>
+      api.patch(`/production/progress/${itemId}/${myArea}/${encodeURIComponent(size)}`, { is_done: isDone }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["order-progress", id] }),
   });
 
   if (isLoading) return <div className="text-zinc-500 text-center py-12">Cargando...</div>;
@@ -193,10 +217,30 @@ export default function TaskDetailPage() {
                 </div>
                 <span className="text-zinc-400 text-xs shrink-0">{itemQty} und.</span>
               </div>
-              <div className="flex gap-2 flex-wrap text-xs mt-2">
-                {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => (
-                  <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">{size}: {qty}</span>
-                ))}
+              <div className="flex flex-col gap-1.5 mt-2">
+                {Object.entries(item.sizes).filter(([, q]) => q > 0).map(([size, qty]) => {
+                  const key  = `${item.id}|${myArea}|${size}`;
+                  const done = doneSet.has(key);
+                  return (
+                    <label key={size}
+                      className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors
+                        ${done ? "bg-brand-green/10 border border-brand-green/40" : "bg-zinc-700 border border-zinc-700 hover:border-zinc-500"}`}>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={done}
+                          disabled={!myArea || toggleProgress.isPending}
+                          onChange={(e) => toggleProgress.mutate({ itemId: item.id, size, isDone: e.target.checked })}
+                          className="w-5 h-5 accent-brand-green cursor-pointer"
+                        />
+                        <span className={`text-sm ${done ? "text-brand-green line-through" : "text-white"}`}>
+                          Talla {size} — {qty} und.
+                        </span>
+                      </div>
+                      {done && <span className="text-brand-green text-xs">✓ Hecho</span>}
+                    </label>
+                  );
+                })}
               </div>
             </div>
           );

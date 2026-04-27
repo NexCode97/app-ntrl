@@ -337,18 +337,22 @@ export default function OrderDetailPage() {
 
       {/* Tab: Producción */}
       {tab === "production" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {data.tasks?.map((task) => {
-            const ts = STATUS_LABELS[task.status] || STATUS_LABELS.pending;
-            return (
-              <div key={task.id} className="card">
-                <p className="text-white font-medium text-sm mb-2">{AREA_NAMES[task.area]}</p>
-                <span className={ts.cls}>{ts.label}</span>
-                {task.started_by_name && <p className="text-xs text-zinc-500 mt-2">Inició: {task.started_by_name}</p>}
-                {task.completed_by_name && <p className="text-xs text-zinc-500">Completó: {task.completed_by_name}</p>}
-              </div>
-            );
-          })}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {data.tasks?.map((task) => {
+              const ts = STATUS_LABELS[task.status] || STATUS_LABELS.pending;
+              return (
+                <div key={task.id} className="card">
+                  <p className="text-white font-medium text-sm mb-2">{AREA_NAMES[task.area]}</p>
+                  <span className={ts.cls}>{ts.label}</span>
+                  {task.started_by_name && <p className="text-xs text-zinc-500 mt-2">Inició: {task.started_by_name}</p>}
+                  {task.completed_by_name && <p className="text-xs text-zinc-500">Completó: {task.completed_by_name}</p>}
+                </div>
+              );
+            })}
+          </div>
+
+          <ProgressMatrix orderId={id} items={data.items || []} />
         </div>
       )}
 
@@ -900,6 +904,88 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
           </form>
         )}
       </div>
+    </div>
+  );
+}
+
+function ProgressMatrix({ orderId, items }) {
+  const AREAS = [
+    ["corte", "Corte"],
+    ["diseno_disenar", "Diseño"],
+    ["impresion", "Impresión"],
+    ["sublimacion", "Sublim."],
+    ["ensamble", "Ensamble"],
+    ["terminados", "Terminados"],
+  ];
+
+  const { data: progress, isLoading } = useQuery({
+    queryKey: ["order-progress", orderId],
+    queryFn:  () => api.get(`/production/order/${orderId}/progress`).then((r) => r.data.data),
+  });
+
+  if (isLoading) return <div className="card text-zinc-500 text-sm">Cargando avance...</div>;
+
+  const doneSet = new Set(
+    (progress || [])
+      .filter((p) => p.is_done)
+      .map((p) => `${p.order_item_id}|${p.area}|${p.size}`)
+  );
+
+  // Generar filas: una por cada (item, talla con qty>0)
+  const rows = [];
+  items.forEach((item) => {
+    Object.entries(item.sizes || {}).forEach(([size, qty]) => {
+      if (Number(qty) > 0) rows.push({ itemId: item.id, name: item.product_name, size, qty });
+    });
+  });
+
+  if (rows.length === 0) return null;
+
+  // Totales por área
+  const totalsByArea = {};
+  AREAS.forEach(([key]) => {
+    totalsByArea[key] = rows.filter((r) => doneSet.has(`${r.itemId}|${key}|${r.size}`)).length;
+  });
+
+  return (
+    <div className="card overflow-x-auto">
+      <h3 className="text-white font-medium text-sm mb-3">Avance por producto y área</h3>
+      <table className="w-full text-xs min-w-[640px]">
+        <thead>
+          <tr className="border-b border-zinc-700">
+            <th className="text-left text-zinc-400 font-medium pb-2 pr-2">Producto</th>
+            {AREAS.map(([key, label]) => (
+              <th key={key} className="text-center text-zinc-400 font-medium pb-2 px-1">{label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={`${r.itemId}-${r.size}`} className="border-b border-zinc-800">
+              <td className="py-2 pr-2 text-white">
+                <span className="font-medium">{r.name}</span>
+                <span className="text-zinc-500"> · {r.size} ({r.qty})</span>
+              </td>
+              {AREAS.map(([key]) => {
+                const done = doneSet.has(`${r.itemId}|${key}|${r.size}`);
+                return (
+                  <td key={key} className="text-center px-1 py-2">
+                    {done ? <span className="text-brand-green text-base">✓</span> : <span className="text-zinc-700">·</span>}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+          <tr className="border-t-2 border-zinc-700">
+            <td className="py-2 pr-2 text-zinc-400 font-medium">Total</td>
+            {AREAS.map(([key]) => (
+              <td key={key} className="text-center px-1 py-2 text-zinc-300 font-medium">
+                {totalsByArea[key]}/{rows.length}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -9,6 +9,8 @@ router.use(requireAuth, moderateLimiter);
 router.get("/my-tasks",             ctrl.getMyTasks);
 router.get("/overview",             ctrl.getProductionOverview);
 router.get("/order/:orderId",        ctrl.getTasksByOrder);
+router.get("/order/:orderId/progress", ctrl.getOrderProgress);
+router.patch("/progress/:itemId/:area/:size", ctrl.setItemProgress);
 router.patch("/tasks/:taskId/status", ctrl.updateTaskStatus);
 
 export default router;

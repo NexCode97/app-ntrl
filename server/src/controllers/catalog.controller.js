@@ -89,9 +89,17 @@ export async function createLine(req, res, next) {
   try {
     await requireAdmin(req);
     const { sport_id, name, display_order } = req.body;
+    // Si no se especifica display_order, poner al final
+    let order = display_order;
+    if (order == null) {
+      const { rows: [maxRow] } = await pool.query(
+        "SELECT COALESCE(MAX(display_order), 0) + 1 AS next FROM lines"
+      );
+      order = maxRow.next;
+    }
     const { rows } = await pool.query(
       `INSERT INTO lines (sport_id, name, slug, display_order) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [sport_id, name, slugify(name), display_order || 0]
+      [sport_id, name, slugify(name), order]
     );
     res.status(201).json({ status: "ok", data: rows[0] });
   } catch (err) { next(err); }

@@ -22,8 +22,6 @@ RUN mkdir -p /app/uploads /app/logs && \
 ENV NODE_ENV=production
 ENV PORT=3000
 
-VOLUME ["/app/uploads", "/app/logs"]
-
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 

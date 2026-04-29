@@ -1,13 +1,13 @@
 import Joi from "joi";
 
 const sizeQuantities = Joi.object().pattern(
-  Joi.string().valid("T2","T4","T6","T8","T10","T12","T14","T16","TXS","TS","TM","TL","TXL","T2XL","T3XL"),
+  Joi.string().valid("T2","T4","T6","T8","T10","T12","T14","T16","TXS","TS","TM","TL","TXL","T2XL","T3XL","TU"),
   Joi.number().integer().min(0)
 );
 
 export const orderItemSchema = Joi.object({
   product_id:        Joi.string().uuid().required(),
-  gender:            Joi.string().valid("nino", "hombre", "mujer", "unisex").required(),
+  gender:            Joi.string().valid("nino", "hombre", "mujer", "unisex", "unica").required(),
   sizes:             sizeQuantities.required(),
   unit_price:        Joi.number().min(0).default(0),
   design_file_index: Joi.number().integer().min(0).optional().allow(null),

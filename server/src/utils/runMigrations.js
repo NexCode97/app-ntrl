@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "fs";
+import { readFileSync, readdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { pool } from "../config/database.js";
@@ -7,6 +7,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = join(__dirname, "../../../migrations");
 
 export async function runMigrations() {
+  if (!existsSync(MIGRATIONS_DIR)) {
+    console.log("Carpeta migrations no encontrada — omitiendo migraciones.");
+    return;
+  }
   const client = await pool.connect();
   try {
     // Crear tabla de control si no existe

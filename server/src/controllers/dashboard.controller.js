@@ -142,26 +142,49 @@ export async function invalidateCache(req, res) {
 
 export async function getMonthlyHistory(req, res, next) {
   try {
-    // Buscar todos los meses pasados que tienen pedidos
-    const currentMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
-    const { rows: monthsWithOrders } = await pool.query(`
-      SELECT DISTINCT TO_CHAR(created_at, 'YYYY-MM') AS month
-      FROM orders
-      WHERE TO_CHAR(created_at, 'YYYY-MM') < $1
-      ORDER BY month DESC
+    // Calcular directamente desde orders — no depende de monthly_snapshots
+    const { rows } = await pool.query(`
+      SELECT
+        f.month,
+        f.total_revenue,
+        f.collected,
+        f.pending,
+        f.orders_count,
+        s.status_counts
+      FROM (
+        SELECT
+          TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
+          COALESCE(SUM(total), 0)       AS total_revenue,
+          COALESCE(SUM(amount_paid), 0) AS collected,
+          COALESCE(SUM(balance), 0)     AS pending,
+          COUNT(*)                      AS orders_count
+        FROM orders
+        WHERE DATE_TRUNC('month', created_at) < DATE_TRUNC('month', NOW())
+        GROUP BY DATE_TRUNC('month', created_at)
+      ) f
+      JOIN (
+        SELECT
+          TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
+          jsonb_object_agg(status, cnt) AS status_counts
+        FROM (
+          SELECT
+            DATE_TRUNC('month', created_at) AS month_trunc,
+            TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
+            status,
+            COUNT(*) AS cnt
+          FROM orders
+          WHERE DATE_TRUNC('month', created_at) < DATE_TRUNC('month', NOW())
+          GROUP BY DATE_TRUNC('month', created_at), status
+        ) sc
+        GROUP BY month
+      ) s ON s.month = f.month
+      ORDER BY f.month DESC
       LIMIT 24
-    `, [currentMonth]);
+    `);
 
-    // Crear snapshots faltantes para esos meses
-    await Promise.all(monthsWithOrders.map((r) => saveSnapshotIfMissing(r.month)));
+    // Guardar snapshots en background para auditoría (no bloquea respuesta)
+    rows.forEach((r) => saveSnapshotIfMissing(r.month).catch(() => {}));
 
-    // Devolver todos los snapshots ordenados
-    const { rows } = await pool.query(
-      `SELECT month, total_revenue, collected, pending, orders_count, status_counts
-       FROM monthly_snapshots
-       ORDER BY month DESC
-       LIMIT 24`
-    );
     res.json({ status: "ok", data: rows });
   } catch (err) { next(err); }
 }

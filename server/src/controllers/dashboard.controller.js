@@ -164,11 +164,10 @@ export async function getMonthlyHistory(req, res, next) {
       ) f
       JOIN (
         SELECT
-          TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
+          month,
           jsonb_object_agg(status, cnt) AS status_counts
         FROM (
           SELECT
-            DATE_TRUNC('month', created_at) AS month_trunc,
             TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
             status,
             COUNT(*) AS cnt

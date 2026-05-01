@@ -308,31 +308,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Selector de mes */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-zinc-500 text-xs">Ver mes:</span>
-        <button
-          onClick={() => setSelectedMonth(null)}
-          className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-            !selectedMonth
-              ? "bg-brand-green text-black border-brand-green font-semibold"
-              : "text-zinc-400 border-zinc-700 hover:border-zinc-500"
-          }`}
+      <div className="flex items-center gap-2">
+        <span className="text-zinc-500 text-xs shrink-0">Ver mes:</span>
+        <select
+          value={selectedMonth ?? ""}
+          onChange={(e) => setSelectedMonth(e.target.value || null)}
+          className="bg-zinc-800 border border-zinc-700 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-green cursor-pointer"
         >
-          {formatMonth(currentMonth)} (actual)
-        </button>
-        {(monthlyHistory ?? []).map((s) => (
-          <button
-            key={s.month}
-            onClick={() => setSelectedMonth(s.month)}
-            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-              selectedMonth === s.month
-                ? "bg-brand-green text-black border-brand-green font-semibold"
-                : "text-zinc-400 border-zinc-700 hover:border-zinc-500"
-            }`}
-          >
-            {formatMonth(s.month)}
-          </button>
-        ))}
+          <option value="">{formatMonth(currentMonth)} (actual)</option>
+          {(monthlyHistory ?? []).map((s) => (
+            <option key={s.month} value={s.month}>{formatMonth(s.month)}</option>
+          ))}
+        </select>
       </div>
 
       {/* KPIs financieros */}

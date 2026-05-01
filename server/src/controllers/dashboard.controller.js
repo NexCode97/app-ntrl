@@ -142,6 +142,20 @@ export async function invalidateCache(req, res) {
 
 export async function getMonthlyHistory(req, res, next) {
   try {
+    // Buscar todos los meses pasados que tienen pedidos
+    const currentMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+    const { rows: monthsWithOrders } = await pool.query(`
+      SELECT DISTINCT TO_CHAR(created_at, 'YYYY-MM') AS month
+      FROM orders
+      WHERE TO_CHAR(created_at, 'YYYY-MM') < $1
+      ORDER BY month DESC
+      LIMIT 24
+    `, [currentMonth]);
+
+    // Crear snapshots faltantes para esos meses
+    await Promise.all(monthsWithOrders.map((r) => saveSnapshotIfMissing(r.month)));
+
+    // Devolver todos los snapshots ordenados
     const { rows } = await pool.query(
       `SELECT month, total_revenue, collected, pending, orders_count, status_counts
        FROM monthly_snapshots

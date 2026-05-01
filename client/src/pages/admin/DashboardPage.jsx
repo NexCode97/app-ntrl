@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { api } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import {
@@ -115,15 +115,43 @@ export default function DashboardPage() {
     enabled: isVendedor,
   });
 
+  const { data: monthlyHistory } = useQuery({
+    queryKey: ["dashboard-history"],
+    queryFn:  () => api.get("/dashboard/history").then((r) => r.data.data),
+    staleTime: 10 * 60 * 1000,
+    enabled: !isVendedor,
+  });
+
+  const currentMonth = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  }, []);
+
+  const [selectedMonth, setSelectedMonth] = useState(null); // null = mes actual
+
+  // Datos del mes seleccionado (historial) o del mes actual (live)
+  const selectedSnapshot = useMemo(() => {
+    if (!selectedMonth) return null;
+    return (monthlyHistory ?? []).find((s) => s.month === selectedMonth) ?? null;
+  }, [selectedMonth, monthlyHistory]);
+
+  const financialDisplay = selectedSnapshot
+    ? { total_revenue: selectedSnapshot.total_revenue, collected: selectedSnapshot.collected, pending: selectedSnapshot.pending }
+    : data?.financial;
+
   // Datos siempre presentes — si no hay info real se muestran en cero
   const byStatusData = useMemo(() => {
     const base = { pending: 0, in_progress: 0, completed: 0, delivered: 0 };
-    (data?.byStatus ?? []).forEach((r) => { base[r.status] = Number(r.total); });
+    if (selectedSnapshot) {
+      Object.entries(selectedSnapshot.status_counts ?? {}).forEach(([k, v]) => { base[k] = Number(v); });
+    } else {
+      (data?.byStatus ?? []).forEach((r) => { base[r.status] = Number(r.total); });
+    }
     return Object.entries(base).map(([status, total]) => ({
       status, total,
       label: { pending:"Pendiente", in_progress:"En proceso", completed:"Completado", delivered:"Entregado" }[status],
     }));
-  }, [data?.byStatus]);
+  }, [data?.byStatus, selectedSnapshot]);
 
   const monthlyData = useMemo(() => {
     if (data?.monthly?.length) return data.monthly.map((r) => ({ ...r, Ingresos: Number(r.revenue) }));
@@ -279,26 +307,57 @@ export default function DashboardPage() {
         </button>
       </div>
 
+      {/* Selector de mes */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <span className="text-zinc-500 text-xs">Ver mes:</span>
+        <button
+          onClick={() => setSelectedMonth(null)}
+          className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+            !selectedMonth
+              ? "bg-brand-green text-black border-brand-green font-semibold"
+              : "text-zinc-400 border-zinc-700 hover:border-zinc-500"
+          }`}
+        >
+          {formatMonth(currentMonth)} (actual)
+        </button>
+        {(monthlyHistory ?? []).map((s) => (
+          <button
+            key={s.month}
+            onClick={() => setSelectedMonth(s.month)}
+            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+              selectedMonth === s.month
+                ? "bg-brand-green text-black border-brand-green font-semibold"
+                : "text-zinc-400 border-zinc-700 hover:border-zinc-500"
+            }`}
+          >
+            {formatMonth(s.month)}
+          </button>
+        ))}
+      </div>
+
       {/* KPIs financieros */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card text-center">
           <p className="text-zinc-400 text-sm mb-1">Total facturado</p>
-          <p className="text-brand-green text-2xl font-bold">${Number(data?.financial?.total_revenue || 0).toLocaleString()}</p>
+          <p className="text-brand-green text-2xl font-bold">${Number(financialDisplay?.total_revenue || 0).toLocaleString()}</p>
         </div>
         <div className="card text-center">
           <p className="text-zinc-400 text-sm mb-1">Recaudado</p>
-          <p className="text-white text-2xl font-bold">${Number(data?.financial?.collected || 0).toLocaleString()}</p>
+          <p className="text-white text-2xl font-bold">${Number(financialDisplay?.collected || 0).toLocaleString()}</p>
         </div>
         <div className="card text-center">
           <p className="text-zinc-400 text-sm mb-1">Pendiente de cobro</p>
-          <p className="text-yellow-400 text-2xl font-bold">${Number(data?.financial?.pending || 0).toLocaleString()}</p>
+          <p className="text-yellow-400 text-2xl font-bold">${Number(financialDisplay?.pending || 0).toLocaleString()}</p>
         </div>
       </div>
 
       {/* Pedidos por estado + Entregas próximas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
         <div>
-          <h2 className="text-white font-semibold mb-3">Pedidos por estado</h2>
+          <h2 className="text-white font-semibold mb-3">
+            Pedidos por estado
+            <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
+          </h2>
           <div className="grid grid-cols-2 gap-3">
             {byStatusData.map((item) => (
               <div key={item.status} className="card text-center flex flex-col items-center justify-center py-4">

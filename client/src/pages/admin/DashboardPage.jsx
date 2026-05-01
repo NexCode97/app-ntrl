@@ -118,7 +118,7 @@ export default function DashboardPage() {
   const { data: monthlyHistory } = useQuery({
     queryKey: ["dashboard-history"],
     queryFn:  () => api.get("/dashboard/history").then((r) => r.data.data),
-    staleTime: 10 * 60 * 1000,
+    staleTime: 0,
     enabled: !isVendedor,
   });
 

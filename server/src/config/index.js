@@ -41,7 +41,7 @@ export const config = {
   },
 
   rateLimit: {
-    strict:     { windowMs: 15 * 60 * 1000, max: 5   }, // Login: 5/15min
+    strict:     { windowMs: 15 * 60 * 1000, max: 10  }, // Login: 10 intentos fallidos/15min
     moderate:   { windowMs:      60 * 1000, max: 60  }, // API general: 60/min
     permissive: { windowMs:      60 * 1000, max: 200 }, // Lectura: 200/min
   },

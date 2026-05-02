@@ -34,8 +34,8 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
-    // No interceptar llamadas al endpoint de refresh — el caller maneja el error
-    if (original.url?.includes("/auth/refresh")) {
+    // No interceptar llamadas de auth — el caller maneja el error directamente
+    if (original.url?.includes("/auth/")) {
       return Promise.reject(error);
     }
     if (error.response?.status !== 401 || original._retry) {

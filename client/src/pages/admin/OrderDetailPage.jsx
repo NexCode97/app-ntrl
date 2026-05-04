@@ -729,8 +729,95 @@ const METHODS = [
 ];
 const BANKS = ["Bancolombia", "Nequi", "Davivienda", "Bold"];
 
+function EditPaymentForm({ payment, orderId, onDone, onCancel }) {
+  const [amount,        setAmount]        = useState(String(Math.round(Number(payment.amount))));
+  const [amountDisplay, setAmountDisplay] = useState(Number(payment.amount).toLocaleString("es-CO"));
+  const [method,   setMethod]   = useState(payment.method);
+  const [bank,     setBank]     = useState(payment.bank || "");
+  const [paidAt,   setPaidAt]   = useState(payment.paid_at ? payment.paid_at.slice(0, 10) : "");
+  const [receipt,  setReceipt]  = useState(null);
+  const [saving,   setSaving]   = useState(false);
+  const [error,    setError]    = useState("");
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!amount || Number(amount) <= 0) return setError("Ingresa un monto válido.");
+    if (method === "transferencia" && !bank) return setError("Selecciona el banco.");
+    setError("");
+    setSaving(true);
+    try {
+      const formData = new FormData();
+      formData.append("amount", parseFloat(amount));
+      formData.append("method", method);
+      formData.append("bank", method === "transferencia" ? bank : "");
+      formData.append("paid_at", paidAt);
+      if (receipt) formData.append("receipt", receipt);
+      await api.patch(`/financial/${orderId}/payments/${payment.id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      onDone();
+    } catch (err) {
+      setError(err.response?.data?.message || "Error al actualizar el abono.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-zinc-800 rounded-lg p-4 space-y-3 mb-2">
+      <p className="text-white text-sm font-medium">Editar Abono #{payment.payment_number}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-zinc-400 mb-1">Monto</label>
+          <input type="text" inputMode="numeric" className="input-field"
+            value={amountDisplay}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, "");
+              setAmount(digits);
+              setAmountDisplay(digits ? Number(digits).toLocaleString("es-CO") : "");
+            }} placeholder="$0" autoFocus />
+        </div>
+        <div>
+          <label className="block text-xs text-zinc-400 mb-1">Fecha de pago</label>
+          <input type="date" className="input-field" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-zinc-400 mb-1">Método</label>
+          <select className="input-field" value={method} onChange={(e) => { setMethod(e.target.value); setBank(""); }}>
+            {METHODS.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+          </select>
+        </div>
+        {method === "transferencia" && (
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Banco</label>
+            <select className="input-field" value={bank} onChange={(e) => setBank(e.target.value)}>
+              <option value="">Seleccionar...</option>
+              {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
+        )}
+      </div>
+      <div>
+        <label className="block text-xs text-zinc-400 mb-1">Reemplazar comprobante (opcional)</label>
+        <input type="file" accept=".jpg,.jpeg,.png,.pdf" className="input-field text-sm"
+          onChange={(e) => setReceipt(e.target.files[0] || null)} />
+      </div>
+      {error && <div className="bg-red-950 border border-red-800 text-red-300 text-xs px-3 py-2 rounded-lg">{error}</div>}
+      <div className="flex gap-2 justify-end">
+        <button type="button" className="btn-secondary text-xs py-1 px-3" onClick={onCancel}>Cancelar</button>
+        <button type="submit" className="btn-primary text-xs py-1 px-3" disabled={saving}>
+          {saving ? "Guardando..." : "Guardar"}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [amount,        setAmount]        = useState("");
   const [amountDisplay, setAmountDisplay] = useState("");
   const [method,   setMethod]   = useState("efectivo");
@@ -821,27 +908,47 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
         )}
 
         {order.payments?.map((p) => (
-          <div key={p.id} className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2 mb-2">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-zinc-400 text-sm">Abono #{p.payment_number} · {p.method}</span>
-              {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
-              {p.receipt_url && (
-                <button
-                  className="text-brand-green text-xs hover:underline text-left"
-                  onClick={() => {
-                    const url = fileUrl(p.receipt_url);
-                    const isPdf = p.receipt_url.toLowerCase().endsWith(".pdf") || p.receipt_url.includes("/raw/");
-                    isPdf ? onPreviewPdf(url) : onPreviewImage(url);
-                  }}>
-                  Ver comprobante
-                </button>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
-              <button onClick={() => handleDelete(p.id)}
-                className="text-zinc-600 hover:text-red-400 transition-colors text-xs">✕</button>
-            </div>
+          <div key={p.id}>
+            {editingId === p.id ? (
+              <EditPaymentForm
+                payment={p}
+                orderId={order.id}
+                onDone={() => { setEditingId(null); onRefresh(); }}
+                onCancel={() => setEditingId(null)}
+              />
+            ) : (
+              <div className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2 mb-2">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-zinc-400 text-sm">
+                    Abono #{p.payment_number} · {p.method}
+                    {p.paid_at && (
+                      <span className="text-zinc-500 ml-2 text-xs">
+                        {new Date(p.paid_at).toLocaleDateString("es-CO")}
+                      </span>
+                    )}
+                  </span>
+                  {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
+                  {p.receipt_url && (
+                    <button
+                      className="text-brand-green text-xs hover:underline text-left"
+                      onClick={() => {
+                        const url = fileUrl(p.receipt_url);
+                        const isPdf = p.receipt_url.toLowerCase().endsWith(".pdf") || p.receipt_url.includes("/raw/");
+                        isPdf ? onPreviewPdf(url) : onPreviewImage(url);
+                      }}>
+                      Ver comprobante
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
+                  <button onClick={() => setEditingId(p.id)}
+                    className="text-zinc-500 hover:text-brand-green transition-colors text-xs">✏️</button>
+                  <button onClick={() => handleDelete(p.id)}
+                    className="text-zinc-600 hover:text-red-400 transition-colors text-xs">✕</button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
 

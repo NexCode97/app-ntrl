@@ -88,6 +88,33 @@ export async function addPayment(req, res, next) {
   } catch (err) { next(err); }
 }
 
+export async function updatePayment(req, res, next) {
+  try {
+    const { orderId, paymentId } = req.params;
+    const { amount, method, bank, paid_at } = req.body;
+
+    const sets = [];
+    const vals = [paymentId, orderId];
+
+    if (amount != null) { vals.push(amount); sets.push(`amount = $${vals.length}`); }
+    if (method)         { vals.push(method); sets.push(`method = $${vals.length}`); }
+    if (bank !== undefined) { vals.push(bank || null); sets.push(`bank = $${vals.length}`); }
+    if (paid_at)        { vals.push(paid_at); sets.push(`paid_at = $${vals.length}`); }
+    if (req.file)       { const url = await saveFile(req.file, "receipts"); vals.push(url); sets.push(`receipt_url = $${vals.length}`); }
+
+    if (!sets.length) throw new AppError("Nada que actualizar.", 400, "EMPTY_UPDATE");
+
+    const { rows: [payment] } = await pool.query(
+      `UPDATE order_payments SET ${sets.join(", ")} WHERE id = $1 AND order_id = $2 RETURNING *`,
+      vals
+    );
+    if (!payment) throw new AppError("Abono no encontrado.", 404, "NOT_FOUND");
+
+    broadcastInvalidate(["order", orderId], "orders", "dashboard");
+    res.json({ status: "ok", data: payment });
+  } catch (err) { next(err); }
+}
+
 export async function deletePayment(req, res, next) {
   try {
     const { rowCount } = await pool.query(

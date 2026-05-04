@@ -4,6 +4,7 @@ import { validate } from "../middleware/validate.js";
 import { moderateLimiter } from "../middleware/rateLimiter.js";
 import { upload, sanitizeUploadLight } from "../middleware/upload.js";
 import * as ctrl from "../controllers/financial.controller.js";
+
 import { paymentSchema, itemPriceSchema } from "../validations/financial.validation.js";
 
 const router = Router();
@@ -13,6 +14,7 @@ router.use(requireAuth, moderateLimiter);
 router.get("/:orderId",                        requireRole("admin","vendedor"), ctrl.getFinancialSummary);
 router.patch("/:orderId/item-price",           requireRole("admin"), validate(itemPriceSchema), ctrl.updateItemPrice);
 router.post("/:orderId/payments",              requireRole("admin","vendedor"), upload.single("receipt"), sanitizeUploadLight, validate(paymentSchema), ctrl.addPayment);
+router.patch("/:orderId/payments/:paymentId",  requireRole("admin","vendedor"), upload.single("receipt"), sanitizeUploadLight, ctrl.updatePayment);
 router.delete("/:orderId/payments/:paymentId", requireRole("admin","vendedor"), ctrl.deletePayment);
 
 export default router;

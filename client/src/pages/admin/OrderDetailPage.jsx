@@ -928,24 +928,40 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
                     )}
                   </span>
                   {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
                   {p.receipt_url && (
                     <button
-                      className="text-brand-green text-xs hover:underline text-left"
+                      title="Ver comprobante"
                       onClick={() => {
                         const url = fileUrl(p.receipt_url);
                         const isPdf = p.receipt_url.toLowerCase().endsWith(".pdf") || p.receipt_url.includes("/raw/");
                         isPdf ? onPreviewPdf(url) : onPreviewImage(url);
-                      }}>
-                      Ver comprobante
+                      }}
+                      className="text-zinc-500 hover:text-brand-green transition-colors p-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
                     </button>
                   )}
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
-                  <button onClick={() => setEditingId(p.id)}
-                    className="text-zinc-500 hover:text-brand-green transition-colors text-xs">✏️</button>
-                  <button onClick={() => handleDelete(p.id)}
-                    className="text-zinc-600 hover:text-red-400 transition-colors text-xs">✕</button>
+                  <button
+                    title="Editar abono"
+                    onClick={() => setEditingId(p.id)}
+                    className="text-zinc-500 hover:text-brand-green transition-colors p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z" />
+                    </svg>
+                  </button>
+                  <button
+                    title="Eliminar abono"
+                    onClick={() => handleDelete(p.id)}
+                    className="text-zinc-600 hover:text-red-400 transition-colors p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
               </div>
             )}

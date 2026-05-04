@@ -100,12 +100,13 @@ export async function getSummary(req, res, next) {
           GROUP BY l.name, s.name ORDER BY revenue DESC LIMIT 10
         `),
 
-        // Solo pedidos del mes actual
+        // Solo pedidos del mes actual (total y pendiente por fecha de pedido, recaudado por fecha de pago)
         pool.query(`
           SELECT
-            COALESCE(SUM(total), 0)       AS total_revenue,
-            COALESCE(SUM(amount_paid), 0) AS collected,
-            COALESCE(SUM(balance), 0)     AS pending
+            COALESCE(SUM(total), 0)   AS total_revenue,
+            COALESCE(SUM(balance), 0) AS pending,
+            (SELECT COALESCE(SUM(amount), 0) FROM order_payments
+             WHERE DATE_TRUNC('month', paid_at) = DATE_TRUNC('month', NOW())) AS collected
           FROM orders
           WHERE DATE_TRUNC('month', created_at) = DATE_TRUNC('month', NOW())
         `),
@@ -147,21 +148,28 @@ export async function getMonthlyHistory(req, res, next) {
       SELECT
         f.month,
         f.total_revenue,
-        f.collected,
+        COALESCE(p.collected, 0) AS collected,
         f.pending,
         f.orders_count,
         s.status_counts
       FROM (
         SELECT
           TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
-          COALESCE(SUM(total), 0)       AS total_revenue,
-          COALESCE(SUM(amount_paid), 0) AS collected,
-          COALESCE(SUM(balance), 0)     AS pending,
-          COUNT(*)                      AS orders_count
+          COALESCE(SUM(total), 0)   AS total_revenue,
+          COALESCE(SUM(balance), 0) AS pending,
+          COUNT(*)                  AS orders_count
         FROM orders
         WHERE DATE_TRUNC('month', created_at) < DATE_TRUNC('month', NOW())
         GROUP BY DATE_TRUNC('month', created_at)
       ) f
+      LEFT JOIN (
+        SELECT
+          TO_CHAR(DATE_TRUNC('month', paid_at), 'YYYY-MM') AS month,
+          COALESCE(SUM(amount), 0) AS collected
+        FROM order_payments
+        WHERE DATE_TRUNC('month', paid_at) < DATE_TRUNC('month', NOW())
+        GROUP BY DATE_TRUNC('month', paid_at)
+      ) p ON p.month = f.month
       JOIN (
         SELECT
           month,

@@ -7,7 +7,12 @@ import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
 import { fileUrl } from "../../utils/fileUrl.js";
 import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
-import { DocumentIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
+const IconBack     = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>;
+const IconEdit     = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>;
+const IconInvoice  = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
+const IconTrash    = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
+const IconCheck    = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+const IconDocument = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>;
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -28,7 +33,7 @@ function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
         </Document>
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-zinc-200">
-          <DocumentIcon className="w-6 h-6" />
+          <IconDocument />
           {label && <span className="text-[9px] truncate w-full text-center px-1">{label}</span>}
         </div>
       )}
@@ -128,75 +133,81 @@ export default function OrderDetailPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-4">
       {/* Header */}
-      <div className="card space-y-4">
-        {/* Fila superior: avatar + info + botones */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-4">
-            <div className="flex-shrink-0 h-14 w-14 rounded-lg bg-white flex items-center justify-center">
-              <span className="text-black font-bold text-lg leading-none">
-                {data.customer_name?.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()}
+      <div className="card overflow-hidden p-0">
+        {/* Banda superior con gradiente */}
+        <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-4 pt-4 pb-5">
+          {/* Volver */}
+          <button onClick={() => navigate("/orders")}
+            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white mb-4 transition-colors">
+            <IconBack /> Volver a pedidos
+          </button>
+
+          {/* Avatar + info principal */}
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center shrink-0">
+              <span className="text-brand-green font-black text-lg">
+                {data.customer_name?.split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase()}
               </span>
             </div>
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-brand-green font-mono font-bold text-xl">#{data.order_number}</span>
                 <span className={s.cls}>{s.label}</span>
               </div>
-              {data.name && (
-                <p className="text-white font-semibold text-sm mt-0.5">{data.name}</p>
-              )}
-              <p className="text-zinc-400 text-sm mt-1">{data.customer_name} · {data.document_number}</p>
-              {data.delivery_date && (
-                <p className="text-zinc-500 text-xs mt-0.5">
-                  Entrega: {new Date(data.delivery_date).toLocaleDateString("es-CO")}
-                </p>
-              )}
-              {data.created_by_name && (
-                <p className="text-zinc-500 text-xs mt-0.5">
-                  Creado por: {data.created_by_name}
-                </p>
-              )}
+              {data.name && <p className="text-white font-semibold text-sm mt-0.5 truncate">{data.name}</p>}
+              <p className="text-zinc-300 text-sm mt-1">{data.customer_name}</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1">
+                {data.delivery_date && (
+                  <p className="text-zinc-500 text-xs">📅 Entrega: {new Date(data.delivery_date).toLocaleDateString("es-CO")}</p>
+                )}
+                {data.created_by_name && (
+                  <p className="text-zinc-500 text-xs">👤 {data.created_by_name}</p>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <button className="btn-secondary" onClick={() => navigate("/orders")}>← Volver</button>
-            {data.status !== "delivered" && (
-              <button className="btn-secondary" onClick={() => setShowEdit(true)}>Editar</button>
-            )}
-            {data.status !== "delivered" && data.status === "completed" && (
-              <button className="btn-primary" onClick={markDelivered}>Marcar entregado</button>
-            )}
-            <button className="btn-secondary flex items-center gap-1.5" onClick={handleDownloadInvoice} title="Descargar factura PDF">
-              <DocumentTextIcon className="w-4 h-4" /> Factura
+        </div>
+
+        {/* Acciones */}
+        <div className="px-4 py-3 flex items-center gap-2 border-t border-zinc-800 flex-wrap">
+          {data.status !== "delivered" && (
+            <button onClick={() => setShowEdit(true)}
+              className="flex items-center gap-1.5 text-sm btn-secondary">
+              <IconEdit /> Editar
             </button>
-            <button
-              onClick={handleDelete}
-              className="px-3 py-2 text-sm font-medium rounded-lg text-red-400 hover:text-white hover:bg-red-900 border border-red-800 transition-colors"
-            >
-              Eliminar
+          )}
+          {data.status !== "delivered" && data.status === "completed" && (
+            <button onClick={markDelivered}
+              className="flex items-center gap-1.5 text-sm btn-primary">
+              <IconCheck /> Marcar entregado
             </button>
-          </div>
+          )}
+          <button onClick={handleDownloadInvoice}
+            className="flex items-center gap-1.5 text-sm btn-secondary">
+            <IconInvoice /> Factura
+          </button>
+          <button onClick={handleDelete}
+            className="flex items-center gap-1.5 text-sm px-3 py-2 font-medium rounded-lg text-red-400 hover:text-white hover:bg-red-900 border border-red-800 transition-colors ml-auto">
+            <IconTrash /> Eliminar
+          </button>
         </div>
 
         {/* Diseños adjuntos */}
         {designFiles.length > 0 && (
-          <div className="border-t border-zinc-800 pt-4">
+          <div className="px-4 pb-4 border-t border-zinc-800 pt-3">
             <p className="text-xs text-zinc-500 mb-3">
               Diseño{designFiles.length > 1 ? "s" : ""} adjunto{designFiles.length > 1 ? "s" : ""}
             </p>
             <div className="flex gap-3 flex-wrap">
               {designFiles.map((f, i) => {
-                const url   = fileUrl(f.url);
+                const url    = fileUrl(f.url);
                 const rawUrl = f.url ?? "";
-                const pdf   = rawUrl.toLowerCase().endsWith(".pdf") || rawUrl.includes("/raw/upload/");
-                const label = f.name ? f.name.replace(/\.[^.]+$/, "") : (designFiles.length > 1 ? `Archivo ${i + 1}` : "Archivo");
+                const pdf    = rawUrl.toLowerCase().endsWith(".pdf") || rawUrl.includes("/raw/upload/");
+                const label  = f.name ? f.name.replace(/\.[^.]+$/, "") : (designFiles.length > 1 ? `Archivo ${i + 1}` : "Archivo");
                 return (
-                  <button
-                    key={i}
-                    type="button"
+                  <button key={i} type="button"
                     onClick={() => pdf ? setPdfSrc(url) : setLightboxSrc(url)}
-                    className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 relative border border-zinc-700 hover:border-brand-green transition-colors focus:outline-none"
-                  >
+                    className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 relative border border-zinc-700 hover:border-brand-green transition-colors focus:outline-none">
                     {pdf ? (
                       <>
                         <div className="w-full h-full bg-white overflow-hidden flex items-start justify-center">
@@ -204,9 +215,7 @@ export default function OrderDetailPage() {
                             <Page pageNumber={1} width={96} renderAnnotationLayer={false} renderTextLayer={false} />
                           </Document>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">
-                          {label}
-                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center truncate px-1 py-0.5">{label}</div>
                       </>
                     ) : (
                       <img src={url} alt={label} className="w-full h-full object-cover" />
@@ -249,11 +258,11 @@ export default function OrderDetailPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto">
+      <div className="flex gap-1 bg-zinc-900 p-1 rounded-lg overflow-x-auto scrollbar-none">
         {[["items","Productos"],["financial","Abonos"],["production","Producción"],["notes","Observaciones"],["history","Historial"]].map(([key, label]) => (
           <button key={key}
             onClick={() => setTab(key)}
-            className={`px-3 py-1.5 rounded text-sm font-medium transition-colors
+            className={`px-3 py-1.5 rounded text-sm font-medium transition-colors whitespace-nowrap shrink-0
               ${tab === key ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
             {label}
           </button>
@@ -563,7 +572,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
                           className="flex flex-col items-center justify-center w-16 h-16 rounded-lg
                                      bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
                                      transition-colors text-zinc-200 hover:text-brand-green text-xs gap-0.5 px-1">
-                          <DocumentIcon className="w-6 h-6" />
+                          <IconDocument />
                           <span className="truncate w-full text-center">{label}</span>
                         </a>
                       ) : (

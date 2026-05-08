@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
@@ -7,6 +7,70 @@ const IconEdit = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height
 const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
 
 const DOC_LABELS = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" };
+
+function DialCodePicker({ value, onChange }) {
+  const [open, setOpen]   = useState(false);
+  const [q,    setQ]      = useState("");
+  const ref               = useRef(null);
+  const selected          = COUNTRIES.find((c) => c.dial === value) ?? COUNTRIES[0];
+  const filtered          = q
+    ? COUNTRIES.filter((c) => c.name.toLowerCase().includes(q.toLowerCase()) || c.dial.includes(q))
+    : COUNTRIES;
+
+  useEffect(() => {
+    function click(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener("mousedown", click);
+    return () => document.removeEventListener("mousedown", click);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => { setOpen((o) => !o); setQ(""); }}
+        className="input-field flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+        style={{ borderRadius: "8px" }}
+      >
+        <span className="text-lg leading-none">{selected.flag}</span>
+        <span className="text-sm text-white">{selected.dial}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400 ml-0.5"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-50 top-full left-0 mt-1 w-60 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden">
+          <div className="p-2">
+            <input
+              autoFocus
+              className="w-full bg-zinc-700 text-white text-sm rounded-lg px-3 py-1.5 outline-none placeholder-zinc-500"
+              placeholder="Buscar país..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+          <ul className="max-h-52 overflow-y-auto">
+            {filtered.map((c) => (
+              <li key={c.code}>
+                <button
+                  type="button"
+                  onClick={() => { onChange(c.dial); setOpen(false); }}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-zinc-700 transition-colors text-left
+                    ${c.dial === value ? "bg-zinc-700 text-white" : "text-zinc-300"}`}
+                >
+                  <span className="text-base leading-none">{c.flag}</span>
+                  <span className="flex-1 truncate">{c.name}</span>
+                  <span className="text-zinc-500 text-xs">{c.dial}</span>
+                </button>
+              </li>
+            ))}
+            {filtered.length === 0 && (
+              <li className="px-3 py-3 text-zinc-500 text-sm text-center">Sin resultados</li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const COUNTRIES = [
   { code: "CO", flag: "🇨🇴", dial: "+57",    name: "Colombia" },
@@ -484,18 +548,10 @@ function CustomerModal({ form, onSave, onClose, saving }) {
             <div>
               <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
               <div className="flex items-center gap-2">
-                <select
+                <DialCodePicker
                   value={data.dial_code || "+57"}
-                  onChange={(e) => set("dial_code", e.target.value)}
-                  className="input-field shrink-0 w-auto cursor-pointer rounded-lg"
-                  style={{ minWidth: "auto", borderRadius: "8px" }}
-                >
-                  {COUNTRIES.map((c) => (
-                    <option key={c.code} value={c.dial}>
-                      {c.flag} {c.dial}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => set("dial_code", v)}
+                />
                 <input
                   className="input-field flex-1 min-w-0"
                   value={data.phone || ""}

@@ -1,6 +1,12 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
 
+// Convierte a Title Case: "HOTMAN GUEVARA" → "Hotman Guevara"
+function toTitleCase(str) {
+  if (!str) return str;
+  return str.trim().toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export async function list(req, res, next) {
   try {
     const { limit, offset, search } = req.pagination;
@@ -37,7 +43,7 @@ export async function create(req, res, next) {
       `INSERT INTO customers (name, document_type, document_number, is_company, address, city, department, phone, email)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
-      [name, document_type, document_number, is_company, address || null, city || null, department || null, phone || null, email || null]
+      [toTitleCase(name), document_type, document_number, is_company, address || null, city || null, department || null, phone || null, email || null]
     );
 
     res.status(201).json({ status: "ok", data: rows[0] });
@@ -48,6 +54,7 @@ export async function update(req, res, next) {
   try {
     const { id } = req.params;
     const fields = { ...req.body };
+    if (fields.name) fields.name = toTitleCase(fields.name);
     const keys = Object.keys(fields);
     if (!keys.length) throw new AppError("Nada que actualizar.", 400, "EMPTY_UPDATE");
 

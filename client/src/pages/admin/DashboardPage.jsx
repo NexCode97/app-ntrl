@@ -192,27 +192,6 @@ export default function DashboardPage() {
     ];
   }, [financialDisplay]);
 
-  // Carga por área — derivado de production (tareas activas)
-  const areaLoadData = useMemo(() => {
-    if (!production?.length) return [];
-    const counts = {};
-    production.forEach((order) => {
-      (order.tasks ?? []).forEach((t) => {
-        if (t.status === "done") return;
-        if (!counts[t.area]) counts[t.area] = { pending: 0, in_progress: 0 };
-        counts[t.area][t.status] = (counts[t.area][t.status] || 0) + 1;
-      });
-    });
-    return Object.entries(counts)
-      .map(([area, v]) => ({
-        area: AREA_LABELS[area] ?? area,
-        Pendiente:  v.pending    || 0,
-        "En proceso": v.in_progress || 0,
-        total: (v.pending || 0) + (v.in_progress || 0),
-      }))
-      .sort((a, b) => b.total - a.total);
-  }, [production]);
-
   const formatPesos = (v) => `$${Number(v).toLocaleString("es-CO")}`;
   const formatShort = (v) => {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toLocaleString("es-CO", { maximumFractionDigits: 1 })}M`;
@@ -637,43 +616,6 @@ export default function DashboardPage() {
           })()}
         </div>
       </div>
-
-      {/* FILA 3 — Carga por área */}
-      {areaLoadData.length > 0 && (
-        <motion.div
-          className="card flex flex-col"
-          style={{ minHeight: Math.max(220, areaLoadData.length * 52 + 56) }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.26, ease: "easeOut" }}
-        >
-          <h2 className="text-white font-semibold mb-3">Carga por área de producción
-            <span className="text-zinc-500 font-normal text-xs ml-2">tareas activas</span>
-          </h2>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={areaLoadData} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />
-                <XAxis type="number" tick={{ fill: "#71717a", fontSize: 11 }} allowDecimals={false} />
-                <YAxis type="category" dataKey="area" tick={{ fill: "#a1a1aa", fontSize: 12 }} width={90} />
-                <Tooltip
-                  cursor={{ fill: "#27272a" }}
-                  contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
-                  labelStyle={{ color: "#a1a1aa" }}
-                  itemStyle={{ color: "#ffffff" }}
-                  formatter={(v, name) => [v === 0 ? "—" : `${v} tarea${v !== 1 ? "s" : ""}`, name]}
-                />
-                <Bar dataKey="Pendiente"   fill="#71717a" radius={[0,4,4,0]} stackId="a" cursor="pointer" isAnimationActive animationDuration={900} animationEasing="ease-out" />
-                <Bar dataKey="En proceso"  fill="#3b82f6" radius={[0,4,4,0]} stackId="a" cursor="pointer" isAnimationActive animationDuration={900} animationEasing="ease-out" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex items-center gap-4 mt-2 pl-1">
-            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-zinc-500" /><span className="text-zinc-500 text-xs">Pendiente</span></div>
-            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-blue-500" /><span className="text-zinc-500 text-xs">En proceso</span></div>
-          </div>
-        </motion.div>
-      )}
 
       {/* Producción en curso */}
       <div>

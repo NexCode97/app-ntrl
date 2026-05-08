@@ -106,7 +106,7 @@ function KanbanSection({ production, navigate }) {
                 <div className="flex items-center gap-2 mb-3">
                   <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
                   <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
-                  <span className="ml-auto text-xs text-zinc-600 bg-zinc-800 rounded-full px-2 py-0.5">{orders.length}</span>
+                  <span className="ml-auto text-xs text-white font-bold bg-zinc-700 rounded-full px-2 py-0.5">{orders.length}</span>
                 </div>
                 {orders.length === 0 ? (
                   <p className="text-zinc-700 text-xs text-center py-4">Sin pedidos</p>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 mb-3">
                       <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
                       <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
-                      <span className="ml-auto text-xs text-zinc-600 bg-zinc-800 rounded-full px-2 py-0.5">{orders.length}</span>
+                      <span className="ml-auto text-xs text-white font-bold bg-zinc-700 rounded-full px-2 py-0.5">{orders.length}</span>
                     </div>
                     {orders.length === 0 ? (
                       <p className="text-zinc-700 text-xs text-center py-4">Sin pedidos</p>

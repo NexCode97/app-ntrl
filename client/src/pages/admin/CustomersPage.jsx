@@ -23,6 +23,17 @@ function DialCodePicker({ value, onChange }) {
     return () => document.removeEventListener("mousedown", click);
   }, []);
 
+  const FlagImg = ({ code, size = 20 }) => (
+    <img
+      src={`https://flagcdn.com/w${size}/${code.toLowerCase()}.png`}
+      width={size}
+      alt=""
+      className="rounded-sm shrink-0 object-cover"
+      style={{ height: size * 0.667 }}
+      onError={(e) => { e.target.style.display = "none"; }}
+    />
+  );
+
   return (
     <div ref={ref} className="relative shrink-0">
       <button
@@ -31,17 +42,18 @@ function DialCodePicker({ value, onChange }) {
         className="input-field flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
         style={{ borderRadius: "8px" }}
       >
-        <span className="text-lg leading-none">{selected.flag}</span>
+        <FlagImg code={selected.code} size={20} />
         <span className="text-sm text-white">{selected.dial}</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400 ml-0.5"><path d="m6 9 6 6 6-6"/></svg>
       </button>
 
       {open && (
-        <div className="absolute z-50 top-full left-0 mt-1 w-60 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden">
+        <div className="absolute z-50 top-full left-0 mt-1 w-64 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden">
           <div className="p-2">
             <input
               autoFocus
-              className="w-full bg-zinc-700 text-white text-sm rounded-lg px-3 py-1.5 outline-none placeholder-zinc-500"
+              className="w-full bg-zinc-700 text-white rounded-lg px-3 py-1.5 outline-none placeholder-zinc-500"
+              style={{ fontSize: "16px" }}
               placeholder="Buscar país..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -56,7 +68,7 @@ function DialCodePicker({ value, onChange }) {
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-zinc-700 transition-colors text-left
                     ${c.dial === value ? "bg-zinc-700 text-white" : "text-zinc-300"}`}
                 >
-                  <span className="text-base leading-none">{c.flag}</span>
+                  <FlagImg code={c.code} size={20} />
                   <span className="flex-1 truncate">{c.name}</span>
                   <span className="text-zinc-500 text-xs">{c.dial}</span>
                 </button>

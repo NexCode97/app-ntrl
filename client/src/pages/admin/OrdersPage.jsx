@@ -53,6 +53,8 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-4">
+      <h1 className="text-white font-bold text-xl lg:hidden">Pedidos</h1>
+
       {/* Toolbar */}
       <div className="space-y-2">
         <input

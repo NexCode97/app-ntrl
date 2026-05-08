@@ -298,9 +298,10 @@ function DocBadge({ type, number }) {
 
 export default function CustomersPage() {
   const qc = useQueryClient();
-  const [search, setSearch] = useState("");
-  const [form,   setForm]   = useState(null); // null | {} (new) | {...} (edit)
-  const [viewing, setViewing] = useState(null); // null | {...} (view)
+  const [search,    setSearch]    = useState("");
+  const [form,      setForm]      = useState(null);
+  const [viewing,   setViewing]   = useState(null);
+  const [confirmId, setConfirmId] = useState(null); // id a eliminar
 
   const { data, isLoading } = useQuery({
     queryKey: ["customers", search],
@@ -314,7 +315,7 @@ export default function CustomersPage() {
 
   const remove = useMutation({
     mutationFn: (id) => api.delete(`/customers/${id}`),
-    onSuccess:  () => qc.invalidateQueries(["customers"]),
+    onSuccess:  () => { qc.invalidateQueries(["customers"]); setConfirmId(null); },
   });
 
   return (
@@ -381,7 +382,7 @@ export default function CustomersPage() {
                   className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-lg py-1.5 transition-colors">
                   <IconEdit /> Editar
                 </button>
-                <button onClick={() => { if (confirm(`¿Eliminar a ${c.name}?`)) remove.mutate(c.id); }}
+                <button onClick={() => setConfirmId(c.id)}
                   className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 border border-zinc-700 hover:border-red-500/50 rounded-lg py-1.5 transition-colors">
                   <IconTrash /> Eliminar
                 </button>
@@ -393,6 +394,35 @@ export default function CustomersPage() {
 
       {form !== null && <CustomerModal form={form} onSave={(d) => save.mutate(d)} onClose={() => setForm(null)} saving={save.isLoading} />}
       {viewing && <CustomerView customer={viewing} onEdit={() => { setForm(viewing); setViewing(null); }} onClose={() => setViewing(null)} />}
+
+      {/* Modal confirmación eliminar */}
+      {confirmId && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-xs p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
+                <IconTrash />
+              </div>
+              <div>
+                <p className="text-white font-semibold text-sm">¿Eliminar cliente?</p>
+                <p className="text-zinc-400 text-xs mt-0.5">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button className="flex-1 btn-secondary" onClick={() => setConfirmId(null)} disabled={remove.isLoading}>
+                Cancelar
+              </button>
+              <button
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg py-2 transition-colors disabled:opacity-50"
+                onClick={() => remove.mutate(confirmId)}
+                disabled={remove.isLoading}
+              >
+                {remove.isLoading ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
 import { fileUrl } from "../../utils/fileUrl.js";
 import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
-import { DocumentIcon, ReceiptPercentIcon } from "@heroicons/react/24/outline";
+import { DocumentIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -167,7 +167,7 @@ export default function OrderDetailPage() {
               <button className="btn-primary" onClick={markDelivered}>Marcar entregado</button>
             )}
             <button className="btn-secondary flex items-center gap-1.5" onClick={handleDownloadInvoice} title="Descargar factura PDF">
-              <ReceiptPercentIcon className="w-4 h-4" /> Factura
+              <DocumentTextIcon className="w-4 h-4" /> Factura
             </button>
             <button
               onClick={handleDelete}

@@ -512,14 +512,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div>
+        <div className="flex flex-col">
           <h2 className="text-white font-semibold mb-3">
             Pedidos por estado
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
           </h2>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 flex-1">
             {byStatusData.map((item) => (
-              <div key={item.status} className="card text-center flex flex-col items-center justify-center py-4">
+              <div key={item.status} className="card text-center flex flex-col items-center justify-center">
                 <p className="text-3xl font-black" style={{ color: STATUS_COLORS[item.status] }}>{item.total}</p>
                 <p className="text-zinc-500 text-xs mt-1">{item.label}</p>
               </div>

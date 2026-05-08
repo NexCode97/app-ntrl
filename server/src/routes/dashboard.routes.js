@@ -9,6 +9,8 @@ router.use(requireAuth);
 router.get("/",                    requireRole("admin"), permissiveLimiter, ctrl.getSummary);
 router.get("/history",             requireRole("admin"), permissiveLimiter, ctrl.getMonthlyHistory);
 router.get("/upcoming-deliveries", requireRole("admin","vendedor"), permissiveLimiter, ctrl.getUpcomingDeliveries);
+router.get("/top-customers",       requireRole("admin","vendedor"), permissiveLimiter, ctrl.getTopCustomers);
+router.get("/sport-by-month",      requireRole("admin","vendedor"), permissiveLimiter, ctrl.getSportByMonth);
 router.get("/pending-balances",    requireRole("admin","vendedor"), permissiveLimiter, ctrl.getPendingBalances);
 router.delete("/cache",            requireRole("admin"), moderateLimiter,   ctrl.invalidateCache);
 

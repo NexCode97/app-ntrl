@@ -211,6 +211,45 @@ export async function getPendingBalances(req, res, next) {
   } catch (err) { next(err); }
 }
 
+export async function getSportByMonth(req, res, next) {
+  try {
+    const { month } = req.query; // formato YYYY-MM
+    const dateFilter = month ? `${month}-01` : null;
+
+    const { rows } = await pool.query(`
+      SELECT s.name AS sport,
+             COUNT(DISTINCT o.id)      AS orders,
+             COALESCE(SUM(oi.subtotal), 0) AS revenue
+      FROM order_items oi
+      JOIN products p  ON p.id  = oi.product_id
+      JOIN lines l     ON l.id  = p.line_id
+      JOIN sports s    ON s.id  = l.sport_id
+      JOIN orders o    ON o.id  = oi.order_id
+      WHERE ($1::date IS NULL OR DATE_TRUNC('month', o.created_at) = DATE_TRUNC('month', $1::date))
+      GROUP BY s.name
+      ORDER BY revenue DESC
+    `, [dateFilter]);
+
+    res.json({ status: "ok", data: rows });
+  } catch (err) { next(err); }
+}
+
+export async function getTopCustomers(req, res, next) {
+  try {
+    const { rows } = await pool.query(`
+      SELECT c.id, c.name AS customer,
+             COUNT(DISTINCT o.id)    AS orders,
+             COALESCE(SUM(o.total), 0) AS revenue
+      FROM customers c
+      JOIN orders o ON o.customer_id = c.id
+      GROUP BY c.id, c.name
+      ORDER BY revenue DESC
+      LIMIT 5
+    `);
+    res.json({ status: "ok", data: rows });
+  } catch (err) { next(err); }
+}
+
 export async function getUpcomingDeliveries(req, res, next) {
   try {
     const { rows } = await pool.query(

@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
+// useCallback needed for PieChart active shape
 import { api } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
+  PieChart, Pie, Cell, Sector,
 } from "recharts";
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 
@@ -123,12 +124,21 @@ export default function DashboardPage() {
     enabled: !isVendedor,
   });
 
+  const { data: sportByMonth } = useQuery({
+    queryKey: ["sport-by-month", selectedMonth],
+    queryFn:  () => api.get(`/dashboard/sport-by-month${selectedMonth ? `?month=${selectedMonth}` : ""}`).then((r) => r.data.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const currentMonth = useMemo(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   }, []);
 
   const [selectedMonth, setSelectedMonth] = useState(null); // null = mes actual
+  const [activePieIndex, setActivePieIndex] = useState(null);
+  const onPieEnter = useCallback((_, index) => setActivePieIndex(index), []);
+  const onPieLeave = useCallback(() => setActivePieIndex(null), []);
 
   // Datos del mes seleccionado (historial) o del mes actual (live)
   const selectedSnapshot = useMemo(() => {
@@ -164,9 +174,42 @@ export default function DashboardPage() {
   }, [data?.monthly]);
 
   const bySportData = useMemo(() => {
-    if (data?.bySport?.length) return data.bySport.map((r) => ({ ...r, Ingresos: Number(r.revenue) }));
+    const src = sportByMonth ?? data?.bySport ?? [];
+    if (src.length) return src.map((r) => ({ ...r, Ingresos: Number(r.revenue) }));
     return [{ sport: "Sin datos aún", Ingresos: 0, orders: 0 }];
-  }, [data?.bySport]);
+  }, [sportByMonth, data?.bySport]);
+
+  // Dona — estado del dinero
+  const donutData = useMemo(() => {
+    const collected = Number(financialDisplay?.collected || 0);
+    const pending   = Number(financialDisplay?.pending   || 0);
+    if (collected === 0 && pending === 0) return [];
+    return [
+      { name: "Recaudado",  value: collected, color: "#98f909" },
+      { name: "Por cobrar", value: pending,   color: "#eab308" },
+    ];
+  }, [financialDisplay]);
+
+  // Carga por área — derivado de production (tareas activas)
+  const areaLoadData = useMemo(() => {
+    if (!production?.length) return [];
+    const counts = {};
+    production.forEach((order) => {
+      (order.tasks ?? []).forEach((t) => {
+        if (t.status === "done") return;
+        if (!counts[t.area]) counts[t.area] = { pending: 0, in_progress: 0 };
+        counts[t.area][t.status] = (counts[t.area][t.status] || 0) + 1;
+      });
+    });
+    return Object.entries(counts)
+      .map(([area, v]) => ({
+        area: AREA_LABELS[area] ?? area,
+        Pendiente:  v.pending    || 0,
+        "En proceso": v.in_progress || 0,
+        total: (v.pending || 0) + (v.in_progress || 0),
+      }))
+      .sort((a, b) => b.total - a.total);
+  }, [production]);
 
   const formatPesos = (v) => `$${Number(v).toLocaleString("es-CO")}`;
   const formatShort = (v) => {
@@ -323,19 +366,85 @@ export default function DashboardPage() {
         </select>
       </div>
 
-      {/* KPIs financieros */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="card text-center">
-          <p className="text-zinc-400 text-sm mb-1">Total facturado</p>
-          <p className="text-brand-green text-2xl font-bold">${Number(financialDisplay?.total_revenue || 0).toLocaleString()}</p>
+      {/* KPIs financieros + Dona */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="card text-center">
+            <p className="text-zinc-400 text-sm mb-1">Total facturado</p>
+            <p className="text-brand-green text-2xl font-bold">${Number(financialDisplay?.total_revenue || 0).toLocaleString()}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-zinc-400 text-sm mb-1">Recaudado</p>
+            <p className="text-white text-2xl font-bold">${Number(financialDisplay?.collected || 0).toLocaleString()}</p>
+          </div>
+          <div className="card text-center">
+            <p className="text-zinc-400 text-sm mb-1">Pendiente de cobro</p>
+            <p className="text-yellow-400 text-2xl font-bold">${Number(financialDisplay?.pending || 0).toLocaleString()}</p>
+          </div>
         </div>
-        <div className="card text-center">
-          <p className="text-zinc-400 text-sm mb-1">Recaudado</p>
-          <p className="text-white text-2xl font-bold">${Number(financialDisplay?.collected || 0).toLocaleString()}</p>
-        </div>
-        <div className="card text-center">
-          <p className="text-zinc-400 text-sm mb-1">Pendiente de cobro</p>
-          <p className="text-yellow-400 text-2xl font-bold">${Number(financialDisplay?.pending || 0).toLocaleString()}</p>
+
+        {/* Dona — estado del dinero */}
+        <div className="card">
+          <h2 className="text-white font-semibold mb-1 text-sm">
+            Estado del dinero
+            <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
+          </h2>
+          {donutData.length === 0 ? (
+            <p className="text-zinc-600 text-xs text-center py-6">Sin datos financieros.</p>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="w-[140px] h-[140px] shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={donutData}
+                      cx="50%" cy="50%"
+                      innerRadius={42} outerRadius={60}
+                      dataKey="value"
+                      activeIndex={activePieIndex}
+                      activeShape={(props) => {
+                        const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+                        return (
+                          <g>
+                            <text x={cx} y={cy - 8} textAnchor="middle" fill="#fff" fontSize={10} fontWeight="600">{payload.name}</text>
+                            <text x={cx} y={cy + 10} textAnchor="middle" fill={fill} fontSize={9}>
+                              {`${Math.round((payload.value / donutData.reduce((s,d) => s+d.value,0)) * 100)}%`}
+                            </text>
+                            <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius + 6} startAngle={startAngle} endAngle={endAngle} fill={fill} />
+                            <Sector cx={cx} cy={cy} innerRadius={innerRadius - 4} outerRadius={innerRadius - 2} startAngle={startAngle} endAngle={endAngle} fill={fill} />
+                          </g>
+                        );
+                      }}
+                      onMouseEnter={onPieEnter}
+                      onMouseLeave={onPieLeave}
+                    >
+                      {donutData.map((entry, i) => <Cell key={i} fill={entry.color} stroke="transparent" />)}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v, name) => [formatPesos(v), name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="space-y-2 flex-1 min-w-0">
+                {donutData.map((d) => (
+                  <div key={d.name}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: d.color }} />
+                        <span className="text-zinc-400 text-xs">{d.name}</span>
+                      </div>
+                      <span className="text-xs font-semibold" style={{ color: d.color }}>
+                        {Math.round((d.value / donutData.reduce((s, x) => s + x.value, 0)) * 100)}%
+                      </span>
+                    </div>
+                    <p className="text-white text-xs font-medium pl-4">{formatPesos(d.value)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -405,28 +514,75 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                 <XAxis dataKey="month" tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatMonth} />
                 <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
-                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} labelFormatter={formatMonth} />
-                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} />
+                <Tooltip
+                  cursor={{ fill: "#27272a" }}
+                  contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                  formatter={(v, name, props) => [
+                    `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
+                    "Ingresos",
+                  ]}
+                  labelFormatter={formatMonth}
+                />
+                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="flex flex-col">
-          <h2 className="text-white font-semibold mb-3">Ventas por deporte</h2>
+          <h2 className="text-white font-semibold mb-3">
+            Ventas por deporte
+            <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
+          </h2>
           <div className="card flex-1 min-h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={bySportData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                 <XAxis dataKey="sport" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
                 <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
-                <Tooltip contentStyle={{ background: "#18181b", border: "1px solid #27272a" }} formatter={(v) => [formatPesos(v), "Ingresos"]} />
-                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} />
+                <Tooltip
+                  cursor={{ fill: "#27272a" }}
+                  contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                  formatter={(v, name, props) => [
+                    `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
+                    "Ingresos",
+                  ]}
+                />
+                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
+
+      {/* Carga por área */}
+      {areaLoadData.length > 0 && (
+        <div>
+          <h2 className="text-white font-semibold mb-3">Carga por área de producción
+            <span className="text-zinc-500 font-normal text-xs ml-2">tareas activas</span>
+          </h2>
+          <div className="card" style={{ height: Math.max(180, areaLoadData.length * 52) }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={areaLoadData} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />
+                <XAxis type="number" tick={{ fill: "#71717a", fontSize: 11 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="area" tick={{ fill: "#a1a1aa", fontSize: 12 }} width={90} />
+                <Tooltip
+                  cursor={{ fill: "#27272a" }}
+                  contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                  formatter={(v, name) => [v === 0 ? "—" : `${v} tarea${v !== 1 ? "s" : ""}`, name]}
+                />
+                <Bar dataKey="Pendiente"   fill="#71717a" radius={[0,4,4,0]} stackId="a" cursor="pointer" />
+                <Bar dataKey="En proceso"  fill="#3b82f6" radius={[0,4,4,0]} stackId="a" cursor="pointer" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center gap-4 mt-2 pl-1">
+            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-zinc-500" /><span className="text-zinc-500 text-xs">Pendiente</span></div>
+            <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-blue-500" /><span className="text-zinc-500 text-xs">En proceso</span></div>
+          </div>
+        </div>
+      )}
 
       {/* Producción en curso */}
       <div>

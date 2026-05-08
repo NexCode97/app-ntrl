@@ -526,7 +526,9 @@ function CustomerModal({ form, onSave, onClose, saving }) {
     setError("");
     const country = COUNTRIES.find((c) => c.code === (data.dial_code || "CO")) ?? COUNTRIES[0];
     const fullPhone = `${country.dial} ${data.phone.trim()}`;
-    onSave({ ...data, phone: fullPhone });
+    // Excluir campos UI que no pertenecen al schema del backend
+    const { dial_code, ...rest } = data;
+    onSave({ ...rest, phone: fullPhone });
   }
 
   const initials = data.name?.trim()

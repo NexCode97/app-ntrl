@@ -1,6 +1,11 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
 
+function toTitleCase(str) {
+  if (!str) return str;
+  return str.trim().toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export async function createOrder(userId, data, designFiles = []) {
   const client = await pool.connect();
   try {
@@ -21,7 +26,7 @@ export async function createOrder(userId, data, designFiles = []) {
       ? `customer_id, created_by, name, delivery_date, description, design_file`
       : `customer_id, created_by, delivery_date, description, design_file`;
     const insertVals = hasNameCol
-      ? [data.customer_id, userId, data.name || null, data.delivery_date || null, data.description || null, designValue]
+      ? [data.customer_id, userId, toTitleCase(data.name) || null, data.delivery_date || null, data.description || null, designValue]
       : [data.customer_id, userId, data.delivery_date || null, data.description || null, designValue];
     const insertPlaceholders = insertVals.map((_, i) => `$${i + 1}`).join(", ");
 
@@ -186,9 +191,9 @@ export async function updateOrder(orderId, userId, data, newDesignFiles = []) {
         `SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='orders' AND column_name='name' LIMIT 1`
       );
       if (colExists.length > 0) {
-        vals.push(data.name || null);
+        vals.push(toTitleCase(data.name) || null);
         sets.push(`name = $${vals.length}`);
-        changes.name = { old: before.rows[0].name, new: data.name };
+        changes.name = { old: before.rows[0].name, new: toTitleCase(data.name) };
       }
     }
 

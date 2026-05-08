@@ -12,12 +12,14 @@ const IconClose   = () => <svg xmlns="http://www.w3.org/2000/svg" width="18" hei
 const IconLayers  = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>;
 const IconTag     = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>;
 const IconBox     = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>;
+const IconGrip    = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg>;
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 function formatCO(val) {
   if (val == null || val === "") return "—";
   return `$${Number(val).toLocaleString("es-CO")}`;
 }
+
 
 const SPORT_COLORS = [
   "bg-blue-500/20 text-blue-300 border-blue-500/30",
@@ -37,9 +39,12 @@ function sportColor(idx) {
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function CatalogPage() {
   const qc = useQueryClient();
-  const [tab,    setTab]    = useState("products");
-  const [form,   setForm]   = useState(null);
-  const [search, setSearch] = useState("");
+  const [tab,         setTab]        = useState("products");
+  const [form,        setForm]       = useState(null);
+  const [search,      setSearch]     = useState("");
+  const [sportOrder,  setSportOrder] = useState([]); // ids ordenados manualmente
+  const dragItem  = useRef(null);
+  const dragOver  = useRef(null);
 
   const sports   = useQuery({ queryKey: ["sports"],   queryFn: () => api.get("/catalog/sports").then(r => r.data.data) });
   const lines    = useQuery({ queryKey: ["lines"],    queryFn: () => api.get("/catalog/lines").then(r => r.data.data) });
@@ -70,12 +75,50 @@ export default function CatalogPage() {
   const deleteLine    = useMutation({ mutationFn: (id) => api.delete(`/catalog/lines/${id}`),    onSuccess: () => qc.invalidateQueries({ queryKey: ["lines"] }) });
   const deleteProduct = useMutation({ mutationFn: (id) => api.delete(`/catalog/products/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }) });
 
-  // Índice de color por deporte
+  // Inicializar orden desde el server (display_order o posición en array)
+  const orderedSports = useMemo(() => {
+    const list = sports.data || [];
+    if (!sportOrder.length) return list;
+    const map = Object.fromEntries(list.map(s => [s.id, s]));
+    const sorted = sportOrder.map(id => map[id]).filter(Boolean);
+    // Agregar los que no están en sportOrder (nuevos)
+    list.forEach(s => { if (!sportOrder.includes(s.id)) sorted.push(s); });
+    return sorted;
+  }, [sports.data, sportOrder]);
+
+  // Poblar sportOrder cuando llegan los datos del server (solo la primera vez)
+  useMemo(() => {
+    if (sports.data?.length && !sportOrder.length) {
+      setSportOrder(sports.data.map(s => s.id));
+    }
+  }, [sports.data]);
+
+  // Drag & drop handlers
+  function handleDragStart(id) { dragItem.current = id; }
+  function handleDragEnter(id) { dragOver.current = id; }
+  function handleDragEnd() {
+    if (dragItem.current === null || dragOver.current === null || dragItem.current === dragOver.current) return;
+    const newOrder = [...sportOrder];
+    const fromIdx  = newOrder.indexOf(dragItem.current);
+    const toIdx    = newOrder.indexOf(dragOver.current);
+    newOrder.splice(fromIdx, 1);
+    newOrder.splice(toIdx, 0, dragItem.current);
+    setSportOrder(newOrder);
+    dragItem.current = null;
+    dragOver.current = null;
+    // Persistir display_order en el backend
+    newOrder.forEach((id, idx) => {
+      api.put(`/catalog/sports/${id}`, { display_order: idx + 1 }).catch(() => {});
+    });
+    qc.invalidateQueries({ queryKey: ["sports"] });
+  }
+
+  // Índice de color por deporte (basado en el orden actual)
   const sportColorMap = useMemo(() => {
     const map = {};
-    (sports.data || []).forEach((s, i) => { map[s.name] = i; });
+    orderedSports.forEach((s, i) => { map[s.name] = i; });
     return map;
-  }, [sports.data]);
+  }, [orderedSports]);
 
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -87,14 +130,19 @@ export default function CatalogPage() {
   }, [products.data, search]);
 
   const productsBySport = useMemo(() => {
+    // Agrupar
     const groups = new Map();
     filteredProducts.forEach(p => {
       const sport = p.sport_name || "Sin deporte";
       if (!groups.has(sport)) groups.set(sport, []);
       groups.get(sport).push(p);
     });
-    return groups;
-  }, [filteredProducts]);
+    // Reordenar según orderedSports
+    const ordered = new Map();
+    orderedSports.forEach(s => { if (groups.has(s.name)) ordered.set(s.name, groups.get(s.name)); });
+    groups.forEach((v, k) => { if (!ordered.has(k)) ordered.set(k, v); });
+    return ordered;
+  }, [filteredProducts, orderedSports]);
 
   const filteredSports = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -148,15 +196,26 @@ export default function CatalogPage() {
       {/* ── Deportes ── */}
       {tab === "sports" && (
         <div>
-          {filteredSports.length === 0 && !sports.isLoading && (
+          {orderedSports.length === 0 && !sports.isLoading && (
             <div className="card text-center py-10"><p className="text-zinc-500">No hay deportes.</p></div>
           )}
           <div className="space-y-3 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4 md:space-y-0">
-            {filteredSports.map((s, i) => {
+            {orderedSports.filter(s => {
+              const q = search.trim().toLowerCase();
+              return !q || s.name.toLowerCase().includes(q);
+            }).map((s, i) => {
               const lineCount    = (lines.data || []).filter(l => l.sport_id === s.id).length;
               const productCount = (products.data || []).filter(p => p.sport_id === s.id || p.sport_name === s.name).length;
               return (
-                <div key={s.id} className="card border border-zinc-800 hover:border-zinc-600 transition-colors space-y-3">
+                <div
+                  key={s.id}
+                  draggable
+                  onDragStart={() => handleDragStart(s.id)}
+                  onDragEnter={() => handleDragEnter(s.id)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="card border border-zinc-800 hover:border-zinc-600 transition-colors space-y-3 cursor-default"
+                >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${sportColor(i)}`}>
@@ -166,6 +225,15 @@ export default function CatalogPage() {
                         <p className="text-white font-semibold text-sm">{s.name}</p>
                         <span className="text-zinc-500 text-xs">{s.slug}</span>
                       </div>
+                    </div>
+                    {/* Handle de arrastre */}
+                    <div
+                      draggable
+                      onDragStart={() => handleDragStart(s.id)}
+                      title="Arrastrar para reordenar"
+                      className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-300 hover:bg-zinc-700 cursor-grab active:cursor-grabbing transition-colors shrink-0"
+                    >
+                      <IconGrip />
                     </div>
                   </div>
                   <div className="flex gap-3 pt-1 border-t border-zinc-800">

@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
-import { EyeIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+const IconEye = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>;
+const IconEdit = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>;
+const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
 
 const DOC_LABELS = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" };
 
@@ -92,15 +94,15 @@ export default function CustomersPage() {
               <div className="flex items-center gap-2 pt-1">
                 <button onClick={() => setViewing(c)}
                   className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-brand-green border border-zinc-700 hover:border-brand-green/50 rounded-lg py-1.5 transition-colors">
-                  <EyeIcon className="w-3.5 h-3.5" /> Ver
+                  <IconEye /> Ver
                 </button>
                 <button onClick={() => setForm(c)}
                   className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-lg py-1.5 transition-colors">
-                  <PencilSquareIcon className="w-3.5 h-3.5" /> Editar
+                  <IconEdit /> Editar
                 </button>
                 <button onClick={() => { if (confirm(`¿Eliminar a ${c.name}?`)) remove.mutate(c.id); }}
                   className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 border border-zinc-700 hover:border-red-500/50 rounded-lg py-1.5 transition-colors">
-                  <TrashIcon className="w-3.5 h-3.5" /> Eliminar
+                  <IconTrash /> Eliminar
                 </button>
               </div>
             </div>
@@ -115,35 +117,83 @@ export default function CustomersPage() {
 }
 
 function CustomerView({ customer: c, onEdit, onClose }) {
-  const rows = [
-    ["Documento",    <DocBadge key="doc" type={c.document_type} number={c.document_number} />],
-    ["Teléfono",     c.phone   || "—"],
-    ["Correo",       c.email   || "—"],
-    ["Departamento", c.department || "—"],
-    ["Ciudad",       c.city    || "—"],
-    ["Dirección",    c.address || "—"],
-  ];
+  const initials = c.name?.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-sm space-y-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h2 className="text-white font-semibold text-lg">{c.name}</h2>
-            {c.is_company && <span className="text-xs text-zinc-500">Empresa</span>}
-          </div>
-          <button onClick={onClose} className="text-zinc-500 hover:text-white text-lg leading-none">✕</button>
-        </div>
-        <div className="space-y-2">
-          {rows.map(([label, value]) => (
-            <div key={label} className="flex justify-between gap-4 py-1.5 border-b border-zinc-800 last:border-0">
-              <span className="text-zinc-500 text-sm shrink-0">{label}</span>
-              <span className="text-zinc-200 text-sm text-right break-all">{value}</span>
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
+
+        {/* Header con gradiente */}
+        <div className="relative bg-gradient-to-br from-zinc-800 to-zinc-900 px-6 pt-6 pb-8">
+          <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center shrink-0">
+              <span className="text-brand-green font-black text-xl">{initials}</span>
             </div>
-          ))}
+            <div>
+              <h2 className="text-white font-bold text-lg leading-tight">{c.name}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <DocBadge type={c.document_type} number={c.document_number} />
+                {c.is_company && <span className="text-[10px] bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded">Empresa</span>}
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2 justify-end pt-1">
-          <button className="btn-secondary" onClick={onClose}>Cerrar</button>
-          <button className="btn-primary" onClick={onEdit}>Editar</button>
+
+        {/* Contenido */}
+        <div className="px-6 py-4 space-y-3 -mt-2">
+
+          {/* Contacto */}
+          <div className="bg-zinc-800/50 rounded-xl p-3 space-y-2.5">
+            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Contacto</p>
+            {c.phone && (
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <span className="text-zinc-200 text-sm">{c.phone}</span>
+              </div>
+            )}
+            {c.email && (
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                </div>
+                <span className="text-zinc-200 text-sm break-all">{c.email}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Ubicación */}
+          {(c.city || c.department || c.address) && (
+            <div className="bg-zinc-800/50 rounded-xl p-3 space-y-2.5">
+              <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Ubicación</p>
+              {(c.city || c.department) && (
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  </div>
+                  <span className="text-zinc-200 text-sm">{[c.city, c.department].filter(Boolean).join(", ")}</span>
+                </div>
+              )}
+              {c.address && (
+                <div className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  </div>
+                  <span className="text-zinc-200 text-sm leading-snug">{c.address}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Acciones */}
+        <div className="px-6 pb-5 flex gap-2">
+          <button className="flex-1 btn-secondary" onClick={onClose}>Cerrar</button>
+          <button className="flex-1 btn-primary" onClick={onEdit}>Editar</button>
         </div>
       </div>
     </div>

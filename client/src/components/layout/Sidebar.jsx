@@ -158,7 +158,7 @@ export default function Sidebar() {
               if (to === "/supplies") setSuppliesCount(0);
             }}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-2 py-1.5 rounded-lg transition-colors text-sm font-medium
+              `flex items-center justify-center md:justify-start gap-3 px-2 py-1.5 rounded-lg transition-colors text-sm font-medium
               ${isActive
                 ? "bg-brand-green text-black"
                 : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`
@@ -186,7 +186,7 @@ export default function Sidebar() {
       <div className="mt-auto px-2 pt-4 border-t border-zinc-800">
         <button
           onClick={() => navigate("/profile")}
-          className="flex items-center gap-2 px-2 py-1.5 mb-1 w-full rounded-lg hover:bg-zinc-800 transition-colors text-left"
+          className="flex items-center justify-center md:justify-start gap-2 px-2 py-1.5 mb-1 w-full rounded-lg hover:bg-zinc-800 transition-colors text-left"
         >
           {user?.avatar ? (
             <img
@@ -206,7 +206,7 @@ export default function Sidebar() {
         </button>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-2 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors text-sm"
+          className="flex items-center justify-center md:justify-start gap-3 w-full px-2 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors text-sm"
         >
           <ArrowRightStartOnRectangleIcon className="w-5 h-5 shrink-0" />
           <span className="hidden md:block">Salir</span>

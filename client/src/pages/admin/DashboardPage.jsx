@@ -366,52 +366,54 @@ export default function DashboardPage() {
         </select>
       </div>
 
-      {/* KPIs financieros + Dona */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-center">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="card text-center">
-            <p className="text-zinc-400 text-sm mb-1">Total facturado</p>
-            <p className="text-brand-green text-2xl font-bold">${Number(financialDisplay?.total_revenue || 0).toLocaleString()}</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-zinc-400 text-sm mb-1">Recaudado</p>
-            <p className="text-white text-2xl font-bold">${Number(financialDisplay?.collected || 0).toLocaleString()}</p>
-          </div>
-          <div className="card text-center">
-            <p className="text-zinc-400 text-sm mb-1">Pendiente de cobro</p>
-            <p className="text-yellow-400 text-2xl font-bold">${Number(financialDisplay?.pending || 0).toLocaleString()}</p>
-          </div>
+      {/* FILA 1 — KPIs financieros */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="card text-center">
+          <p className="text-zinc-400 text-sm mb-1">Total facturado</p>
+          <p className="text-brand-green text-2xl font-bold">${Number(financialDisplay?.total_revenue || 0).toLocaleString()}</p>
         </div>
+        <div className="card text-center">
+          <p className="text-zinc-400 text-sm mb-1">Recaudado</p>
+          <p className="text-white text-2xl font-bold">${Number(financialDisplay?.collected || 0).toLocaleString()}</p>
+        </div>
+        <div className="card text-center">
+          <p className="text-zinc-400 text-sm mb-1">Pendiente de cobro</p>
+          <p className="text-yellow-400 text-2xl font-bold">${Number(financialDisplay?.pending || 0).toLocaleString()}</p>
+        </div>
+      </div>
 
+      {/* FILA 2 — Dona + Ventas por deporte */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {/* Dona — estado del dinero */}
-        <div className="card">
-          <h2 className="text-white font-semibold mb-1 text-sm">
+        <div className="card flex flex-col">
+          <h2 className="text-white font-semibold mb-3">
             Estado del dinero
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
           </h2>
           {donutData.length === 0 ? (
-            <p className="text-zinc-600 text-xs text-center py-6">Sin datos financieros.</p>
+            <p className="text-zinc-600 text-xs text-center py-10">Sin datos financieros.</p>
           ) : (
-            <div className="flex items-center gap-4">
-              <div className="w-[140px] h-[140px] shrink-0">
+            <div className="flex items-center gap-6 flex-1">
+              <div className="w-[180px] h-[180px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={donutData}
                       cx="50%" cy="50%"
-                      innerRadius={42} outerRadius={60}
+                      innerRadius={55} outerRadius={78}
                       dataKey="value"
                       activeIndex={activePieIndex}
                       activeShape={(props) => {
                         const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+                        const total = donutData.reduce((s, d) => s + d.value, 0);
                         return (
                           <g>
-                            <text x={cx} y={cy - 8} textAnchor="middle" fill="#fff" fontSize={10} fontWeight="600">{payload.name}</text>
-                            <text x={cx} y={cy + 10} textAnchor="middle" fill={fill} fontSize={9}>
-                              {`${Math.round((payload.value / donutData.reduce((s,d) => s+d.value,0)) * 100)}%`}
+                            <text x={cx} y={cy - 10} textAnchor="middle" fill="#ffffff" fontSize={11} fontWeight="700">{payload.name}</text>
+                            <text x={cx} y={cy + 10} textAnchor="middle" fill={fill} fontSize={13} fontWeight="800">
+                              {`${Math.round((payload.value / total) * 100)}%`}
                             </text>
-                            <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius + 6} startAngle={startAngle} endAngle={endAngle} fill={fill} />
-                            <Sector cx={cx} cy={cy} innerRadius={innerRadius - 4} outerRadius={innerRadius - 2} startAngle={startAngle} endAngle={endAngle} fill={fill} />
+                            <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius + 7} startAngle={startAngle} endAngle={endAngle} fill={fill} />
+                            <Sector cx={cx} cy={cy} innerRadius={innerRadius - 5} outerRadius={innerRadius - 2} startAngle={startAngle} endAngle={endAngle} fill={fill} />
                           </g>
                         );
                       }}
@@ -421,35 +423,95 @@ export default function DashboardPage() {
                       {donutData.map((entry, i) => <Cell key={i} fill={entry.color} stroke="transparent" />)}
                     </Pie>
                     <Tooltip
-                      contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                      contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+                      labelStyle={{ color: "#a1a1aa" }}
+                      itemStyle={{ color: "#ffffff" }}
                       formatter={(v, name) => [formatPesos(v), name]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="space-y-2 flex-1 min-w-0">
-                {donutData.map((d) => (
-                  <div key={d.name}>
-                    <div className="flex items-center justify-between mb-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: d.color }} />
-                        <span className="text-zinc-400 text-xs">{d.name}</span>
+              <div className="space-y-3 flex-1 min-w-0">
+                {donutData.map((d) => {
+                  const total = donutData.reduce((s, x) => s + x.value, 0);
+                  const pct   = Math.round((d.value / total) * 100);
+                  return (
+                    <div key={d.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: d.color }} />
+                          <span className="text-zinc-300 text-sm">{d.name}</span>
+                        </div>
+                        <span className="text-sm font-bold" style={{ color: d.color }}>{pct}%</span>
                       </div>
-                      <span className="text-xs font-semibold" style={{ color: d.color }}>
-                        {Math.round((d.value / donutData.reduce((s, x) => s + x.value, 0)) * 100)}%
-                      </span>
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: d.color }} />
+                      </div>
+                      <p className="text-zinc-400 text-xs mt-0.5">{formatPesos(d.value)}</p>
                     </div>
-                    <p className="text-white text-xs font-medium pl-4">{formatPesos(d.value)}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
         </div>
+
+        {/* Ventas por deporte */}
+        <div className="flex flex-col">
+          <h2 className="text-white font-semibold mb-3">
+            Ventas por deporte
+            <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
+          </h2>
+          <div className="card flex-1 min-h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={bySportData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                <XAxis dataKey="sport" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
+                <Tooltip
+                  cursor={{ fill: "#27272a" }}
+                  contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "#a1a1aa" }}
+                  itemStyle={{ color: "#ffffff" }}
+                  formatter={(v, name, props) => [
+                    `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
+                    "Ingresos",
+                  ]}
+                />
+                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
-      {/* Pedidos por estado + Entregas próximas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+      {/* FILA 4 — Ventas mensuales + Pedidos por estado */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+        <div className="flex flex-col">
+          <h2 className="text-white font-semibold mb-3">Ventas mensuales</h2>
+          <div className="card flex-1 min-h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+                <XAxis dataKey="month" tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatMonth} />
+                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
+                <Tooltip
+                  cursor={{ fill: "#27272a" }}
+                  contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "#a1a1aa" }}
+                  itemStyle={{ color: "#ffffff" }}
+                  formatter={(v, name, props) => [
+                    `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
+                    "Ingresos",
+                  ]}
+                  labelFormatter={formatMonth}
+                />
+                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
         <div>
           <h2 className="text-white font-semibold mb-3">
             Pedidos por estado
@@ -464,98 +526,48 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+      </div>
 
-        <div>
-          <h2 className="text-white font-semibold mb-3">Entregas próximas</h2>
-          <div className="card space-y-2">
-            {(() => {
-              const upcoming = upcomingDeliveries ?? [];
-              if (!upcoming.length) return (
-                <p className="text-zinc-600 text-sm text-center py-4">Sin entregas programadas.</p>
-              );
-              return upcoming.map((o) => {
-                const diff = (new Date(String(o.delivery_date).slice(0,10) + "T12:00:00") - new Date()) / 86400000;
-                const isToday   = diff >= -1 && diff < 0;
-                const isOverdue = diff < -1;
-                const isUrgent  = diff >= 0 && diff <= 3;
-                return (
-                  <div
-                    key={o.id}
-                    onClick={() => navigate(`/orders/${o.id}`)}
-                    className="flex items-center justify-between gap-3 py-2 border-b border-zinc-800 last:border-0 cursor-pointer hover:bg-zinc-800/40 rounded px-1 -mx-1 transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-brand-green font-mono font-bold text-xs">#{o.order_number_fmt}</span>
-                        {isOverdue && <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded-full">Vencido</span>}
-                        {isToday && <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">Hoy</span>}
-                        {isUrgent && !isToday && <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded-full">Urgente</span>}
-                      </div>
-                      <p className="text-zinc-300 text-xs truncate">{o.customer_name}</p>
+      {/* Entregas próximas — fila separada debajo */}
+      <div>
+        <h2 className="text-white font-semibold mb-3">Entregas próximas</h2>
+        <div className="card space-y-2">
+          {(() => {
+            const upcoming = upcomingDeliveries ?? [];
+            if (!upcoming.length) return (
+              <p className="text-zinc-600 text-sm text-center py-4">Sin entregas programadas.</p>
+            );
+            return upcoming.map((o) => {
+              const diff = (new Date(String(o.delivery_date).slice(0,10) + "T12:00:00") - new Date()) / 86400000;
+              const isToday   = diff >= -1 && diff < 0;
+              const isOverdue = diff < -1;
+              const isUrgent  = diff >= 0 && diff <= 3;
+              return (
+                <div
+                  key={o.id}
+                  onClick={() => navigate(`/orders/${o.id}`)}
+                  className="flex items-center justify-between gap-3 py-2 border-b border-zinc-800 last:border-0 cursor-pointer hover:bg-zinc-800/40 rounded px-1 -mx-1 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-brand-green font-mono font-bold text-xs">#{o.order_number_fmt}</span>
+                      {isOverdue && <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded-full">Vencido</span>}
+                      {isToday && <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded-full">Hoy</span>}
+                      {isUrgent && !isToday && <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-1.5 py-0.5 rounded-full">Urgente</span>}
                     </div>
-                    <p className={`text-xs shrink-0 font-medium ${isOverdue ? "text-red-400" : isToday ? "text-blue-400" : isUrgent ? "text-orange-400" : "text-zinc-500"}`}>
-                      {new Date(String(o.delivery_date).slice(0,10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
-                    </p>
+                    <p className="text-zinc-300 text-xs truncate">{o.customer_name}</p>
                   </div>
-                );
-              });
-            })()}
-          </div>
+                  <p className={`text-xs shrink-0 font-medium ${isOverdue ? "text-red-400" : isToday ? "text-blue-400" : isUrgent ? "text-orange-400" : "text-zinc-500"}`}>
+                    {new Date(String(o.delivery_date).slice(0,10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
+                  </p>
+                </div>
+              );
+            });
+          })()}
         </div>
       </div>
 
-      {/* Ventas mensuales + Ventas por deporte */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-        <div className="flex flex-col">
-          <h2 className="text-white font-semibold mb-3">Ventas mensuales</h2>
-          <div className="card flex-1 min-h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="month" tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatMonth} />
-                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
-                <Tooltip
-                  cursor={{ fill: "#27272a" }}
-                  contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
-                  formatter={(v, name, props) => [
-                    `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
-                    "Ingresos",
-                  ]}
-                  labelFormatter={formatMonth}
-                />
-                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="flex flex-col">
-          <h2 className="text-white font-semibold mb-3">
-            Ventas por deporte
-            <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
-          </h2>
-          <div className="card flex-1 min-h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={bySportData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="sport" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
-                <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
-                <Tooltip
-                  cursor={{ fill: "#27272a" }}
-                  contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
-                  formatter={(v, name, props) => [
-                    `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
-                    "Ingresos",
-                  ]}
-                />
-                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Carga por área */}
+      {/* FILA 3 — Carga por área */}
       {areaLoadData.length > 0 && (
         <div>
           <h2 className="text-white font-semibold mb-3">Carga por área de producción
@@ -569,7 +581,9 @@ export default function DashboardPage() {
                 <YAxis type="category" dataKey="area" tick={{ fill: "#a1a1aa", fontSize: 12 }} width={90} />
                 <Tooltip
                   cursor={{ fill: "#27272a" }}
-                  contentStyle={{ background: "#18181b", border: "1px solid #27272a", borderRadius: 8, fontSize: 12 }}
+                  contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "#a1a1aa" }}
+                  itemStyle={{ color: "#ffffff" }}
                   formatter={(v, name) => [v === 0 ? "—" : `${v} tarea${v !== 1 ? "s" : ""}`, name]}
                 />
                 <Bar dataKey="Pendiente"   fill="#71717a" radius={[0,4,4,0]} stackId="a" cursor="pointer" />

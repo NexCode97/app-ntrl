@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, API_BASE } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
-import { fileUrl } from "../../utils/fileUrl.js";
 import { hardRefresh } from "../../utils/hardRefresh.js";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import UserAvatar from "../../components/ui/UserAvatar.jsx";
 
 const AREA_LABELS = {
   corte: "Corte", diseno: "Diseño", impresion: "Impresión",
@@ -108,13 +108,7 @@ export default function TasksPage() {
       {/* Saludo */}
       <div className="card">
         <div className="flex items-center gap-4">
-          {user?.avatar ? (
-            <img src={fileUrl(user.avatar)} alt="" className="w-12 h-12 rounded-full object-cover border border-zinc-600 shrink-0" />
-          ) : (
-            <div className="w-12 h-12 rounded-full bg-brand-green/20 border border-brand-green/30 flex items-center justify-center text-brand-green text-xl font-bold shrink-0">
-              {user?.name?.[0]?.toUpperCase()}
-            </div>
-          )}
+          <UserAvatar user={user} size="lg" />
           <div>
             <p className="text-zinc-400 text-sm">{greet()},</p>
             <p className="text-white font-semibold text-lg leading-tight">{user?.name}</p>

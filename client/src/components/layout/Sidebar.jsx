@@ -3,8 +3,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../../stores/authStore.js";
 import { api, API_BASE } from "../../config/api.js";
-import { fileUrl } from "../../utils/fileUrl.js";
 import { subscribeToPush } from "../../utils/pushSubscription.js";
+import UserAvatar from "../ui/UserAvatar.jsx";
 import {
   ChartBarIcon,
   ClipboardDocumentListIcon,
@@ -188,17 +188,7 @@ export default function Sidebar() {
           onClick={() => navigate("/profile")}
           className="flex items-center justify-center md:justify-start gap-2 px-2 py-1.5 mb-1 w-full rounded-lg hover:bg-zinc-800 transition-colors text-left"
         >
-          {user?.avatar ? (
-            <img
-              src={fileUrl(user.avatar)}
-              alt={user.name}
-              className="w-8 h-8 rounded-full object-cover border border-zinc-600 shrink-0"
-            />
-          ) : (
-            <div className="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center text-sm font-bold shrink-0">
-              {user?.name?.[0]?.toUpperCase()}
-            </div>
-          )}
+          <UserAvatar user={user} size="sm" />
           <div className="hidden md:block overflow-hidden">
             <p className="text-white text-xs font-medium truncate">{user?.name}</p>
             <p className="text-zinc-500 text-xs truncate">{user?.role === "admin" ? "Administrador" : user?.role === "vendedor" ? "Vendedor" : (AREA_LABELS[user?.area] ?? user?.area)}</p>

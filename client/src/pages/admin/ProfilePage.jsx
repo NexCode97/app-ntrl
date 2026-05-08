@@ -2,26 +2,7 @@ import { useState, useRef } from "react";
 import { useAuthStore } from "../../stores/authStore.js";
 import { api } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
-
-function Avatar({ user, size = "lg" }) {
-  const dim = size === "lg" ? "w-24 h-24 text-2xl" : "w-10 h-10 text-sm";
-  const src = user?.avatar ? fileUrl(user.avatar) : null;
-
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={user.name}
-        className={`${dim} rounded-full object-cover border-2 border-zinc-700`}
-      />
-    );
-  }
-  return (
-    <div className={`${dim} rounded-full bg-zinc-700 flex items-center justify-center font-bold text-white shrink-0`}>
-      {user?.name?.[0]?.toUpperCase()}
-    </div>
-  );
-}
+import UserAvatar from "../../components/ui/UserAvatar.jsx";
 
 export default function ProfilePage() {
   const user    = useAuthStore((s) => s.user);
@@ -138,6 +119,7 @@ export default function ProfilePage() {
               src={displaySrc}
               alt="avatar"
               className="w-24 h-24 rounded-full object-cover border-2 border-zinc-700 shrink-0"
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           ) : (
             <div className="w-24 h-24 rounded-full bg-zinc-700 flex items-center justify-center text-2xl font-bold text-white shrink-0">

@@ -131,7 +131,7 @@ export async function listOrders(pagination, filters) {
 
   if (search) {
     params.push(`%${search}%`);
-    conditions.push(`(c.name ILIKE $${params.length} OR TO_CHAR(o.order_number,'FM000') LIKE $${params.length})`);
+    conditions.push(`(c.name ILIKE $${params.length} OR TO_CHAR(o.order_number,'FM000') LIKE $${params.length} OR o.name ILIKE $${params.length})`);
   }
 
   if (filters.status) {
@@ -144,7 +144,7 @@ export async function listOrders(pagination, filters) {
 
   const { rows } = await pool.query(
     `SELECT o.id, TO_CHAR(o.order_number,'FM000') as order_number,
-            o.status, o.total, o.balance, o.delivery_date, o.created_at,
+            o.name, o.status, o.total, o.balance, o.delivery_date, o.created_at,
             c.name as customer_name
      FROM orders o
      JOIN customers c ON c.id = o.customer_id

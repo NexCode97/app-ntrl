@@ -495,10 +495,10 @@ function CustomerModal({ form, onSave, onClose, saving }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl my-auto">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg shadow-2xl my-auto">
 
         {/* Header */}
-        <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-6 pt-6 pb-7 relative">
+        <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-6 pt-6 pb-7 relative rounded-t-2xl overflow-hidden">
           <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>

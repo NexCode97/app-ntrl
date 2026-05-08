@@ -132,7 +132,7 @@ export async function listOrders(pagination, filters) {
 
   const { rows } = await pool.query(
     `SELECT o.id, TO_CHAR(o.order_number,'FM000') as order_number,
-            o.name, o.status, o.total, o.balance, o.delivery_date, o.created_at,
+            o.status, o.total, o.balance, o.delivery_date, o.created_at,
             c.name as customer_name
      FROM orders o
      JOIN customers c ON c.id = o.customer_id

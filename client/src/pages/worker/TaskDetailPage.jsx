@@ -208,9 +208,11 @@ export default function TaskDetailPage() {
                 <div className="flex items-center gap-2">
                   {df && (
                     dfIsPdf ? (
-                      <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" />
+                      <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" onClick={() => setPdfSrc(dfUrl)} />
                     ) : (
-                      <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover bg-white shrink-0" />
+                      <button type="button" onClick={() => setLightboxSrc(dfUrl)} className="shrink-0 focus:outline-none">
+                        <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover bg-white border border-zinc-600 hover:border-brand-green transition-colors cursor-zoom-in" />
+                      </button>
                     )
                   )}
                   <p className="text-white font-medium text-sm">

@@ -193,9 +193,8 @@ El proyecto tiene una arquitectura completa y funcional. El código cubre fronte
 
 ## Pendientes / Próximas Tareas
 
-> Actualizar esta sección con cada nueva tarea discutida.
-
 - [ ] Rediseño general de la app (UI/UX) — en planificación
+- [ ] Investigar por qué el sistema de migraciones no aplica en Neon (workaround activo en server.js)
 
 ---
 
@@ -229,8 +228,10 @@ El proyecto tiene una arquitectura completa y funcional. El código cubre fronte
 
 ---
 
-### 2026-05-08
-- **Feature:** Campo **"Nombre del pedido"** — migración 031, backend (service + validation), frontend (OrderCreatePage, OrderDetailPage, OrdersPage). Campo opcional de texto libre (máx. 255 chars) para identificar rápidamente el pedido. Se muestra en la lista como columna y en el detalle debajo del número.
-- **Feature:** Reemplazo masivo de emojis por SVGs — instalada librería `@heroicons/react`. Actualizados: Sidebar (todos los íconos de menú + logout), OfflineBanner (⚠️), OrderCreatePage (📄, 📝), OrderDetailPage (📄, 🧾), TaskDetailPage (📄), TasksPage (✅), QuotesPage (✉, 📞, 📄, 📋), SuppliesPage (👤, 📞, ✉️), DashboardPage (📅). Emojis del chat (reacciones) se mantienen intactos.
+### 2026-05-08 — Sesión completa
+- **Feature:** Campo **"Nombre del pedido"** — migraciones 031/032/033 + workaround en server.js (Neon no ejecutaba migraciones automáticas). Backend (service + validation), frontend (OrderCreatePage, OrderDetailPage, OrdersPage). Campo opcional, se guarda en Title Case. Se muestra en la lista como columna y en el detalle debajo del número. Búsqueda por nombre de pedido habilitada.
+- **Feature:** Reemplazo masivo de emojis por SVGs — instalada `@heroicons/react`. Sidebar (todos los íconos de menú + logout), OfflineBanner, OrderCreatePage, OrderDetailPage, TaskDetailPage, TasksPage, QuotesPage, SuppliesPage, DashboardPage, CustomersPage. Emojis del chat se mantienen.
+- **Feature:** Nombre de cliente y nombre de pedido se normalizan automáticamente a **Title Case** al guardar. Migración 034 + normalización en server.js corrige todos los clientes existentes en BD.
+- **Feature:** Módulo de clientes — acciones (Ver/Editar/Eliminar) reemplazadas por iconos SVG con tooltip. Documento mostrado como badge `[C.C.] número` en una sola línea limpia.
 
 *Archivo mantenido manualmente. Actualizar al final de cada sesión de trabajo significativa.*

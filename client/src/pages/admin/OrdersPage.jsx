@@ -65,7 +65,7 @@ export default function OrdersPage() {
         />
         <div className="flex items-center gap-3">
           <button className="btn-primary w-full md:w-auto whitespace-nowrap" onClick={() => navigate("/orders/new")}>
-            + Nuevo Pedido
+            + Nuevo pedido
           </button>
         </div>
         <select className="input-field w-full md:w-40" value={statusFilter}

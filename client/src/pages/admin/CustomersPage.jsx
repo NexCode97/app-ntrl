@@ -133,6 +133,10 @@ export default function CustomersPage() {
 
 function CustomerView({ customer: c, onEdit, onClose }) {
   const initials = c.name?.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+  // Detectar indicativo en el teléfono guardado (ej: "+57 300...")
+  const phoneCountry = c.phone
+    ? COUNTRIES.find((co) => c.phone.startsWith(co.dial)) ?? null
+    : null;
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -166,7 +170,10 @@ function CustomerView({ customer: c, onEdit, onClose }) {
             {c.phone && (
               <div className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  {phoneCountry
+                    ? <span className="text-base leading-none">{phoneCountry.flag}</span>
+                    : <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  }
                 </div>
                 <span className="text-zinc-200 text-sm">{c.phone}</span>
               </div>
@@ -295,12 +302,12 @@ function CustomerModal({ form, onSave, onClose, saving }) {
             {/* Teléfono con indicativo */}
             <div>
               <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
-              <div className="flex rounded-lg overflow-hidden border border-zinc-700 focus-within:border-zinc-500 transition-colors bg-zinc-800">
+              <div className="flex items-center gap-2">
                 <select
                   value={data.dial_code || "+57"}
                   onChange={(e) => set("dial_code", e.target.value)}
-                  className="bg-zinc-700 text-white text-sm px-2 py-2 outline-none cursor-pointer border-r border-zinc-600 shrink-0"
-                  style={{ minWidth: "auto" }}
+                  className="input-field shrink-0 w-auto cursor-pointer rounded-lg"
+                  style={{ minWidth: "auto", borderRadius: "8px" }}
                 >
                   {COUNTRIES.map((c) => (
                     <option key={c.code} value={c.dial}>
@@ -309,7 +316,7 @@ function CustomerModal({ form, onSave, onClose, saving }) {
                   ))}
                 </select>
                 <input
-                  className="flex-1 bg-transparent text-white text-sm px-3 py-2 outline-none placeholder-zinc-500 min-w-0"
+                  className="input-field flex-1 min-w-0"
                   value={data.phone || ""}
                   onChange={(e) => set("phone", e.target.value)}
                   placeholder="300 123 4567"

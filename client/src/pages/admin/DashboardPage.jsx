@@ -391,7 +391,7 @@ export default function DashboardPage() {
           {donutData.length === 0 ? (
             <p className="text-zinc-600 text-xs text-center py-10">Sin datos financieros.</p>
           ) : (
-            <div className="flex items-center gap-6 flex-1">
+            <div className="flex flex-col sm:flex-row items-center gap-6 flex-1">
               <div className="w-[180px] h-[180px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -430,7 +430,7 @@ export default function DashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="space-y-3 flex-1 min-w-0">
+              <div className="space-y-3 flex-1 min-w-0 w-full">
                 {donutData.map((d) => {
                   const total = donutData.reduce((s, x) => s + x.value, 0);
                   const pct   = Math.round((d.value / total) * 100);

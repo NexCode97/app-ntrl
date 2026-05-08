@@ -24,11 +24,24 @@ async function ensureOrderNameColumn() {
   }
 }
 
+async function normalizeCustomerNames() {
+  try {
+    const { pool } = await import("./config/database.js");
+    const { rowCount } = await pool.query(
+      `UPDATE customers SET name = initcap(lower(name)) WHERE name IS NOT NULL AND name != initcap(lower(name))`
+    );
+    if (rowCount > 0) console.log(`✓ ${rowCount} nombre(s) de clientes normalizados a Title Case.`);
+  } catch (err) {
+    console.warn("⚠ No se pudo normalizar nombres de clientes:", err.message);
+  }
+}
+
 async function start() {
   try {
     await testConnection();
     await runMigrations();
     await ensureOrderNameColumn();
+    await normalizeCustomerNames();
 
     // Redis es opcional — si falla el servidor sigue funcionando sin SSE en tiempo real
     try {

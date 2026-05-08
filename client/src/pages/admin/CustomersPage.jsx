@@ -40,53 +40,73 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-4">
+      <h1 className="text-white font-bold text-xl lg:hidden">Clientes</h1>
+
+      {/* Toolbar */}
       <div className="flex items-center gap-3">
-        <input className="input-field max-w-xs" placeholder="Buscar..." value={search}
-          onChange={(e) => setSearch(e.target.value)} />
-        <button className="btn-primary ml-auto shrink-0 whitespace-nowrap" onClick={() => setForm({})}>+ Nuevo cliente</button>
+        <input
+          className="input-field flex-1"
+          placeholder="Buscar por nombre o documento..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <button className="btn-primary shrink-0 whitespace-nowrap" onClick={() => setForm({})}>
+          + Nuevo cliente
+        </button>
       </div>
 
-      <div className="card overflow-hidden p-0 overflow-x-auto">
-        <table className="w-full text-sm min-w-[520px]">
-          <thead className="bg-zinc-800 text-zinc-400">
-            <tr>
-              <th className="px-4 py-3 text-left">Nombre</th>
-              <th className="px-4 py-3 text-left">Documento</th>
-              <th className="px-4 py-3 text-left">Teléfono</th>
-              <th className="px-4 py-3 text-left">Correo</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-800">
-            {isLoading && <tr><td colSpan={5} className="text-center py-8 text-zinc-500">Cargando...</td></tr>}
-            {data?.data?.map((c) => (
-              <tr key={c.id} className="hover:bg-zinc-800/50 transition-colors">
-                <td className="px-4 py-3 text-white">{c.name}</td>
-                <td className="px-4 py-3"><DocBadge type={c.document_type} number={c.document_number} /></td>
-                <td className="px-4 py-3 text-zinc-400">{c.phone || "—"}</td>
-                <td className="px-4 py-3 text-zinc-400">{c.email || "—"}</td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button title="Ver" onClick={() => setViewing(c)}
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-brand-green hover:bg-zinc-800 transition-colors">
-                      <EyeIcon className="w-4 h-4" />
-                    </button>
-                    <button title="Editar" onClick={() => setForm(c)}
-                      className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
-                      <PencilSquareIcon className="w-4 h-4" />
-                    </button>
-                    <button title="Eliminar" onClick={() => {
-                      if (confirm(`¿Eliminar a ${c.name}? Esta acción no se puede deshacer.`)) remove.mutate(c.id);
-                    }} className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors">
-                      <TrashIcon className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Cards */}
+      {isLoading ? (
+        <p className="text-zinc-500 text-sm text-center py-8">Cargando...</p>
+      ) : !data?.data?.length ? (
+        <div className="card text-center py-10">
+          <p className="text-zinc-500">No hay clientes.</p>
+        </div>
+      ) : (
+        <div className="space-y-3 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4 md:space-y-0">
+          {data.data.map((c) => (
+            <div key={c.id} className="card border border-zinc-800 hover:border-zinc-600 transition-colors space-y-2">
+              {/* Nombre + tipo */}
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-white font-medium text-sm leading-snug">{c.name}</p>
+                {c.is_company && (
+                  <span className="text-[10px] bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded shrink-0">Empresa</span>
+                )}
+              </div>
+
+              {/* Documento */}
+              <DocBadge type={c.document_type} number={c.document_number} />
+
+              {/* Contacto */}
+              <div className="pt-1 border-t border-zinc-800 space-y-1">
+                <div className="flex items-center justify-between text-xs text-zinc-500">
+                  <span>📞 <span className="text-zinc-400">{c.phone || "—"}</span></span>
+                  <span className="truncate ml-2 text-zinc-400">{c.email || "—"}</span>
+                </div>
+                {(c.city || c.department) && (
+                  <p className="text-xs text-zinc-600">{[c.city, c.department].filter(Boolean).join(", ")}</p>
+                )}
+              </div>
+
+              {/* Acciones */}
+              <div className="flex items-center gap-2 pt-1">
+                <button onClick={() => setViewing(c)}
+                  className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-brand-green border border-zinc-700 hover:border-brand-green/50 rounded-lg py-1.5 transition-colors">
+                  <EyeIcon className="w-3.5 h-3.5" /> Ver
+                </button>
+                <button onClick={() => setForm(c)}
+                  className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-lg py-1.5 transition-colors">
+                  <PencilSquareIcon className="w-3.5 h-3.5" /> Editar
+                </button>
+                <button onClick={() => { if (confirm(`¿Eliminar a ${c.name}?`)) remove.mutate(c.id); }}
+                  className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 border border-zinc-700 hover:border-red-500/50 rounded-lg py-1.5 transition-colors">
+                  <TrashIcon className="w-3.5 h-3.5" /> Eliminar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {form !== null && <CustomerModal form={form} onSave={(d) => save.mutate(d)} onClose={() => setForm(null)} saving={save.isLoading} />}
       {viewing && <CustomerView customer={viewing} onEdit={() => { setForm(viewing); setViewing(null); }} onClose={() => setViewing(null)} />}

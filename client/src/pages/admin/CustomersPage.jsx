@@ -519,89 +519,80 @@ function CustomerModal({ form, onSave, onClose, saving }) {
     : (data.id ? "?" : "+");
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md shadow-2xl my-auto max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md md:max-w-2xl shadow-2xl">
 
         {/* Header */}
-        <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-6 pt-6 pb-7 relative rounded-t-2xl overflow-hidden">
-          <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+        <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-5 pt-4 pb-5 relative rounded-t-2xl overflow-hidden">
+          <button onClick={onClose} className="absolute top-3 right-4 text-zinc-500 hover:text-white transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center shrink-0">
-              <span className="text-brand-green font-black text-xl">{initials}</span>
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center shrink-0">
+              <span className="text-brand-green font-black text-lg">{initials}</span>
             </div>
             <div>
-              <h2 className="text-white font-bold text-lg">{data.id ? "Editar cliente" : "Nuevo cliente"}</h2>
-              {data.name && <p className="text-zinc-400 text-sm mt-0.5">{data.name}</p>}
+              <h2 className="text-white font-bold text-base">{data.id ? "Editar cliente" : "Nuevo cliente"}</h2>
+              {data.name && <p className="text-zinc-400 text-xs mt-0.5">{data.name}</p>}
             </div>
           </div>
         </div>
 
-        {/* Campos */}
-        <div className="px-6 py-4 space-y-4">
+        {/* Campos — 1 col móvil, 2 col escritorio */}
+        <div className="px-5 py-4 md:grid md:grid-cols-2 md:gap-4 space-y-3 md:space-y-0">
 
-          {/* Identidad */}
-          <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
-            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Identidad</p>
-            <div>
-              <label className="block text-xs text-zinc-400 mb-1">Nombre <span className="text-red-400">*</span></label>
-              <input className="input-field" value={data.name || ""} onChange={(e) => set("name", e.target.value)} placeholder="Nombre completo o razón social" />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+          {/* Columna izquierda: Identidad + Contacto */}
+          <div className="space-y-3">
+
+            {/* Identidad */}
+            <div className="bg-zinc-800/50 rounded-xl p-3 space-y-2.5">
+              <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Identidad</p>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Tipo doc. <span className="text-red-400">*</span></label>
-                <select className="input-field" value={data.document_type} onChange={(e) => set("document_type", e.target.value)}>
-                  <option value="cedula">C.C.</option>
-                  <option value="nit">NIT</option>
-                  <option value="ce">C.E.</option>
-                  <option value="pp">Pasaporte</option>
-                </select>
+                <label className="block text-xs text-zinc-400 mb-1">Nombre <span className="text-red-400">*</span></label>
+                <input className="input-field" value={data.name || ""} onChange={(e) => set("name", e.target.value)} placeholder="Nombre completo o razón social" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-zinc-400 mb-1">Tipo doc. <span className="text-red-400">*</span></label>
+                  <select className="input-field" value={data.document_type} onChange={(e) => set("document_type", e.target.value)}>
+                    <option value="cedula">C.C.</option>
+                    <option value="nit">NIT</option>
+                    <option value="ce">C.E.</option>
+                    <option value="pp">Pasaporte</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-zinc-400 mb-1">Número doc. <span className="text-red-400">*</span></label>
+                  <input className="input-field" value={data.document_number || ""} onChange={(e) => set("document_number", e.target.value)} placeholder="123456789" />
+                </div>
+              </div>
+            </div>
+
+            {/* Contacto */}
+            <div className="bg-zinc-800/50 rounded-xl p-3 space-y-2.5">
+              <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Contacto</p>
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
+                <div className="flex items-center gap-2">
+                  <DialCodePicker value={data.dial_code || "CO"} onChange={(v) => set("dial_code", v)} />
+                  <input className="input-field flex-1 min-w-0" value={data.phone || ""} onChange={(e) => set("phone", e.target.value)} placeholder="300 123 4567" type="tel" />
+                </div>
+                <p className="text-zinc-600 text-[10px] mt-1">
+                  {COUNTRIES.find((c) => c.code === (data.dial_code || "CO"))?.name ?? "Colombia"}
+                </p>
               </div>
               <div>
-                <label className="block text-xs text-zinc-400 mb-1">Número doc. <span className="text-red-400">*</span></label>
-                <input className="input-field" value={data.document_number || ""} onChange={(e) => set("document_number", e.target.value)} placeholder="123456789" />
+                <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
+                <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} placeholder="correo@mail.com" />
               </div>
             </div>
+
           </div>
 
-          {/* Contacto */}
-          <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
-            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Contacto</p>
-
-            {/* Teléfono con indicativo */}
-            <div>
-              <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
-              <div className="flex items-center gap-2">
-                <DialCodePicker
-                  value={data.dial_code || "+57"}
-                  onChange={(v) => set("dial_code", v)}
-                />
-                <input
-                  className="input-field flex-1 min-w-0"
-                  value={data.phone || ""}
-                  onChange={(e) => set("phone", e.target.value)}
-                  placeholder="300 123 4567"
-                  type="tel"
-                />
-              </div>
-              {/* País seleccionado */}
-              <p className="text-zinc-600 text-[10px] mt-1">
-                {COUNTRIES.find((c) => c.code === (data.dial_code || "CO"))?.name ?? "Colombia"}
-              </p>
-            </div>
-
-            {/* Correo */}
-            <div>
-              <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
-              <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} placeholder="correo@mail.com" />
-            </div>
-          </div>
-
-          {/* Ubicación */}
-          <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
-            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Ubicación</p>
-            <div className="grid grid-cols-2 gap-3">
+          {/* Columna derecha: Ubicación */}
+          <div>
+            <div className="bg-zinc-800/50 rounded-xl p-3 space-y-2.5 h-full">
+              <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Ubicación</p>
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Departamento <span className="text-red-400">*</span></label>
                 <select className="input-field" value={data.department || ""}
@@ -617,15 +608,16 @@ function CustomerModal({ form, onSave, onClose, saving }) {
                   {cities.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-            </div>
-            <div>
-              <label className="block text-xs text-zinc-400 mb-1">Dirección</label>
-              <input className="input-field" value={data.address || ""} onChange={(e) => set("address", e.target.value)} placeholder="Calle 123 # 45 - 67" />
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Dirección</label>
+                <input className="input-field" value={data.address || ""} onChange={(e) => set("address", e.target.value)} placeholder="Calle 123 # 45 - 67" />
+              </div>
             </div>
           </div>
 
-          {error && <p className="text-red-400 text-xs bg-red-950/50 border border-red-800/50 rounded-lg px-3 py-2">{error}</p>}
         </div>
+
+        {error && <p className="mx-5 mb-3 text-red-400 text-xs bg-red-950/50 border border-red-800/50 rounded-lg px-3 py-2">{error}</p>}
 
         {/* Acciones */}
         <div className="px-6 pb-6 flex gap-2">

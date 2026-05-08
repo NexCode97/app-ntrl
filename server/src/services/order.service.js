@@ -10,12 +10,24 @@ export async function createOrder(userId, data, designFiles = []) {
       ? JSON.stringify(designFiles.length === 1 ? designFiles[0] : designFiles)
       : null;
 
+    // Verificar si la columna name ya existe en BD
+    const { rows: colExists } = await client.query(
+      `SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='name' LIMIT 1`
+    );
+    const hasNameCol = colExists.length > 0;
+
     // Crear pedido
+    const insertCols = hasNameCol
+      ? `customer_id, created_by, name, delivery_date, description, design_file`
+      : `customer_id, created_by, delivery_date, description, design_file`;
+    const insertVals = hasNameCol
+      ? [data.customer_id, userId, data.name || null, data.delivery_date || null, data.description || null, designValue]
+      : [data.customer_id, userId, data.delivery_date || null, data.description || null, designValue];
+    const insertPlaceholders = insertVals.map((_, i) => `$${i + 1}`).join(", ");
+
     const { rows: [order] } = await client.query(
-      `INSERT INTO orders (customer_id, created_by, name, delivery_date, description, design_file)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, order_number`,
-      [data.customer_id, userId, data.name || null, data.delivery_date || null, data.description || null, designValue]
+      `INSERT INTO orders (${insertCols}) VALUES (${insertPlaceholders}) RETURNING id, order_number`,
+      insertVals
     );
 
     // Insertar items (el trigger calcula subtotal y total)
@@ -169,9 +181,15 @@ export async function updateOrder(orderId, userId, data, newDesignFiles = []) {
     }
 
     if (data.name !== undefined) {
-      vals.push(data.name || null);
-      sets.push(`name = $${vals.length}`);
-      changes.name = { old: before.rows[0].name, new: data.name };
+      // Verificar que la columna ya existe en la BD (puede no haberse aplicado la migración aún)
+      const { rows: colExists } = await client.query(
+        `SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='name' LIMIT 1`
+      );
+      if (colExists.length > 0) {
+        vals.push(data.name || null);
+        sets.push(`name = $${vals.length}`);
+        changes.name = { old: before.rows[0].name, new: data.name };
+      }
     }
 
     if (data.delivery_date !== undefined) {

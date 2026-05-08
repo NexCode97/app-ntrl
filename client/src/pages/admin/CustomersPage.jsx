@@ -9,9 +9,16 @@ const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" heigh
 const DOC_LABELS = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" };
 
 function FlagImg({ code, size = 20 }) {
-  const country = COUNTRIES.find((c) => c.code === code);
+  const h = Math.round(size * 0.75);
   return (
-    <span style={{ fontSize: size, lineHeight: 1 }}>{country?.flag ?? "🏳"}</span>
+    <img
+      src={`https://purecatamphetamine.github.io/country-flag-icons/3x2/${code.toUpperCase()}.svg`}
+      width={size}
+      height={h}
+      alt={code}
+      className="rounded-sm shrink-0 object-cover"
+      style={{ width: size, height: h, display: "inline-block" }}
+    />
   );
 }
 
@@ -118,7 +125,7 @@ const COUNTRIES = [
   { code: "CV", flag: "🇨🇻", dial: "+238",   name: "Cabo Verde" },
   { code: "KH", flag: "🇰🇭", dial: "+855",   name: "Camboya" },
   { code: "CM", flag: "🇨🇲", dial: "+237",   name: "Camerún" },
-  { code: "CA", flag: "🇨🇦", dial: "+1",     name: "Canadá" },
+  { code: "CA", flag: "🇨🇦", dial: "+1",     name: "Canadá (CA)" },
   { code: "QA", flag: "🇶🇦", dial: "+974",   name: "Catar" },
   { code: "TD", flag: "🇹🇩", dial: "+235",   name: "Chad" },
   { code: "CL", flag: "🇨🇱", dial: "+56",    name: "Chile" },
@@ -145,7 +152,7 @@ const COUNTRIES = [
   { code: "SK", flag: "🇸🇰", dial: "+421",   name: "Eslovaquia" },
   { code: "SI", flag: "🇸🇮", dial: "+386",   name: "Eslovenia" },
   { code: "ES", flag: "🇪🇸", dial: "+34",    name: "España" },
-  { code: "US", flag: "🇺🇸", dial: "+1",     name: "Estados Unidos" },
+  { code: "US", flag: "🇺🇸", dial: "+1",     name: "Estados Unidos (USA)" },
   { code: "EE", flag: "🇪🇪", dial: "+372",   name: "Estonia" },
   { code: "SZ", flag: "🇸🇿", dial: "+268",   name: "Esuatini" },
   { code: "ET", flag: "🇪🇹", dial: "+251",   name: "Etiopía" },
@@ -482,13 +489,22 @@ function CustomerView({ customer: c, onEdit, onClose }) {
 }
 
 // Parsea un teléfono guardado y devuelve { countryCode, localPhone }
+// Prioridad para dial codes compartidos (ej: +1 → preferir US sobre CA)
+const DIAL_PRIORITY = { "+1": "US" };
+
 function parsePhone(phone) {
   if (!phone) return { countryCode: "CO", localPhone: "" };
   // Ordenar por longitud de dial desc para evitar falsos positivos (ej: +1 vs +1868)
   const sorted = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length);
-  const match = sorted.find((c) => phone.startsWith(c.dial));
-  if (match) return { countryCode: match.code, localPhone: phone.slice(match.dial.length).trim() };
-  return { countryCode: "CO", localPhone: phone };
+  const matches = sorted.filter((c) => phone.startsWith(c.dial));
+  if (!matches.length) return { countryCode: "CO", localPhone: phone };
+  // Si hay varios con mismo dial, aplicar prioridad
+  const dial = matches[0].dial;
+  const priorityCode = DIAL_PRIORITY[dial];
+  const match = priorityCode
+    ? (matches.find((c) => c.code === priorityCode) ?? matches[0])
+    : matches[0];
+  return { countryCode: match.code, localPhone: phone.slice(match.dial.length).trim() };
 }
 
 function CustomerModal({ form, onSave, onClose, saving }) {

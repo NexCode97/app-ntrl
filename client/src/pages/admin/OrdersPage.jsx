@@ -31,7 +31,7 @@ function OrderCard({ order, onClick }) {
           <span>Entrega: <span className={order.delivery_date ? "text-zinc-400" : "text-zinc-600"}>{order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("es-CO") : "Sin fecha"}</span></span>
         </div>
         <div className="flex items-center justify-between text-xs">
-          <span className="text-white font-medium">${Number(order.total).toLocaleString()}</span>
+          <span className="text-zinc-500">Total: <span className="text-white font-medium">${Number(order.total).toLocaleString()}</span></span>
           {Number(order.balance) > 0 && (
             <span className="text-yellow-400">Saldo: ${Number(order.balance).toLocaleString()}</span>
           )}

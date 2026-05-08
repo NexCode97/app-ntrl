@@ -8,6 +8,21 @@ const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" heigh
 
 const DOC_LABELS = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" };
 
+const COUNTRIES = [
+  { code: "CO", flag: "🇨🇴", dial: "+57",  name: "Colombia" },
+  { code: "VE", flag: "🇻🇪", dial: "+58",  name: "Venezuela" },
+  { code: "EC", flag: "🇪🇨", dial: "+593", name: "Ecuador" },
+  { code: "PE", flag: "🇵🇪", dial: "+51",  name: "Perú" },
+  { code: "MX", flag: "🇲🇽", dial: "+52",  name: "México" },
+  { code: "AR", flag: "🇦🇷", dial: "+54",  name: "Argentina" },
+  { code: "CL", flag: "🇨🇱", dial: "+56",  name: "Chile" },
+  { code: "BR", flag: "🇧🇷", dial: "+55",  name: "Brasil" },
+  { code: "US", flag: "🇺🇸", dial: "+1",   name: "EE.UU." },
+  { code: "ES", flag: "🇪🇸", dial: "+34",  name: "España" },
+  { code: "PA", flag: "🇵🇦", dial: "+507", name: "Panamá" },
+  { code: "CR", flag: "🇨🇷", dial: "+506", name: "Costa Rica" },
+];
+
 function DocBadge({ type, number }) {
   return (
     <span className="flex items-center gap-1.5 whitespace-nowrap">
@@ -201,7 +216,7 @@ function CustomerView({ customer: c, onEdit, onClose }) {
 }
 
 function CustomerModal({ form, onSave, onClose, saving }) {
-  const [data, setData] = useState({ document_type: "cedula", is_company: false, ...form });
+  const [data, setData] = useState({ document_type: "cedula", is_company: false, dial_code: "+57", ...form });
   const [error, setError] = useState("");
   const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
 
@@ -215,7 +230,11 @@ function CustomerModal({ form, onSave, onClose, saving }) {
     if (!data.department)              return setError("El departamento es obligatorio.");
     if (!data.city)                    return setError("La ciudad es obligatoria.");
     setError("");
-    onSave(data);
+    const dial = data.dial_code || "+57";
+    const phoneRaw = data.phone.trim();
+    // Combinar indicativo + número solo si el número no empieza ya con "+"
+    const fullPhone = phoneRaw.startsWith("+") ? phoneRaw : `${dial} ${phoneRaw}`;
+    onSave({ ...data, phone: fullPhone });
   }
 
   const initials = data.name?.trim()
@@ -272,15 +291,41 @@ function CustomerModal({ form, onSave, onClose, saving }) {
           {/* Contacto */}
           <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
             <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Contacto</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
-                <input className="input-field" value={data.phone || ""} onChange={(e) => set("phone", e.target.value)} placeholder="300 123 4567" />
+
+            {/* Teléfono con indicativo */}
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
+              <div className="flex rounded-lg overflow-hidden border border-zinc-700 focus-within:border-zinc-500 transition-colors bg-zinc-800">
+                <select
+                  value={data.dial_code || "+57"}
+                  onChange={(e) => set("dial_code", e.target.value)}
+                  className="bg-zinc-700 text-white text-sm px-2 py-2 outline-none cursor-pointer border-r border-zinc-600 shrink-0"
+                  style={{ minWidth: "auto" }}
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.dial}>
+                      {c.flag} {c.dial}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  className="flex-1 bg-transparent text-white text-sm px-3 py-2 outline-none placeholder-zinc-500 min-w-0"
+                  value={data.phone || ""}
+                  onChange={(e) => set("phone", e.target.value)}
+                  placeholder="300 123 4567"
+                  type="tel"
+                />
               </div>
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
-                <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} placeholder="correo@mail.com" />
-              </div>
+              {/* País seleccionado */}
+              <p className="text-zinc-600 text-[10px] mt-1">
+                {COUNTRIES.find((c) => c.dial === (data.dial_code || "+57"))?.name ?? "Colombia"}
+              </p>
+            </div>
+
+            {/* Correo */}
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
+              <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} placeholder="correo@mail.com" />
             </div>
           </div>
 

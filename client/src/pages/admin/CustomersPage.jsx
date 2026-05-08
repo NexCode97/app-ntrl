@@ -316,7 +316,7 @@ function CustomerView({ customer: c, onEdit, onClose }) {
   const initials = c.name?.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
   // Detectar indicativo en el teléfono guardado (ej: "+57 300...")
   const phoneCountry = c.phone
-    ? COUNTRIES.find((co) => c.phone.startsWith(co.dial)) ?? null
+    ? (COUNTRIES.find((co) => c.phone.startsWith(co.dial)) ?? COUNTRIES.find((co) => co.code === "CO"))
     : null;
 
   return (

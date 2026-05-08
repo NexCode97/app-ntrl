@@ -117,6 +117,16 @@ export default function DashboardPage() {
     enabled: isVendedor,
   });
 
+  const currentMonth = useMemo(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  }, []);
+
+  const [selectedMonth, setSelectedMonth] = useState(null); // null = mes actual
+  const [activePieIndex, setActivePieIndex] = useState(null);
+  const onPieEnter = useCallback((_, index) => setActivePieIndex(index), []);
+  const onPieLeave = useCallback(() => setActivePieIndex(null), []);
+
   const { data: monthlyHistory } = useQuery({
     queryKey: ["dashboard-history"],
     queryFn:  () => api.get("/dashboard/history").then((r) => r.data.data),
@@ -129,16 +139,6 @@ export default function DashboardPage() {
     queryFn:  () => api.get(`/dashboard/sport-by-month${selectedMonth ? `?month=${selectedMonth}` : ""}`).then((r) => r.data.data),
     staleTime: 5 * 60 * 1000,
   });
-
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  }, []);
-
-  const [selectedMonth, setSelectedMonth] = useState(null); // null = mes actual
-  const [activePieIndex, setActivePieIndex] = useState(null);
-  const onPieEnter = useCallback((_, index) => setActivePieIndex(index), []);
-  const onPieLeave = useCallback(() => setActivePieIndex(null), []);
 
   // Datos del mes seleccionado (historial) o del mes actual (live)
   const selectedSnapshot = useMemo(() => {

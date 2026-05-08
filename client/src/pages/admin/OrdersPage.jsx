@@ -10,11 +10,39 @@ const STATUS_LABELS = {
   delivered:   { label: "Entregado",   cls: "badge-delivered" },
 };
 
+function OrderCard({ order, onClick }) {
+  const s = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
+  return (
+    <div
+      onClick={onClick}
+      className="card cursor-pointer hover:border-zinc-600 border border-zinc-800 transition-colors space-y-2"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-brand-green font-mono font-bold text-sm">#{order.order_number}</span>
+        <span className={`${s.cls} whitespace-nowrap`}>{s.label}</span>
+      </div>
+      <p className="text-white font-medium text-sm leading-snug">{order.customer_name}</p>
+      {order.name && (
+        <p className="text-zinc-400 text-xs truncate">{order.name}</p>
+      )}
+      <div className="flex items-center justify-between pt-1 border-t border-zinc-800 text-xs text-zinc-500">
+        <span>{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-white font-medium">${Number(order.total).toLocaleString()}</span>
+          {Number(order.balance) > 0 && (
+            <span className="text-yellow-400">Saldo: ${Number(order.balance).toLocaleString()}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function OrdersPage() {
   const navigate = useNavigate();
-  const [search,     setSearch]     = useState("");
-  const [statusFilter, setStatus]   = useState("");
-  const [page,       setPage]       = useState(1);
+  const [search,       setSearch]  = useState("");
+  const [statusFilter, setStatus]  = useState("");
+  const [page,         setPage]    = useState(1);
 
   const { data, isLoading } = useQuery({
     queryKey: ["orders", page, search, statusFilter],
@@ -47,8 +75,25 @@ export default function OrdersPage() {
         </select>
       </div>
 
-      {/* Table */}
-      <div className="card overflow-hidden p-0 overflow-x-auto">
+      {/* Mobile — Cards */}
+      <div className="md:hidden space-y-3">
+        {isLoading && (
+          <p className="text-center text-zinc-500 py-8">Cargando...</p>
+        )}
+        {data?.data?.map((order) => (
+          <OrderCard
+            key={order.id}
+            order={order}
+            onClick={() => navigate(`/orders/${order.id}`)}
+          />
+        ))}
+        {!isLoading && !data?.data?.length && (
+          <p className="text-center text-zinc-500 py-8">No hay pedidos.</p>
+        )}
+      </div>
+
+      {/* Desktop — Table */}
+      <div className="hidden md:block card overflow-hidden p-0 overflow-x-auto">
         <table className="w-full text-sm min-w-[680px]">
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>

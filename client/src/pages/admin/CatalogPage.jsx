@@ -493,7 +493,7 @@ function ProductModal({ form, onSave, onClose, saving, lines }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md md:max-w-2xl shadow-2xl">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md md:max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
 
         {/* Header */}
         <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-5 pt-4 pb-5 relative rounded-t-2xl overflow-hidden">

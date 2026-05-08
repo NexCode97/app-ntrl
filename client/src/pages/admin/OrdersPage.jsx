@@ -80,8 +80,8 @@ export default function OrdersPage() {
         </select>
       </div>
 
-      {/* Mobile — Cards */}
-      <div className="md:hidden space-y-3">
+      {/* Cards — todos los tamaños */}
+      <div className="space-y-3 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4 md:space-y-0">
         {isLoading && (
           <p className="text-center text-zinc-500 py-8">Cargando...</p>
         )}
@@ -97,8 +97,8 @@ export default function OrdersPage() {
         )}
       </div>
 
-      {/* Desktop — Table */}
-      <div className="hidden md:block card overflow-hidden p-0 overflow-x-auto">
+      {/* Desktop — Table (oculta, reemplazada por cards) */}
+      <div className="hidden card overflow-hidden p-0 overflow-x-auto">
         <table className="w-full text-sm min-w-[680px]">
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>

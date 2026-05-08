@@ -218,61 +218,105 @@ function CustomerModal({ form, onSave, onClose, saving }) {
     onSave(data);
   }
 
+  const initials = data.name?.trim()
+    ? data.name.trim().split(" ").slice(0,2).map(w=>w[0]).join("").toUpperCase()
+    : (data.id ? "?" : "+");
+
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-zinc-900 rounded-xl p-6 w-full max-w-lg space-y-4 my-auto">
-        <h2 className="text-white font-semibold">{data.id ? "Editar cliente" : "Nuevo cliente"}</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="col-span-2">
-            <label className="block text-xs text-zinc-400 mb-1">Nombre <span className="text-red-400">*</span></label>
-            <input className="input-field" value={data.name || ""} onChange={(e) => set("name", e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Tipo doc. <span className="text-red-400">*</span></label>
-            <select className="input-field" value={data.document_type} onChange={(e) => set("document_type", e.target.value)}>
-              <option value="cedula">Cédula de ciudadanía (C.C.)</option>
-              <option value="nit">NIT</option>
-              <option value="ce">Cédula de extranjería (C.E.)</option>
-              <option value="pp">Pasaporte (PP)</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Número doc. <span className="text-red-400">*</span></label>
-            <input className="input-field" value={data.document_number || ""} onChange={(e) => set("document_number", e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
-            <input className="input-field" value={data.phone || ""} onChange={(e) => set("phone", e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
-            <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} />
-          </div>
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Departamento <span className="text-red-400">*</span></label>
-            <select className="input-field" value={data.department || ""}
-              onChange={(e) => { set("department", e.target.value); set("city", ""); }}>
-              <option value="">Seleccionar...</option>
-              {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1">Ciudad / Municipio <span className="text-red-400">*</span></label>
-            <select className="input-field" value={data.city || ""} onChange={(e) => set("city", e.target.value)}
-              disabled={!data.department}>
-              <option value="">Seleccionar...</option>
-              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="col-span-2">
-            <label className="block text-xs text-zinc-400 mb-1">Dirección</label>
-            <input className="input-field" value={data.address || ""} onChange={(e) => set("address", e.target.value)} />
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl my-auto">
+
+        {/* Header */}
+        <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 px-6 pt-6 pb-7 relative">
+          <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-brand-green/20 border border-brand-green/30 flex items-center justify-center shrink-0">
+              <span className="text-brand-green font-black text-xl">{initials}</span>
+            </div>
+            <div>
+              <h2 className="text-white font-bold text-lg">{data.id ? "Editar cliente" : "Nuevo cliente"}</h2>
+              {data.name && <p className="text-zinc-400 text-sm mt-0.5">{data.name}</p>}
+            </div>
           </div>
         </div>
-        {error && <p className="text-red-400 text-xs">{error}</p>}
-        <div className="flex gap-2 justify-end">
-          <button className="btn-secondary" onClick={onClose}>Cancelar</button>
-          <button className="btn-primary" onClick={handleSave} disabled={saving}>
+
+        {/* Campos */}
+        <div className="px-6 py-4 space-y-4">
+
+          {/* Identidad */}
+          <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
+            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Identidad</p>
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Nombre <span className="text-red-400">*</span></label>
+              <input className="input-field" value={data.name || ""} onChange={(e) => set("name", e.target.value)} placeholder="Nombre completo o razón social" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Tipo doc. <span className="text-red-400">*</span></label>
+                <select className="input-field" value={data.document_type} onChange={(e) => set("document_type", e.target.value)}>
+                  <option value="cedula">C.C.</option>
+                  <option value="nit">NIT</option>
+                  <option value="ce">C.E.</option>
+                  <option value="pp">Pasaporte</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Número doc. <span className="text-red-400">*</span></label>
+                <input className="input-field" value={data.document_number || ""} onChange={(e) => set("document_number", e.target.value)} placeholder="123456789" />
+              </div>
+            </div>
+          </div>
+
+          {/* Contacto */}
+          <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
+            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Contacto</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Teléfono <span className="text-red-400">*</span></label>
+                <input className="input-field" value={data.phone || ""} onChange={(e) => set("phone", e.target.value)} placeholder="300 123 4567" />
+              </div>
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Correo <span className="text-red-400">*</span></label>
+                <input className="input-field" type="email" value={data.email || ""} onChange={(e) => set("email", e.target.value)} placeholder="correo@mail.com" />
+              </div>
+            </div>
+          </div>
+
+          {/* Ubicación */}
+          <div className="bg-zinc-800/50 rounded-xl p-4 space-y-3">
+            <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Ubicación</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Departamento <span className="text-red-400">*</span></label>
+                <select className="input-field" value={data.department || ""}
+                  onChange={(e) => { set("department", e.target.value); set("city", ""); }}>
+                  <option value="">Seleccionar...</option>
+                  {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1">Ciudad / Municipio <span className="text-red-400">*</span></label>
+                <select className="input-field" value={data.city || ""} onChange={(e) => set("city", e.target.value)} disabled={!data.department}>
+                  <option value="">Seleccionar...</option>
+                  {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs text-zinc-400 mb-1">Dirección</label>
+              <input className="input-field" value={data.address || ""} onChange={(e) => set("address", e.target.value)} placeholder="Calle 123 # 45 - 67" />
+            </div>
+          </div>
+
+          {error && <p className="text-red-400 text-xs bg-red-950/50 border border-red-800/50 rounded-lg px-3 py-2">{error}</p>}
+        </div>
+
+        {/* Acciones */}
+        <div className="px-6 pb-6 flex gap-2">
+          <button className="flex-1 btn-secondary" onClick={onClose}>Cancelar</button>
+          <button className="flex-1 btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? "Guardando..." : "Guardar"}
           </button>
         </div>

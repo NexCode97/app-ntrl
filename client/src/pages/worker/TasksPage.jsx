@@ -93,7 +93,8 @@ export default function TasksPage() {
     ? baseTasks.filter((t) =>
         String(t.order_number_fmt ?? "").toLowerCase().includes(q) ||
         String(t.order_number ?? "").toLowerCase().includes(q) ||
-        String(t.customer_name ?? "").toLowerCase().includes(q)
+        String(t.customer_name ?? "").toLowerCase().includes(q) ||
+        String(t.order_name ?? "").toLowerCase().includes(q)
       )
     : baseTasks;
 
@@ -160,7 +161,7 @@ export default function TasksPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por número o cliente..."
+            placeholder="Buscar por número, nombre o cliente..."
             className="input-field w-full pr-8 text-sm"
           />
           {search && (

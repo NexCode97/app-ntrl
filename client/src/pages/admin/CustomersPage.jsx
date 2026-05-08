@@ -2,6 +2,20 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
+import { EyeIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+
+const DOC_LABELS = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" };
+
+function DocBadge({ type, number }) {
+  return (
+    <span className="flex items-center gap-1.5 whitespace-nowrap">
+      <span className="text-[10px] font-bold bg-zinc-700 text-zinc-300 px-1.5 py-0.5 rounded">
+        {DOC_LABELS[type] ?? type?.toUpperCase()}
+      </span>
+      <span className="text-zinc-300">{number}</span>
+    </span>
+  );
+}
 
 export default function CustomersPage() {
   const qc = useQueryClient();
@@ -48,15 +62,25 @@ export default function CustomersPage() {
             {data?.data?.map((c) => (
               <tr key={c.id} className="hover:bg-zinc-800/50 transition-colors">
                 <td className="px-4 py-3 text-white">{c.name}</td>
-                <td className="px-4 py-3 text-zinc-400">{{ cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" }[c.document_type] ?? c.document_type?.toUpperCase()} {c.document_number}</td>
+                <td className="px-4 py-3"><DocBadge type={c.document_type} number={c.document_number} /></td>
                 <td className="px-4 py-3 text-zinc-400">{c.phone || "—"}</td>
                 <td className="px-4 py-3 text-zinc-400">{c.email || "—"}</td>
-                <td className="px-4 py-3 flex gap-2">
-                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setViewing(c)}>Ver</button>
-                  <button className="text-zinc-500 hover:text-zinc-200 text-xs" onClick={() => setForm(c)}>Editar</button>
-                  <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
-                    if (confirm(`¿Eliminar a ${c.name}? Esta acción no se puede deshacer.`)) remove.mutate(c.id);
-                  }}>Eliminar</button>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-1">
+                    <button title="Ver" onClick={() => setViewing(c)}
+                      className="p-1.5 rounded-lg text-zinc-500 hover:text-brand-green hover:bg-zinc-800 transition-colors">
+                      <EyeIcon className="w-4 h-4" />
+                    </button>
+                    <button title="Editar" onClick={() => setForm(c)}
+                      className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors">
+                      <PencilSquareIcon className="w-4 h-4" />
+                    </button>
+                    <button title="Eliminar" onClick={() => {
+                      if (confirm(`¿Eliminar a ${c.name}? Esta acción no se puede deshacer.`)) remove.mutate(c.id);
+                    }} className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors">
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -72,7 +96,7 @@ export default function CustomersPage() {
 
 function CustomerView({ customer: c, onEdit, onClose }) {
   const rows = [
-    ["Documento",    `${c.document_type === "cedula" ? "C.C." : c.document_type?.toUpperCase()} ${c.document_number}`],
+    ["Documento",    <DocBadge key="doc" type={c.document_type} number={c.document_number} />],
     ["Teléfono",     c.phone   || "—"],
     ["Correo",       c.email   || "—"],
     ["Departamento", c.department || "—"],

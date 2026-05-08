@@ -589,20 +589,21 @@ function ProductModal({ form, onSave, onClose, saving, lines }) {
 
           {/* Col derecha: Imagen */}
           <div>
-            <div className="bg-zinc-800/50 rounded-xl p-3 space-y-3 h-full flex flex-col">
+            <div className="bg-zinc-800/50 rounded-xl p-3 space-y-3">
               <p className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider">Imagen</p>
 
               {/* Zona de imagen */}
               <div
-                className={`flex-1 min-h-[160px] rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer
-                  ${dragOver ? "border-brand-green bg-brand-green/5" : "border-zinc-700 hover:border-zinc-500"}`}
+                className={`rounded-xl border-2 border-dashed transition-colors flex flex-col items-center justify-center gap-2 cursor-pointer overflow-hidden
+                  ${dragOver ? "border-brand-green bg-brand-green/5" : "border-zinc-700 hover:border-zinc-500"}
+                  ${preview ? "" : "min-h-[160px]"}`}
                 onClick={() => fileRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={(e) => { e.preventDefault(); setDragOver(false); applyFile(e.dataTransfer.files[0]); }}
               >
                 {preview ? (
-                  <img src={preview} alt="preview" className="w-full h-full object-contain rounded-lg max-h-48" />
+                  <img src={preview} alt="preview" className="w-full object-contain rounded-lg" />
                 ) : (
                   <>
                     <span className="text-zinc-600"><IconImage /></span>

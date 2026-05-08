@@ -71,6 +71,73 @@ function KanbanCard({ order, onClick }) {
   );
 }
 
+const KANBAN_PREVIEW = 5;
+
+function KanbanSection({ production, navigate }) {
+  const [expanded, setExpanded] = useState(false);
+  const total = (production ?? []).length;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-white font-semibold">Producción en curso</h2>
+        {total > KANBAN_PREVIEW && (
+          <button
+            onClick={() => setExpanded((v) => !v)}
+            className="text-xs text-brand-green hover:text-white border border-brand-green/40 hover:border-brand-green rounded-lg px-3 py-1 transition-colors"
+          >
+            {expanded ? "Ver menos" : `Ver completo (${total})`}
+          </button>
+        )}
+      </div>
+
+      {!production?.length ? (
+        <div className="card text-center py-6">
+          <p className="text-zinc-500 text-sm">No hay pedidos en producción.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {KANBAN_COLUMNS.map((col) => {
+            const orders = (production ?? []).filter((o) => o.order_status === col.key);
+            const visible = expanded ? orders : orders.slice(0, KANBAN_PREVIEW);
+            const hidden  = orders.length - visible.length;
+            return (
+              <div key={col.key} className={`bg-zinc-900/50 border ${col.border} rounded-xl p-3`}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
+                  <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
+                  <span className="ml-auto text-xs text-zinc-600 bg-zinc-800 rounded-full px-2 py-0.5">{orders.length}</span>
+                </div>
+                {orders.length === 0 ? (
+                  <p className="text-zinc-700 text-xs text-center py-4">Sin pedidos</p>
+                ) : (
+                  <div className="space-y-2">
+                    {visible.map((order) => (
+                      <KanbanCard
+                        key={order.id}
+                        order={order}
+                        onClick={() => navigate(`/orders/${order.id}`)}
+                      />
+                    ))}
+                    {!expanded && hidden > 0 && (
+                      <button
+                        onClick={() => setExpanded(true)}
+                        className="w-full text-xs text-zinc-500 hover:text-white py-2 border border-dashed border-zinc-700 hover:border-zinc-500 rounded-lg transition-colors"
+                      >
+                        +{hidden} más
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -618,44 +685,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Producción en curso */}
-      <div>
-        <h2 className="text-white font-semibold mb-3">Producción en curso</h2>
-
-        {/* Tablero Kanban */}
-        {!production?.length ? (
-          <div className="card text-center py-6">
-            <p className="text-zinc-500 text-sm">No hay pedidos en producción.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {KANBAN_COLUMNS.map((col) => {
-              const orders = (production ?? []).filter((o) => o.order_status === col.key);
-              return (
-                <div key={col.key} className={`bg-zinc-900/50 border ${col.border} rounded-xl p-3`}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className={`w-2.5 h-2.5 rounded-full ${col.dot}`} />
-                    <span className={`text-sm font-semibold ${col.color}`}>{col.label}</span>
-                    <span className="ml-auto text-xs text-zinc-600 bg-zinc-800 rounded-full px-2 py-0.5">{orders.length}</span>
-                  </div>
-                  {orders.length === 0 ? (
-                    <p className="text-zinc-700 text-xs text-center py-4">Sin pedidos</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {orders.map((order) => (
-                        <KanbanCard
-                          key={order.id}
-                          order={order}
-                          onClick={() => navigate(`/orders/${order.id}`)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <KanbanSection production={production} navigate={navigate} />
     </div>
   );
 }

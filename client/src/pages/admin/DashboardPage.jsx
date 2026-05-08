@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState, useCallback } from "react";
-// useCallback needed for PieChart active shape
 import { api } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import {
@@ -9,6 +8,8 @@ import {
   PieChart, Pie, Cell, Sector,
 } from "recharts";
 import { CalendarDaysIcon } from "@heroicons/react/24/outline";
+import { motion } from "framer-motion";
+import CountUp from "react-countup";
 
 const STATUS_COLORS = {
   pending: "#71717a", in_progress: "#eab308", completed: "#22c55e", delivered: "#98f909",
@@ -369,24 +370,41 @@ export default function DashboardPage() {
 
       {/* FILA 1 — KPIs financieros */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="card text-center">
-          <p className="text-zinc-400 text-sm mb-1">Total facturado</p>
-          <p className="text-brand-green text-2xl font-bold">${Number(financialDisplay?.total_revenue || 0).toLocaleString()}</p>
-        </div>
-        <div className="card text-center">
-          <p className="text-zinc-400 text-sm mb-1">Recaudado</p>
-          <p className="text-white text-2xl font-bold">${Number(financialDisplay?.collected || 0).toLocaleString()}</p>
-        </div>
-        <div className="card text-center">
-          <p className="text-zinc-400 text-sm mb-1">Pendiente de cobro</p>
-          <p className="text-yellow-400 text-2xl font-bold">${Number(financialDisplay?.pending || 0).toLocaleString()}</p>
-        </div>
+        {[
+          { label: "Total facturado",    value: Number(financialDisplay?.total_revenue || 0), color: "text-brand-green" },
+          { label: "Recaudado",          value: Number(financialDisplay?.collected     || 0), color: "text-white"       },
+          { label: "Pendiente de cobro", value: Number(financialDisplay?.pending       || 0), color: "text-yellow-400"  },
+        ].map((kpi, i) => (
+          <motion.div
+            key={kpi.label}
+            className="card text-center"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.08, ease: "easeOut" }}
+          >
+            <p className="text-zinc-400 text-sm mb-1">{kpi.label}</p>
+            <p className={`${kpi.color} text-2xl font-bold`}>
+              $<CountUp
+                end={kpi.value}
+                duration={1.2}
+                separator="."
+                decimal=","
+                preserveValue
+              />
+            </p>
+          </motion.div>
+        ))}
       </div>
 
       {/* FILA 2 — Dona + Ventas por deporte */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
         {/* Dona — estado del dinero */}
-        <div className="card flex flex-col">
+        <motion.div
+          className="card flex flex-col"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.1, ease: "easeOut" }}
+        >
           <h2 className="text-white font-semibold mb-3">
             Estado del dinero
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
@@ -402,6 +420,7 @@ export default function DashboardPage() {
                       data={donutData}
                       cx="50%" cy="50%"
                       innerRadius={55} outerRadius={78}
+                      isAnimationActive animationBegin={200} animationDuration={900} animationEasing="ease-out"
                       dataKey="value"
                       activeIndex={activePieIndex}
                       activeShape={(props) => {
@@ -455,10 +474,15 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Ventas por deporte */}
-        <div className="card flex flex-col flex-1 min-h-[260px]">
+        <motion.div
+          className="card flex flex-col flex-1 min-h-[260px]"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.18, ease: "easeOut" }}
+        >
           <h2 className="text-white font-semibold mb-3">
             Ventas por deporte
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
@@ -485,6 +509,7 @@ export default function DashboardPage() {
                   cursor="pointer"
                   onClick={(data) => setSelectedSport(data.sport === selectedSport ? null : data.sport)}
                   activeBar={{ fill: "#c5ff3a", filter: "drop-shadow(0 0 6px #98f909)" }}
+                  isAnimationActive animationDuration={900} animationEasing="ease-out"
                 >
                   {bySportData.map((entry) => (
                     <Cell
@@ -496,13 +521,17 @@ export default function DashboardPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* FILA 4 — Ventas mensuales + Pedidos por estado */}
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-        <div className="card flex flex-col flex-1 min-h-[260px]">
+        <motion.div
+          className="card flex flex-col flex-1 min-h-[260px]"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.22, ease: "easeOut" }}
+        >
           <h2 className="text-white font-semibold mb-3">Ventas mensuales</h2>
           <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
@@ -527,6 +556,7 @@ export default function DashboardPage() {
                   cursor="pointer"
                   onClick={(data) => setSelectedMonth(data.month === currentMonth ? null : data.month)}
                   activeBar={{ fill: "#c5ff3a", filter: "drop-shadow(0 0 6px #98f909)" }}
+                  isAnimationActive animationDuration={900} animationEasing="ease-out"
                 >
                   {monthlyData.map((entry) => (
                     <Cell
@@ -538,22 +568,35 @@ export default function DashboardPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="card flex flex-col flex-1">
+        <motion.div
+          className="card flex flex-col flex-1"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.3, ease: "easeOut" }}
+        >
           <h2 className="text-white font-semibold mb-3">
             Pedidos por estado
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
           </h2>
           <div className="grid grid-cols-2 gap-3 flex-1">
-            {byStatusData.map((item) => (
-              <div key={item.status} className="bg-zinc-800/50 rounded-xl text-center flex flex-col items-center justify-center py-4">
-                <p className="text-3xl font-black" style={{ color: STATUS_COLORS[item.status] }}>{item.total}</p>
+            {byStatusData.map((item, i) => (
+              <motion.div
+                key={item.status}
+                className="bg-zinc-800/50 rounded-xl text-center flex flex-col items-center justify-center py-4"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.35, delay: 0.32 + i * 0.06, ease: "easeOut" }}
+              >
+                <p className="text-3xl font-black" style={{ color: STATUS_COLORS[item.status] }}>
+                  <CountUp end={item.total} duration={1} preserveValue />
+                </p>
                 <p className="text-zinc-500 text-xs mt-1">{item.label}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Entregas próximas — fila separada debajo */}
@@ -597,7 +640,13 @@ export default function DashboardPage() {
 
       {/* FILA 3 — Carga por área */}
       {areaLoadData.length > 0 && (
-        <div className="card flex flex-col" style={{ minHeight: Math.max(220, areaLoadData.length * 52 + 56) }}>
+        <motion.div
+          className="card flex flex-col"
+          style={{ minHeight: Math.max(220, areaLoadData.length * 52 + 56) }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.26, ease: "easeOut" }}
+        >
           <h2 className="text-white font-semibold mb-3">Carga por área de producción
             <span className="text-zinc-500 font-normal text-xs ml-2">tareas activas</span>
           </h2>
@@ -614,8 +663,8 @@ export default function DashboardPage() {
                   itemStyle={{ color: "#ffffff" }}
                   formatter={(v, name) => [v === 0 ? "—" : `${v} tarea${v !== 1 ? "s" : ""}`, name]}
                 />
-                <Bar dataKey="Pendiente"   fill="#71717a" radius={[0,4,4,0]} stackId="a" cursor="pointer" />
-                <Bar dataKey="En proceso"  fill="#3b82f6" radius={[0,4,4,0]} stackId="a" cursor="pointer" />
+                <Bar dataKey="Pendiente"   fill="#71717a" radius={[0,4,4,0]} stackId="a" cursor="pointer" isAnimationActive animationDuration={900} animationEasing="ease-out" />
+                <Bar dataKey="En proceso"  fill="#3b82f6" radius={[0,4,4,0]} stackId="a" cursor="pointer" isAnimationActive animationDuration={900} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -623,7 +672,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-zinc-500" /><span className="text-zinc-500 text-xs">Pendiente</span></div>
             <div className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-blue-500" /><span className="text-zinc-500 text-xs">En proceso</span></div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Producción en curso */}

@@ -14,10 +14,21 @@ process.on("unhandledRejection", (reason) => {
   console.error("unhandledRejection (proceso continúa):", reason);
 });
 
+async function ensureOrderNameColumn() {
+  try {
+    const { pool } = await import("./config/database.js");
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS name VARCHAR(255)`);
+    console.log("✓ Columna orders.name verificada/creada.");
+  } catch (err) {
+    console.warn("⚠ No se pudo verificar columna orders.name:", err.message);
+  }
+}
+
 async function start() {
   try {
     await testConnection();
     await runMigrations();
+    await ensureOrderNameColumn();
 
     // Redis es opcional — si falla el servidor sigue funcionando sin SSE en tiempo real
     try {

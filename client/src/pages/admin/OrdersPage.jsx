@@ -83,15 +83,15 @@ export default function OrdersPage() {
             ))}
           </select>
         </div>
-        <div className="hidden md:flex items-center gap-1 bg-zinc-800/60 border border-zinc-700 rounded-xl p-1 w-fit">
+        <div className="hidden md:flex items-center gap-2 flex-wrap">
           {[{ value: "", label: "Todos" }, ...Object.entries(STATUS_LABELS).map(([v, { label }]) => ({ value: v, label }))].map((tab) => (
             <button
               key={tab.value}
               onClick={() => { setStatus(tab.value); setPage(1); }}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
                 statusFilter === tab.value
-                  ? "bg-zinc-700 text-white"
-                  : "text-zinc-400 hover:text-white"
+                  ? "bg-brand-green text-black border-brand-green font-semibold"
+                  : "text-zinc-400 border-zinc-700 hover:border-zinc-500"
               }`}
             >
               {tab.label}

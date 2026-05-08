@@ -9,15 +9,9 @@ const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="14" heigh
 const DOC_LABELS = { cedula: "C.C.", nit: "NIT", ce: "C.E.", pp: "PP" };
 
 function FlagImg({ code, size = 20 }) {
+  const country = COUNTRIES.find((c) => c.code === code);
   return (
-    <img
-      src={`https://flagcdn.com/w${size}/${code.toLowerCase()}.png`}
-      width={size}
-      alt=""
-      className="rounded-sm shrink-0 object-cover"
-      style={{ height: size * 0.667 }}
-      onError={(e) => { e.target.style.display = "none"; }}
-    />
+    <span style={{ fontSize: size, lineHeight: 1 }}>{country?.flag ?? "🏳"}</span>
   );
 }
 

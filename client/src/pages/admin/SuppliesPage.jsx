@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../config/api.js";
 import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
+import { UserIcon, PhoneIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
 
 const STATUS_COLORS = {
   pending:     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
@@ -247,9 +248,9 @@ function SuppliersTab({ showForm, setShowForm }) {
               <button onClick={() => setForm(s)} className="text-zinc-500 hover:text-brand-green text-xs shrink-0">Editar</button>
             </div>
             <div className="space-y-1 text-sm">
-              {s.contact_name && <p className="text-zinc-400">👤 {s.contact_name}</p>}
-              {s.phone        && <p className="text-zinc-400">📞 {s.phone}</p>}
-              {s.email        && <p className="text-zinc-400">✉️ {s.email}</p>}
+              {s.contact_name && <p className="text-zinc-400 flex items-center gap-1.5"><UserIcon className="w-3.5 h-3.5 shrink-0" /> {s.contact_name}</p>}
+              {s.phone        && <p className="text-zinc-400 flex items-center gap-1.5"><PhoneIcon className="w-3.5 h-3.5 shrink-0" /> {s.phone}</p>}
+              {s.email        && <p className="text-zinc-400 flex items-center gap-1.5"><EnvelopeIcon className="w-3.5 h-3.5 shrink-0" /> {s.email}</p>}
               {(s.address || s.department || s.city) && (
                 <p className="text-zinc-500 text-xs">
                   {[s.address, s.city, s.department].filter(Boolean).join(", ")}

@@ -7,6 +7,7 @@ import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
 import { fileUrl } from "../../utils/fileUrl.js";
 import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
+import { DocumentIcon, ReceiptPercentIcon } from "@heroicons/react/24/outline";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -27,7 +28,7 @@ function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
         </Document>
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-zinc-200">
-          <span className="text-2xl">📄</span>
+          <DocumentIcon className="w-6 h-6" />
           {label && <span className="text-[9px] truncate w-full text-center px-1">{label}</span>}
         </div>
       )}
@@ -141,6 +142,9 @@ export default function OrderDetailPage() {
                 <span className="text-brand-green font-mono font-bold text-xl">#{data.order_number}</span>
                 <span className={s.cls}>{s.label}</span>
               </div>
+              {data.name && (
+                <p className="text-white font-semibold text-sm mt-0.5">{data.name}</p>
+              )}
               <p className="text-zinc-400 text-sm mt-1">{data.customer_name} · {data.document_number}</p>
               {data.delivery_date && (
                 <p className="text-zinc-500 text-xs mt-0.5">
@@ -162,8 +166,8 @@ export default function OrderDetailPage() {
             {data.status !== "delivered" && data.status === "completed" && (
               <button className="btn-primary" onClick={markDelivered}>Marcar entregado</button>
             )}
-            <button className="btn-secondary" onClick={handleDownloadInvoice} title="Descargar factura PDF">
-              🧾 Factura
+            <button className="btn-secondary flex items-center gap-1.5" onClick={handleDownloadInvoice} title="Descargar factura PDF">
+              <ReceiptPercentIcon className="w-4 h-4" /> Factura
             </button>
             <button
               onClick={handleDelete}
@@ -542,7 +546,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
                           className="flex flex-col items-center justify-center w-16 h-16 rounded-lg
                                      bg-zinc-700 border-2 border-zinc-500 hover:border-brand-green
                                      transition-colors text-zinc-200 hover:text-brand-green text-xs gap-0.5 px-1">
-                          <span className="text-2xl">📄</span>
+                          <DocumentIcon className="w-6 h-6" />
                           <span className="truncate w-full text-center">{label}</span>
                         </a>
                       ) : (

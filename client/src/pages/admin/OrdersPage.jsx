@@ -53,6 +53,7 @@ export default function OrdersPage() {
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>
               <th className="px-4 py-3 text-left">#</th>
+              <th className="px-4 py-3 text-left">Nombre</th>
               <th className="px-4 py-3 text-left">Cliente</th>
               <th className="px-4 py-3 text-center">Estado</th>
               <th className="px-4 py-3 text-center">Creación</th>
@@ -63,7 +64,7 @@ export default function OrdersPage() {
           </thead>
           <tbody className="divide-y divide-zinc-800">
             {isLoading && (
-              <tr><td colSpan={7} className="text-center py-8 text-zinc-500">Cargando...</td></tr>
+              <tr><td colSpan={8} className="text-center py-8 text-zinc-500">Cargando...</td></tr>
             )}
             {data?.data?.map((order) => {
               const s = STATUS_LABELS[order.status] || STATUS_LABELS.pending;
@@ -72,6 +73,7 @@ export default function OrdersPage() {
                   className="hover:bg-zinc-800/50 cursor-pointer transition-colors"
                   onClick={() => navigate(`/orders/${order.id}`)}>
                   <td className="px-4 py-3 font-mono text-brand-green font-semibold">#{order.order_number}</td>
+                  <td className="px-4 py-3 text-zinc-300 max-w-[180px] truncate">{order.name || <span className="text-zinc-600">—</span>}</td>
                   <td className="px-4 py-3 text-white">{order.customer_name}</td>
                   <td className="px-4 py-3 text-center"><span className={`${s.cls} whitespace-nowrap`}>{s.label}</span></td>
                   <td className="px-4 py-3 text-center text-zinc-400">{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</td>
@@ -82,7 +84,7 @@ export default function OrdersPage() {
               );
             })}
             {!isLoading && !data?.data?.length && (
-              <tr><td colSpan={7} className="text-center py-8 text-zinc-500">No hay pedidos.</td></tr>
+              <tr><td colSpan={8} className="text-center py-8 text-zinc-500">No hay pedidos.</td></tr>
             )}
           </tbody>
         </table>

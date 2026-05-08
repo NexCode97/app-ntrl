@@ -12,10 +12,10 @@ export async function createOrder(userId, data, designFiles = []) {
 
     // Crear pedido
     const { rows: [order] } = await client.query(
-      `INSERT INTO orders (customer_id, created_by, delivery_date, description, design_file)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO orders (customer_id, created_by, name, delivery_date, description, design_file)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, order_number`,
-      [data.customer_id, userId, data.delivery_date || null, data.description || null, designValue]
+      [data.customer_id, userId, data.name || null, data.delivery_date || null, data.description || null, designValue]
     );
 
     // Insertar items (el trigger calcula subtotal y total)
@@ -132,7 +132,7 @@ export async function listOrders(pagination, filters) {
 
   const { rows } = await pool.query(
     `SELECT o.id, TO_CHAR(o.order_number,'FM000') as order_number,
-            o.status, o.total, o.balance, o.delivery_date, o.created_at,
+            o.name, o.status, o.total, o.balance, o.delivery_date, o.created_at,
             c.name as customer_name
      FROM orders o
      JOIN customers c ON c.id = o.customer_id
@@ -166,6 +166,12 @@ export async function updateOrder(orderId, userId, data, newDesignFiles = []) {
       vals.push(data.customer_id);
       sets.push(`customer_id = $${vals.length}`);
       changes.customer_id = { old: before.rows[0].customer_id, new: data.customer_id };
+    }
+
+    if (data.name !== undefined) {
+      vals.push(data.name || null);
+      sets.push(`name = $${vals.length}`);
+      changes.name = { old: before.rows[0].name, new: data.name };
     }
 
     if (data.delivery_date !== undefined) {

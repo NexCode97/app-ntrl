@@ -5,6 +5,7 @@ import { api } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 import DownloadIcon from "../../components/ui/DownloadIcon.jsx";
+import { DocumentIcon } from "@heroicons/react/24/outline";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -26,7 +27,7 @@ function PdfThumbnail({ url, label, onClick, width = 96, btnClassName = "" }) {
         </Document>
       ) : (
         <div className="flex flex-col items-center justify-center w-full h-full gap-1 text-zinc-600">
-          <span className="text-2xl">📄</span>
+          <DocumentIcon className="w-6 h-6" />
           {label && <span className="text-[9px] truncate w-full text-center px-1">{label}</span>}
         </div>
       )}

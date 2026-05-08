@@ -5,37 +5,51 @@ import { useAuthStore } from "../../stores/authStore.js";
 import { api, API_BASE } from "../../config/api.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 import { subscribeToPush } from "../../utils/pushSubscription.js";
+import {
+  ChartBarIcon,
+  ClipboardDocumentListIcon,
+  DocumentTextIcon,
+  UsersIcon,
+  TagIcon,
+  ArchiveBoxIcon,
+  ChatBubbleLeftRightIcon,
+  UserIcon,
+  PresentationChartLineIcon,
+  CalendarDaysIcon,
+  CheckCircleIcon,
+  ArrowRightStartOnRectangleIcon,
+} from "@heroicons/react/24/outline";
 
 const AREA_LABELS = { corte: "Corte", diseno: "Diseño", sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados" };
 
 const VENDEDOR_LINKS = [
-  { to: "/dashboard", label: "Dashboard",    icon: "📊" },
-  { to: "/orders",    label: "Pedidos",      icon: "📋" },
-  { to: "/quotes",    label: "Cotizaciones", icon: "📝" },
-  { to: "/customers", label: "Clientes",     icon: "👥" },
-  { to: "/catalog",   label: "Catálogo",     icon: "🏷️" },
-  { to: "/supplies",  label: "Suministros",  icon: "📦" },
-  { to: "/chat",      label: "Mensajes",     icon: "💬" },
+  { to: "/dashboard", label: "Dashboard",    Icon: ChartBarIcon },
+  { to: "/orders",    label: "Pedidos",      Icon: ClipboardDocumentListIcon },
+  { to: "/quotes",    label: "Cotizaciones", Icon: DocumentTextIcon },
+  { to: "/customers", label: "Clientes",     Icon: UsersIcon },
+  { to: "/catalog",   label: "Catálogo",     Icon: TagIcon },
+  { to: "/supplies",  label: "Suministros",  Icon: ArchiveBoxIcon },
+  { to: "/chat",      label: "Mensajes",     Icon: ChatBubbleLeftRightIcon },
 ];
 
 const ADMIN_LINKS = [
-  { to: "/dashboard", label: "Dashboard",    icon: "📊" },
-  { to: "/orders",    label: "Pedidos",      icon: "📋" },
-  { to: "/quotes",    label: "Cotizaciones", icon: "📝" },
-  { to: "/customers", label: "Clientes",     icon: "👥" },
-  { to: "/catalog",   label: "Catálogo",     icon: "🏷️" },
-  { to: "/users",     label: "Usuarios",     icon: "👤" },
-  { to: "/supplies",  label: "Suministros",  icon: "📦" },
-  { to: "/reports",   label: "Reportes",     icon: "📈" },
-  { to: "/calendar",  label: "Calendario",   icon: "📅" },
-  { to: "/chat",      label: "Mensajes",     icon: "💬" },
+  { to: "/dashboard", label: "Dashboard",    Icon: ChartBarIcon },
+  { to: "/orders",    label: "Pedidos",      Icon: ClipboardDocumentListIcon },
+  { to: "/quotes",    label: "Cotizaciones", Icon: DocumentTextIcon },
+  { to: "/customers", label: "Clientes",     Icon: UsersIcon },
+  { to: "/catalog",   label: "Catálogo",     Icon: TagIcon },
+  { to: "/users",     label: "Usuarios",     Icon: UserIcon },
+  { to: "/supplies",  label: "Suministros",  Icon: ArchiveBoxIcon },
+  { to: "/reports",   label: "Reportes",     Icon: PresentationChartLineIcon },
+  { to: "/calendar",  label: "Calendario",   Icon: CalendarDaysIcon },
+  { to: "/chat",      label: "Mensajes",     Icon: ChatBubbleLeftRightIcon },
 ];
 
 const WORKER_LINKS = [
-  { to: "/tasks",    label: "Mis Tareas",   icon: "✅" },
-  { to: "/supplies", label: "Suministros",  icon: "📦" },
-  { to: "/chat",     label: "Mensajes",     icon: "💬" },
-  { to: "/calendar", label: "Calendario",   icon: "📅" },
+  { to: "/tasks",    label: "Mis Tareas",   Icon: CheckCircleIcon },
+  { to: "/supplies", label: "Suministros",  Icon: ArchiveBoxIcon },
+  { to: "/chat",     label: "Mensajes",     Icon: ChatBubbleLeftRightIcon },
+  { to: "/calendar", label: "Calendario",   Icon: CalendarDaysIcon },
 ];
 
 export default function Sidebar() {
@@ -134,7 +148,7 @@ export default function Sidebar() {
 
       {/* Nav links */}
       <nav className="md:flex-1 px-2 space-y-1 overflow-y-auto max-h-[60vh] md:max-h-none">
-        {links.map(({ to, label, icon }) => (
+        {links.map(({ to, label, Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -153,8 +167,8 @@ export default function Sidebar() {
             {(() => {
               const count = to === "/chat" ? chatUnread : to === "/tasks" ? tasksCount : (to === "/supplies" && user?.role === "admin") ? suppliesCount : 0;
               return (
-                <span className="text-lg w-6 text-center relative">
-                  {icon}
+                <span className="w-5 h-5 relative shrink-0">
+                  <Icon className="w-5 h-5" />
                   {count > 0 && (
                     <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
                       {count > 9 ? "9+" : count}
@@ -194,7 +208,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="flex items-center gap-3 w-full px-2 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors text-sm"
         >
-          <span className="text-lg w-6 text-center">🚪</span>
+          <ArrowRightStartOnRectangleIcon className="w-5 h-5 shrink-0" />
           <span className="hidden md:block">Salir</span>
         </button>
       </div>

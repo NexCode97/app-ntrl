@@ -195,7 +195,7 @@ El proyecto tiene una arquitectura completa y funcional. El código cubre fronte
 
 > Actualizar esta sección con cada nueva tarea discutida.
 
-- [ ] *(Agregar tareas aquí)*
+- [ ] Rediseño general de la app (UI/UX) — en planificación
 
 ---
 
@@ -228,5 +228,9 @@ El proyecto tiene una arquitectura completa y funcional. El código cubre fronte
 - **Fix:** Gráficas del dashboard — `revenue` traducido a `Ingresos`, valores del eje Y abreviados (`$36M`), tooltip muestra valor completo en pesos colombianos, mes en formato `abr. 2026`.
 
 ---
+
+### 2026-05-08
+- **Feature:** Campo **"Nombre del pedido"** — migración 031, backend (service + validation), frontend (OrderCreatePage, OrderDetailPage, OrdersPage). Campo opcional de texto libre (máx. 255 chars) para identificar rápidamente el pedido. Se muestra en la lista como columna y en el detalle debajo del número.
+- **Feature:** Reemplazo masivo de emojis por SVGs — instalada librería `@heroicons/react`. Actualizados: Sidebar (todos los íconos de menú + logout), OfflineBanner (⚠️), OrderCreatePage (📄, 📝), OrderDetailPage (📄, 🧾), TaskDetailPage (📄), TasksPage (✅), QuotesPage (✉, 📞, 📄, 📋), SuppliesPage (👤, 📞, ✉️), DashboardPage (📅). Emojis del chat (reacciones) se mantienen intactos.
 
 *Archivo mantenido manualmente. Actualizar al final de cada sesión de trabajo significativa.*

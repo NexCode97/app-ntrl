@@ -5,6 +5,7 @@ import { api, API_BASE } from "../../config/api.js";
 import { useAuthStore } from "../../stores/authStore.js";
 import { fileUrl } from "../../utils/fileUrl.js";
 import { hardRefresh } from "../../utils/hardRefresh.js";
+import { CheckCircleIcon } from "@heroicons/react/24/outline";
 
 const AREA_LABELS = {
   corte: "Corte", diseno: "Diseño", impresion: "Impresión",
@@ -184,7 +185,7 @@ export default function TasksPage() {
 
         {!isLoading && visibleTasks.length === 0 && (
           <div className="card text-center py-10">
-            <p className="text-4xl mb-3">✅</p>
+            <CheckCircleIcon className="w-12 h-12 text-brand-green mx-auto mb-3" />
             <p className="text-white font-medium">¡Todo al día!</p>
             <p className="text-zinc-500 text-sm mt-1">No tienes tareas pendientes por ahora.</p>
           </div>

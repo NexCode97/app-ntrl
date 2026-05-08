@@ -6,6 +6,12 @@ import { useAuthStore } from "../../stores/authStore.js";
 import CascadeFilter      from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid   from "../../components/orders/SizeQuantityGrid.jsx";
 import DownloadIcon       from "../../components/ui/DownloadIcon.jsx";
+import {
+  PhoneIcon,
+  DocumentArrowDownIcon,
+  EnvelopeIcon,
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/react/24/outline";
 
 const GENDERS = [
   { value: "nino",   label: "Niño"         },
@@ -395,8 +401,8 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
         <div className="card mb-4">
           <p className="text-zinc-400 text-xs mb-2">CLIENTE</p>
           <p className="text-white font-semibold">{quote.customer_name}</p>
-          {quote.customer_email && <p className="text-zinc-400 text-sm">✉ {quote.customer_email}</p>}
-          {quote.customer_phone && <p className="text-zinc-400 text-sm">📞 {quote.customer_phone}</p>}
+          {quote.customer_email && <p className="text-zinc-400 text-sm flex items-center gap-1.5"><EnvelopeIcon className="w-3.5 h-3.5 shrink-0" /> {quote.customer_email}</p>}
+          {quote.customer_phone && <p className="text-zinc-400 text-sm flex items-center gap-1.5"><PhoneIcon className="w-3.5 h-3.5 shrink-0" /> {quote.customer_phone}</p>}
           <p className="text-zinc-500 text-xs mt-2">
             Vigencia: {quote.valid_days} días ·
             Creada: {new Date(quote.created_at).toLocaleDateString("es-CO")} ·
@@ -466,18 +472,18 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
           </button>
           <button onClick={handleDownloadCatalog} disabled={downloadingCat}
             className="btn-secondary text-sm px-4 flex items-center gap-2 disabled:opacity-60">
-            {downloadingCat ? "Generando..." : "📄 Descargar catálogo"}
+            {downloadingCat ? "Generando..." : <><DocumentArrowDownIcon className="w-4 h-4" /> Descargar catálogo</>}
           </button>
           {quote.customer_email && (
             <button onClick={handleSendEmail} disabled={sending}
               className="btn-secondary text-sm px-4 flex items-center gap-2">
-              {sending ? "Enviando..." : "✉ Enviar por correo"}
+              {sending ? "Enviando..." : <><EnvelopeIcon className="w-4 h-4" /> Enviar por correo</>}
             </button>
           )}
           {quote.status === "approved" && (
             <button onClick={() => onConvert(quote)}
               className="btn-primary text-sm px-4 flex items-center gap-2">
-              📋 Convertir en pedido
+              <ClipboardDocumentCheckIcon className="w-4 h-4" /> Convertir en pedido
             </button>
           )}
           <button onClick={() => setEditing(true)}

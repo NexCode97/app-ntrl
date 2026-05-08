@@ -15,6 +15,7 @@ export const orderItemSchema = Joi.object({
 
 export const createOrderSchema = Joi.object({
   customer_id:   Joi.string().uuid().required(),
+  name:          Joi.string().max(255).optional().allow("", null),
   delivery_date: Joi.date().iso().optional().allow(null),
   description:   Joi.string().max(1000).optional().allow("", null),
   items:         Joi.array().items(orderItemSchema).min(1).required(),
@@ -22,6 +23,7 @@ export const createOrderSchema = Joi.object({
 
 export const updateOrderSchema = Joi.object({
   customer_id:        Joi.string().uuid().optional(),
+  name:               Joi.string().max(255).optional().allow("", null),
   delivery_date:      Joi.date().iso().optional().allow(null, ""),
   description:        Joi.string().max(1000).optional().allow("", null),
   status:             Joi.string().valid("delivered").optional(),

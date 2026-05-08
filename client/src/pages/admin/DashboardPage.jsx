@@ -7,6 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid
 } from "recharts";
+import { CalendarDaysIcon } from "@heroicons/react/24/outline";
 
 const STATUS_COLORS = {
   pending: "#71717a", in_progress: "#eab308", completed: "#22c55e", delivered: "#98f909",
@@ -50,7 +51,7 @@ function KanbanCard({ order, onClick }) {
       <p className="text-white text-xs font-medium truncate">{order.customer_name}</p>
       {order.delivery_date && (
         <p className="text-zinc-500 text-[11px]">
-          📅 {new Date(String(order.delivery_date).slice(0,10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
+          <CalendarDaysIcon className="w-3 h-3 inline-block mr-0.5 -mt-0.5" /> {new Date(String(order.delivery_date).slice(0,10) + "T12:00:00").toLocaleDateString("es-CO", { day:"2-digit", month:"short" })}
         </p>
       )}
       <div className="w-full bg-zinc-800 rounded-full h-1">

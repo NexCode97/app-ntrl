@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import CascadeFilter from "../../components/orders/CascadeFilter.jsx";
 import SizeQuantityGrid from "../../components/orders/SizeQuantityGrid.jsx";
+import { DocumentTextIcon, DocumentIcon } from "@heroicons/react/24/outline";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -20,7 +21,7 @@ function PdfThumbnail({ url, width = 40 }) {
           <Page pageNumber={1} width={width} renderAnnotationLayer={false} renderTextLayer={false} />
         </Document>
       ) : (
-        <span className="text-base">📄</span>
+        <DocumentIcon className="w-5 h-5 text-zinc-400" />
       )}
     </div>
   );
@@ -52,6 +53,7 @@ export default function OrderCreatePage() {
   const [customerId,    setCustomerId]    = useState("");
   const [customerQuery, setCustomerQuery] = useState("");
   const [customers,     setCustomers]     = useState([]);
+  const [orderName,     setOrderName]     = useState("");
   const [deliveryDate,  setDeliveryDate]  = useState("");
   const [description,   setDescription]  = useState("");
   const [designFiles,   setDesignFiles]   = useState([]);
@@ -109,6 +111,7 @@ export default function OrderCreatePage() {
     try {
       const formData = new FormData();
       formData.append("customer_id", customerId);
+      if (orderName)    formData.append("name",          orderName);
       if (deliveryDate) formData.append("delivery_date", deliveryDate);
       if (description)  formData.append("description",   description);
       formData.append("items", JSON.stringify(items.map(({ product_id, gender, sizes, unit_price, design_file_index }) => ({
@@ -147,7 +150,7 @@ export default function OrderCreatePage() {
       </div>
       {fromQuoteBanner && (
         <div className="bg-blue-950 border border-blue-700 rounded-xl px-4 py-3 text-blue-300 text-sm flex items-center gap-2">
-          📝 <span>Pedido pre-cargado desde una cotización. Selecciona el cliente y adjunta los diseños para continuar.</span>
+          <DocumentTextIcon className="w-4 h-4 shrink-0" /> <span>Pedido pre-cargado desde una cotización. Selecciona el cliente y adjunta los diseños para continuar.</span>
         </div>
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -180,6 +183,17 @@ export default function OrderCreatePage() {
         {/* Info del pedido */}
         <div className="card">
           <h2 className="text-white font-semibold mb-4">Información del pedido</h2>
+          <div className="mb-4">
+            <label className="block text-xs text-zinc-400 mb-1">Nombre del pedido</label>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="Ej: Uniformes Ciclismo Club Medellín"
+              value={orderName}
+              onChange={(e) => setOrderName(e.target.value)}
+              maxLength={255}
+            />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-zinc-400 mb-1">Fecha de entrega</label>

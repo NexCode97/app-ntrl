@@ -55,14 +55,14 @@ export default function OrdersPage() {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="space-y-2">
+        <input
+          className="input-field w-full md:max-w-xs"
+          placeholder="Buscar por # o cliente..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+        />
         <div className="flex items-center gap-3">
-          <input
-            className="input-field flex-1 md:max-w-xs"
-            placeholder="Buscar por # o cliente..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
-          <button className="btn-primary shrink-0 whitespace-nowrap" onClick={() => navigate("/orders/new")}>
+          <button className="btn-primary w-full md:w-auto whitespace-nowrap" onClick={() => navigate("/orders/new")}>
             + Nuevo Pedido
           </button>
         </div>

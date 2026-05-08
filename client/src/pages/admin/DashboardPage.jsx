@@ -458,12 +458,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Ventas por deporte */}
-        <div className="flex flex-col">
+        <div className="card flex flex-col flex-1 min-h-[260px]">
           <h2 className="text-white font-semibold mb-3">
             Ventas por deporte
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
           </h2>
-          <div className="card flex-1 min-h-[260px]">
+          <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={bySportData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
@@ -500,10 +500,11 @@ export default function DashboardPage() {
       </div>
 
       {/* FILA 4 — Ventas mensuales + Pedidos por estado */}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-        <div className="flex flex-col">
+        <div className="card flex flex-col flex-1 min-h-[260px]">
           <h2 className="text-white font-semibold mb-3">Ventas mensuales</h2>
-          <div className="card flex-1 min-h-[260px]">
+          <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
@@ -539,14 +540,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="flex flex-col">
+        <div className="card flex flex-col flex-1">
           <h2 className="text-white font-semibold mb-3">
             Pedidos por estado
             <span className="text-zinc-500 font-normal text-xs ml-2">{formatMonth(selectedMonth ?? currentMonth)}</span>
           </h2>
           <div className="grid grid-cols-2 gap-3 flex-1">
             {byStatusData.map((item) => (
-              <div key={item.status} className="card text-center flex flex-col items-center justify-center">
+              <div key={item.status} className="bg-zinc-800/50 rounded-xl text-center flex flex-col items-center justify-center py-4">
                 <p className="text-3xl font-black" style={{ color: STATUS_COLORS[item.status] }}>{item.total}</p>
                 <p className="text-zinc-500 text-xs mt-1">{item.label}</p>
               </div>
@@ -596,11 +597,11 @@ export default function DashboardPage() {
 
       {/* FILA 3 — Carga por área */}
       {areaLoadData.length > 0 && (
-        <div>
+        <div className="card flex flex-col" style={{ minHeight: Math.max(220, areaLoadData.length * 52 + 56) }}>
           <h2 className="text-white font-semibold mb-3">Carga por área de producción
             <span className="text-zinc-500 font-normal text-xs ml-2">tareas activas</span>
           </h2>
-          <div className="card" style={{ height: Math.max(180, areaLoadData.length * 52) }}>
+          <div className="flex-1">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={areaLoadData} layout="vertical" margin={{ left: 8, right: 24, top: 4, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" horizontal={false} />

@@ -137,8 +137,8 @@ export default function DashboardPage() {
   });
 
   const { data: sportByMonth } = useQuery({
-    queryKey: ["sport-by-month", selectedMonth],
-    queryFn:  () => api.get(`/dashboard/sport-by-month${selectedMonth ? `?month=${selectedMonth}` : ""}`).then((r) => r.data.data),
+    queryKey: ["sport-by-month", selectedMonth ?? currentMonth],
+    queryFn:  () => api.get(`/dashboard/sport-by-month?month=${selectedMonth ?? currentMonth}`).then((r) => r.data.data),
     staleTime: 5 * 60 * 1000,
   });
 

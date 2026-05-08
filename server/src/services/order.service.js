@@ -12,7 +12,7 @@ export async function createOrder(userId, data, designFiles = []) {
 
     // Verificar si la columna name ya existe en BD
     const { rows: colExists } = await client.query(
-      `SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='name' LIMIT 1`
+      `SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='orders' AND column_name='name' LIMIT 1`
     );
     const hasNameCol = colExists.length > 0;
 
@@ -183,7 +183,7 @@ export async function updateOrder(orderId, userId, data, newDesignFiles = []) {
     if (data.name !== undefined) {
       // Verificar que la columna ya existe en la BD (puede no haberse aplicado la migración aún)
       const { rows: colExists } = await client.query(
-        `SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='name' LIMIT 1`
+        `SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='orders' AND column_name='name' LIMIT 1`
       );
       if (colExists.length > 0) {
         vals.push(data.name || null);

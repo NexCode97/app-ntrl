@@ -25,9 +25,12 @@ function OrderCard({ order, onClick }) {
       {order.name && (
         <p className="text-zinc-400 text-xs truncate">{order.name}</p>
       )}
-      <div className="flex items-center justify-between pt-1 border-t border-zinc-800 text-xs text-zinc-500">
-        <span>{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</span>
-        <div className="flex items-center gap-3">
+      <div className="pt-1 border-t border-zinc-800 space-y-1.5">
+        <div className="flex items-center justify-between text-xs text-zinc-500">
+          <span>Creación: <span className="text-zinc-400">{order.created_at ? new Date(order.created_at).toLocaleDateString("es-CO") : "—"}</span></span>
+          <span>Entrega: <span className={order.delivery_date ? "text-zinc-400" : "text-zinc-600"}>{order.delivery_date ? new Date(order.delivery_date).toLocaleDateString("es-CO") : "Sin fecha"}</span></span>
+        </div>
+        <div className="flex items-center justify-between text-xs">
           <span className="text-white font-medium">${Number(order.total).toLocaleString()}</span>
           {Number(order.balance) > 0 && (
             <span className="text-yellow-400">Saldo: ${Number(order.balance).toLocaleString()}</span>

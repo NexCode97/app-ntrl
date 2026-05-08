@@ -414,6 +414,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
   const [customerId,    setCustomerId]    = useState(order.customer_id);
   const [customerQuery, setCustomerQuery] = useState(order.customer_name || "");
   const [customers,     setCustomers]     = useState([]);
+  const [orderName,     setOrderName]     = useState(order.name || "");
   const [deliveryDate,  setDeliveryDate]  = useState(
     order.delivery_date ? order.delivery_date.slice(0, 10) : ""
   );
@@ -465,6 +466,7 @@ function EditOrderModal({ order, onClose, onSaved }) {
     try {
       const formData = new FormData();
       if (customerId && customerId !== order.customer_id) formData.append("customer_id", customerId);
+      formData.append("name", orderName);
       if (deliveryDate) formData.append("delivery_date", deliveryDate);
       formData.append("description", description);
       formData.append("items", JSON.stringify(items.map(({ product_id, gender, sizes, unit_price, design_file_index }) => ({
@@ -516,6 +518,19 @@ function EditOrderModal({ order, onClose, onSaved }) {
                 </ul>
               )}
             </div>
+          </div>
+
+          {/* Nombre del pedido */}
+          <div>
+            <label className="block text-xs text-zinc-400 mb-1">Nombre del pedido</label>
+            <input
+              type="text"
+              className="input-field"
+              placeholder="Ej: Uniformes Ciclismo Club Medellín"
+              value={orderName}
+              onChange={(e) => setOrderName(e.target.value)}
+              maxLength={255}
+            />
           </div>
 
           {/* Fecha de entrega */}

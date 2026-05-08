@@ -68,10 +68,9 @@ function DialCodePicker({ value, onChange }) {
               <li key={c.code}>
                 <button
                   type="button"
-                  onClick={() => { onChange(c.dial); setOpen(false); }}
+                  onClick={() => { onChange(c.code); setOpen(false); }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-zinc-700 transition-colors text-left
                     ${c.code === value ? "bg-zinc-700 text-white" : "text-zinc-300"}`}
-                  onClick={() => { onChange(c.code); setOpen(false); }}
                 >
                   <FlagImg code={c.code} size={20} />
                   <span className="flex-1 truncate">{c.name}</span>

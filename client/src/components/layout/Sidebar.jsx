@@ -38,11 +38,11 @@ const ADMIN_LINKS = [
   { to: "/quotes",    label: "Cotizaciones", Icon: DocumentTextIcon },
   { to: "/customers", label: "Clientes",     Icon: UsersIcon },
   { to: "/catalog",   label: "Catálogo",     Icon: TagIcon },
-  { to: "/users",     label: "Usuarios",     Icon: UserIcon },
   { to: "/supplies",  label: "Suministros",  Icon: ArchiveBoxIcon },
   { to: "/reports",   label: "Reportes",     Icon: PresentationChartLineIcon },
   { to: "/calendar",  label: "Calendario",   Icon: CalendarDaysIcon },
   { to: "/chat",      label: "Mensajes",     Icon: ChatBubbleLeftRightIcon },
+  { to: "/users",     label: "Usuarios",     Icon: UserIcon },
 ];
 
 const WORKER_LINKS = [

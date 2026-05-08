@@ -12,7 +12,8 @@ function DialCodePicker({ value, onChange }) {
   const [open, setOpen]   = useState(false);
   const [q,    setQ]      = useState("");
   const ref               = useRef(null);
-  const selected          = COUNTRIES.find((c) => c.dial === value) ?? COUNTRIES[0];
+  // value es el country code ("CO", "US", etc.) — único por país
+  const selected          = COUNTRIES.find((c) => c.code === value) ?? COUNTRIES[0];
   const filtered          = q
     ? COUNTRIES.filter((c) => c.name.toLowerCase().includes(q.toLowerCase()) || c.dial.includes(q))
     : COUNTRIES;
@@ -66,7 +67,8 @@ function DialCodePicker({ value, onChange }) {
                   type="button"
                   onClick={() => { onChange(c.dial); setOpen(false); }}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm hover:bg-zinc-700 transition-colors text-left
-                    ${c.dial === value ? "bg-zinc-700 text-white" : "text-zinc-300"}`}
+                    ${c.code === value ? "bg-zinc-700 text-white" : "text-zinc-300"}`}
+                  onClick={() => { onChange(c.code); setOpen(false); }}
                 >
                   <FlagImg code={c.code} size={20} />
                   <span className="flex-1 truncate">{c.name}</span>
@@ -479,8 +481,21 @@ function CustomerView({ customer: c, onEdit, onClose }) {
   );
 }
 
+// Parsea un teléfono guardado y devuelve { countryCode, localPhone }
+function parsePhone(phone) {
+  if (!phone) return { countryCode: "CO", localPhone: "" };
+  // Ordenar por longitud de dial desc para evitar falsos positivos (ej: +1 vs +1868)
+  const sorted = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length);
+  const match = sorted.find((c) => phone.startsWith(c.dial));
+  if (match) return { countryCode: match.code, localPhone: phone.slice(match.dial.length).trim() };
+  return { countryCode: "CO", localPhone: phone };
+}
+
 function CustomerModal({ form, onSave, onClose, saving }) {
-  const [data, setData] = useState({ document_type: "cedula", is_company: false, dial_code: "+57", ...form });
+  const [data, setData] = useState(() => {
+    const { countryCode, localPhone } = parsePhone(form.phone);
+    return { document_type: "cedula", is_company: false, ...form, dial_code: countryCode, phone: localPhone };
+  });
   const [error, setError] = useState("");
   const set = (k, v) => setData((p) => ({ ...p, [k]: v }));
 
@@ -494,10 +509,8 @@ function CustomerModal({ form, onSave, onClose, saving }) {
     if (!data.department)              return setError("El departamento es obligatorio.");
     if (!data.city)                    return setError("La ciudad es obligatoria.");
     setError("");
-    const dial = data.dial_code || "+57";
-    const phoneRaw = data.phone.trim();
-    // Combinar indicativo + número solo si el número no empieza ya con "+"
-    const fullPhone = phoneRaw.startsWith("+") ? phoneRaw : `${dial} ${phoneRaw}`;
+    const country = COUNTRIES.find((c) => c.code === (data.dial_code || "CO")) ?? COUNTRIES[0];
+    const fullPhone = `${country.dial} ${data.phone.trim()}`;
     onSave({ ...data, phone: fullPhone });
   }
 
@@ -574,7 +587,7 @@ function CustomerModal({ form, onSave, onClose, saving }) {
               </div>
               {/* País seleccionado */}
               <p className="text-zinc-600 text-[10px] mt-1">
-                {COUNTRIES.find((c) => c.dial === (data.dial_code || "+57"))?.name ?? "Colombia"}
+                {COUNTRIES.find((c) => c.code === (data.dial_code || "CO"))?.name ?? "Colombia"}
               </p>
             </div>
 

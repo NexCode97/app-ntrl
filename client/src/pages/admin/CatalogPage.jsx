@@ -283,46 +283,67 @@ export default function CatalogPage() {
       )}
 
       {/* ── Líneas ── */}
-      {tab === "lines" && (
-        <div>
-          {filteredLines.length === 0 && !lines.isLoading && (
-            <div className="card text-center py-10"><p className="text-zinc-500">No hay líneas.</p></div>
-          )}
-          <div className="space-y-3 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4 md:space-y-0">
-            {filteredLines.map((l) => {
-              const productCount = (products.data || []).filter(p => p.line_id === l.id || p.line_name === l.name).length;
-              const sportIdx = (sports.data || []).findIndex(s => s.id === l.sport_id || s.name === l.sport_name);
+      {tab === "lines" && (() => {
+        // Agrupar líneas por deporte respetando orderedSports
+        const grouped = new Map();
+        orderedSports.forEach(s => { grouped.set(s.name, []); });
+        filteredLines.forEach(l => {
+          const key = l.sport_name || "Sin deporte";
+          if (!grouped.has(key)) grouped.set(key, []);
+          grouped.get(key).push(l);
+        });
+        // Quitar grupos vacíos
+        grouped.forEach((v, k) => { if (!v.length) grouped.delete(k); });
+
+        return (
+          <div className="space-y-6">
+            {filteredLines.length === 0 && !lines.isLoading && (
+              <div className="card text-center py-10"><p className="text-zinc-500">No hay líneas.</p></div>
+            )}
+            {[...grouped.entries()].map(([sportName, groupLines]) => {
+              const sportIdx = sportColorMap[sportName] ?? 0;
+              const sport    = orderedSports.find(s => s.name === sportName);
               return (
-                <div key={l.id} className="card border border-zinc-800 hover:border-zinc-600 transition-colors space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="text-white font-semibold text-sm">{l.name}</p>
-                      {l.sport_name && (
-                        <span className={`inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${sportColor(sportIdx >= 0 ? sportIdx : 0)}`}>
-                          {l.sport_name}
-                        </span>
-                      )}
+                <div key={sportName}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className={`w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 ${sportColor(sportIdx)}`}>
+                      <SportIcon slug={sport?.slug} />
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-white font-bold text-lg">{productCount}</p>
-                      <p className="text-zinc-500 text-[10px]">Productos</p>
-                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded-full border ${sportColor(sportIdx)}`}>{sportName}</span>
+                    <span className="text-zinc-600 text-xs">{groupLines.length} línea{groupLines.length !== 1 ? "s" : ""}</span>
                   </div>
-                  <div className="flex gap-2 pt-1 border-t border-zinc-800">
-                    <button onClick={() => setForm({ type: "line", ...l })}
-                      className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-lg py-1.5 transition-colors">
-                      <IconEdit /> Editar
-                    </button>
-                    <button onClick={() => { if (window.confirm(`¿Eliminar línea "${l.name}"?`)) deleteLine.mutate(l.id); }}
-                      className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 border border-zinc-700 hover:border-red-500/50 rounded-lg py-1.5 transition-colors">
-                      <IconTrash /> Eliminar
-                    </button>
+                  <div className="space-y-3 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4 md:space-y-0">
+                    {groupLines.map((l) => {
+                      const productCount = (products.data || []).filter(p => p.line_id === l.id || p.line_name === l.name).length;
+                      return (
+                        <div key={l.id} className="card border border-zinc-800 hover:border-zinc-600 transition-colors space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-white font-semibold text-sm">{l.name}</p>
+                            <div className="text-right shrink-0">
+                              <p className="text-white font-bold text-lg">{productCount}</p>
+                              <p className="text-zinc-500 text-[10px]">Productos</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-1 border-t border-zinc-800">
+                            <button onClick={() => setForm({ type: "line", ...l })}
+                              className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-white border border-zinc-700 hover:border-zinc-500 rounded-lg py-1.5 transition-colors">
+                              <IconEdit /> Editar
+                            </button>
+                            <button onClick={() => { if (window.confirm(`¿Eliminar línea "${l.name}"?`)) deleteLine.mutate(l.id); }}
+                              className="flex-1 flex items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 border border-zinc-700 hover:border-red-500/50 rounded-lg py-1.5 transition-colors">
+                              <IconTrash /> Eliminar
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
+        );
+      })()}
       )}
 
       {/* ── Productos ── */}

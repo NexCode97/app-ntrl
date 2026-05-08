@@ -126,6 +126,7 @@ export default function DashboardPage() {
   const [activePieIndex, setActivePieIndex] = useState(null);
   const onPieEnter = useCallback((_, index) => setActivePieIndex(index), []);
   const onPieLeave = useCallback(() => setActivePieIndex(null), []);
+  const [selectedSport, setSelectedSport] = useState(null);
 
   const { data: monthlyHistory } = useQuery({
     queryKey: ["dashboard-history"],
@@ -356,7 +357,7 @@ export default function DashboardPage() {
         <span className="text-zinc-500 text-xs shrink-0">Ver mes:</span>
         <select
           value={selectedMonth ?? ""}
-          onChange={(e) => setSelectedMonth(e.target.value || null)}
+          onChange={(e) => { setSelectedMonth(e.target.value || null); setSelectedSport(null); }}
           className="bg-zinc-800 border border-zinc-700 text-white text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-green cursor-pointer"
         >
           <option value="">{formatMonth(currentMonth)} (actual)</option>
@@ -478,7 +479,20 @@ export default function DashboardPage() {
                     "Ingresos",
                   ]}
                 />
-                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
+                <Bar
+                  dataKey="Ingresos"
+                  radius={[4,4,0,0]}
+                  cursor="pointer"
+                  onClick={(data) => setSelectedSport(data.sport === selectedSport ? null : data.sport)}
+                  activeBar={{ fill: "#c5ff3a", filter: "drop-shadow(0 0 6px #98f909)" }}
+                >
+                  {bySportData.map((entry) => (
+                    <Cell
+                      key={entry.sport}
+                      fill={selectedSport === null || entry.sport === selectedSport ? "#98f909" : "#3f3f46"}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -504,9 +518,22 @@ export default function DashboardPage() {
                     `${formatPesos(v)} · ${props.payload.orders} pedido${props.payload.orders !== 1 ? "s" : ""}`,
                     "Ingresos",
                   ]}
-                  labelFormatter={formatMonth}
+                  labelFormatter={(m) => `${formatMonth(m)}${m === (selectedMonth ?? currentMonth) ? " ● seleccionado" : " — clic para seleccionar"}`}
                 />
-                <Bar dataKey="Ingresos" fill="#98f909" radius={[4,4,0,0]} cursor="pointer" />
+                <Bar
+                  dataKey="Ingresos"
+                  radius={[4,4,0,0]}
+                  cursor="pointer"
+                  onClick={(data) => setSelectedMonth(data.month === currentMonth ? null : data.month)}
+                  activeBar={{ fill: "#c5ff3a", filter: "drop-shadow(0 0 6px #98f909)" }}
+                >
+                  {monthlyData.map((entry) => (
+                    <Cell
+                      key={entry.month}
+                      fill={entry.month === (selectedMonth ?? currentMonth) ? "#c5ff3a" : "#98f909"}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

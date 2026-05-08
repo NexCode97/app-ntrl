@@ -470,14 +470,7 @@ export default function DashboardPage() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={bySportData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis
-                  dataKey="sport"
-                  tick={{ fill: "#a1a1aa", fontSize: 11 }}
-                  angle={-35}
-                  textAnchor="end"
-                  interval={0}
-                  height={55}
-                />
+                <XAxis dataKey="sport" tick={{ fill: "#a1a1aa", fontSize: 11 }} />
                 <YAxis tick={{ fill: "#71717a", fontSize: 11 }} tickFormatter={formatShort} width={55} />
                 <Tooltip
                   cursor={{ fill: "#27272a" }}

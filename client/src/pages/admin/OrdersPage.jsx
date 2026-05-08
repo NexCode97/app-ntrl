@@ -59,25 +59,45 @@ export default function OrdersPage() {
       <h1 className="text-white font-bold text-xl lg:hidden">Pedidos</h1>
 
       {/* Toolbar */}
-      <div className="space-y-2">
-        <input
-          className="input-field w-full md:max-w-xs"
-          placeholder="Buscar por # o cliente..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-        />
+      <div className="space-y-3">
+        {/* Fila 1: buscador + botón */}
         <div className="flex items-center gap-3">
-          <button className="btn-primary w-full md:w-auto whitespace-nowrap" onClick={() => navigate("/orders/new")}>
+          <input
+            className="input-field flex-1"
+            placeholder="Buscar por # o cliente..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+          <button className="btn-primary shrink-0 whitespace-nowrap" onClick={() => navigate("/orders/new")}>
             + Nuevo pedido
           </button>
         </div>
-        <select className="input-field w-full md:w-40" value={statusFilter}
-          onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
-          <option value="">Todos los estados</option>
-          {Object.entries(STATUS_LABELS).map(([v, { label }]) => (
-            <option key={v} value={v}>{label}</option>
+
+        {/* Fila 2: filtro — tabs en desktop, select en móvil */}
+        <div className="md:hidden">
+          <select className="input-field w-full" value={statusFilter}
+            onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+            <option value="">Todos los estados</option>
+            {Object.entries(STATUS_LABELS).map(([v, { label }]) => (
+              <option key={v} value={v}>{label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="hidden md:flex items-center gap-1 bg-zinc-800/60 border border-zinc-700 rounded-xl p-1 w-fit">
+          {[{ value: "", label: "Todos" }, ...Object.entries(STATUS_LABELS).map(([v, { label }]) => ({ value: v, label }))].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => { setStatus(tab.value); setPage(1); }}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                statusFilter === tab.value
+                  ? "bg-zinc-700 text-white"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Cards — todos los tamaños */}

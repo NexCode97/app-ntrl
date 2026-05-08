@@ -501,8 +501,9 @@ export default function QuotesPage() {
   const navigate = useNavigate();
   const qc       = useQueryClient();
   const [showForm,   setShowForm]   = useState(false);
-  const [selected,   setSelected]   = useState(null);
+  const [selected,     setSelected]     = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [search,       setSearch]       = useState("");
 
   const { data: quotes = [], isLoading } = useQuery({
     queryKey: ["quotes"],
@@ -533,46 +534,72 @@ export default function QuotesPage() {
     navigate("/orders/new", { state });
   }
 
-  const filtered = statusFilter === "all"
-    ? quotes
-    : quotes.filter((q) => q.status === statusFilter);
+  const filtered = quotes
+    .filter((q) => statusFilter === "all" || q.status === statusFilter)
+    .filter((q) => {
+      if (!search.trim()) return true;
+      const s = search.toLowerCase();
+      return (
+        q.customer_name?.toLowerCase().includes(s) ||
+        String(q.quote_number).includes(s)
+      );
+    });
+
+  const STATUS_TABS = [
+    { value: "all",      label: "Todas"     },
+    { value: "draft",    label: "Borrador"  },
+    { value: "sent",     label: "Enviadas"  },
+    { value: "approved", label: "Aprobadas" },
+    { value: "rejected", label: "Rechazadas"},
+  ];
 
   return (
-    <div className="p-4 md:p-6 space-y-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-white font-black text-2xl">Cotizaciones</h1>
-          <p className="text-zinc-500 text-sm">{quotes.length} cotizaciones en total</p>
-        </div>
-        <button onClick={() => setShowForm(true)} className="btn-primary leading-tight text-center whitespace-normal md:whitespace-nowrap">
-          <span className="md:hidden">+ Nueva<br />cotización</span>
-          <span className="hidden md:inline">+ Nueva cotización</span>
-        </button>
-      </div>
+    <div className="space-y-4">
+      <h1 className="text-white font-bold text-xl lg:hidden">Cotizaciones</h1>
 
-      {/* Filtros de estado */}
-      <div className="flex gap-2 flex-wrap">
-        {[["all","Todas"], ["draft","Borrador"], ["sent","Enviadas"], ["approved","Aprobadas"], ["rejected","Rechazadas"]].map(([val, label]) => (
-          <button key={val} onClick={() => setStatusFilter(val)}
-            className={`text-xs px-3 py-1.5 rounded-full border transition-colors
-              ${statusFilter === val
-                ? "bg-brand-green text-black border-brand-green font-semibold"
-                : "text-zinc-400 border-zinc-700 hover:border-zinc-500"}`}>
-            {label}
+      {/* Toolbar */}
+      <div className="space-y-3">
+        {/* Fila 1: buscador + botón */}
+        <div className="flex items-center gap-3">
+          <input
+            className="input-field flex-1"
+            placeholder="Buscar por # o cliente..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button onClick={() => setShowForm(true)} className="btn-primary shrink-0 whitespace-nowrap">
+            + Nueva cotización
           </button>
-        ))}
+        </div>
+
+        {/* Fila 2: select en móvil, tabs en desktop */}
+        <div className="md:hidden">
+          <select className="input-field w-full" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            {STATUS_TABS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+          </select>
+        </div>
+        <div className="hidden md:flex items-center gap-2 flex-wrap">
+          {STATUS_TABS.map((t) => (
+            <button key={t.value} onClick={() => setStatusFilter(t.value)}
+              className={`text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
+                statusFilter === t.value
+                  ? "bg-brand-green text-black border-brand-green font-semibold"
+                  : "text-zinc-400 border-zinc-700 hover:border-zinc-500"}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Lista */}
+      {/* Cards */}
       {isLoading ? (
-        <p className="text-zinc-500 text-sm">Cargando...</p>
+        <p className="text-zinc-500 text-sm text-center py-8">Cargando...</p>
       ) : filtered.length === 0 ? (
         <div className="card text-center py-10">
           <p className="text-zinc-500">No hay cotizaciones.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-4 md:space-y-0">
           {filtered.map((q) => {
             const st = STATUS_LABEL[q.status] || STATUS_LABEL.draft;
             const items = Array.isArray(q.items)
@@ -580,32 +607,36 @@ export default function QuotesPage() {
               : (() => { try { return JSON.parse(q.items); } catch { return []; } })();
             return (
               <div key={q.id}
-                className="card hover:border-zinc-600 cursor-pointer transition-colors flex items-center justify-between gap-4"
+                className="card cursor-pointer hover:border-zinc-600 border border-zinc-800 transition-colors space-y-2"
                 onClick={() => setSelected(q)}>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="text-white font-bold">
-                      N° {String(q.quote_number).padStart(4,"0")}
-                    </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.cls}`}>
-                      {st.label}
-                    </span>
-                  </div>
-                  <p className="text-zinc-300 text-sm font-medium truncate">{q.customer_name}</p>
-                  {q.customer_email && <p className="text-zinc-500 text-xs truncate">{q.customer_email}</p>}
-                  <p className="text-zinc-600 text-xs mt-0.5">
-                    {items.length} producto{items.length !== 1 ? "s" : ""} ·
-                    Por {q.created_by_name} ·
-                    {new Date(q.created_at).toLocaleDateString("es-CO")}
-                  </p>
+                {/* Número + estado */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-brand-green font-mono font-bold text-sm">
+                    N° {String(q.quote_number).padStart(4,"0")}
+                  </span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${st.cls}`}>
+                    {st.label}
+                  </span>
                 </div>
-                <div className="text-right shrink-0">
-                  <p className="text-brand-green font-black text-lg">{fmt(q.total)}</p>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); if (confirm("¿Eliminar cotización?")) deleteMutation.mutate(q.id); }}
-                    className="text-zinc-600 hover:text-red-400 text-xs mt-1 transition-colors">
-                    Eliminar
-                  </button>
+                {/* Cliente */}
+                <p className="text-white font-medium text-sm leading-snug">{q.customer_name}</p>
+                {q.customer_email && (
+                  <p className="text-zinc-500 text-xs truncate">{q.customer_email}</p>
+                )}
+                {/* Footer */}
+                <div className="pt-1 border-t border-zinc-800 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                    <span>{items.length} producto{items.length !== 1 ? "s" : ""} · {q.created_by_name}</span>
+                    <span>{new Date(q.created_at).toLocaleDateString("es-CO")}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-zinc-500">Total: <span className="text-brand-green font-bold">{fmt(q.total)}</span></span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); if (confirm("¿Eliminar cotización?")) deleteMutation.mutate(q.id); }}
+                      className="text-zinc-600 hover:text-red-400 transition-colors">
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </div>
             );

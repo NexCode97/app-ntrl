@@ -24,13 +24,31 @@ async function ensureOrderNameColumn() {
   }
 }
 
+function toTitleCaseEs(str) {
+  if (!str) return str;
+  const LOWERCASE_WORDS = new Set([
+    "de", "del", "la", "las", "el", "los", "y", "e", "o", "u",
+    "a", "en", "con", "por", "para", "sin", "sobre", "entre", "ante",
+  ]);
+  return str.trim().toLowerCase().replace(/\b\w+/g, (word, offset) => {
+    if (offset > 0 && LOWERCASE_WORDS.has(word)) return word;
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  });
+}
+
 async function normalizeCustomerNames() {
   try {
     const { pool } = await import("./config/database.js");
-    const { rowCount } = await pool.query(
-      `UPDATE customers SET name = initcap(lower(name)) WHERE name IS NOT NULL AND name != initcap(lower(name))`
-    );
-    if (rowCount > 0) console.log(`✓ ${rowCount} nombre(s) de clientes normalizados a Title Case.`);
+    const { rows } = await pool.query(`SELECT id, name FROM customers WHERE name IS NOT NULL`);
+    let updated = 0;
+    for (const row of rows) {
+      const normalized = toTitleCaseEs(row.name);
+      if (normalized !== row.name) {
+        await pool.query(`UPDATE customers SET name = $1 WHERE id = $2`, [normalized, row.id]);
+        updated++;
+      }
+    }
+    if (updated > 0) console.log(`✓ ${updated} nombre(s) de clientes normalizados a Title Case (ES).`);
   } catch (err) {
     console.warn("⚠ No se pudo normalizar nombres de clientes:", err.message);
   }

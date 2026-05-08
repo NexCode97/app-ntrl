@@ -1,10 +1,21 @@
 import { pool } from "../config/database.js";
 import { AppError } from "../utils/AppError.js";
 
-// Convierte a Title Case: "HOTMAN GUEVARA" → "Hotman Guevara"
+const LOWERCASE_WORDS = new Set([
+  "de", "del", "la", "las", "el", "los", "y", "e", "o", "u",
+  "a", "en", "con", "por", "para", "sin", "sobre", "entre", "ante",
+]);
+
+// Convierte a Title Case respetando preposiciones en español
 function toTitleCase(str) {
   if (!str) return str;
-  return str.trim().toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w+/g, (word, offset) => {
+      if (offset > 0 && LOWERCASE_WORDS.has(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    });
 }
 
 export async function list(req, res, next) {

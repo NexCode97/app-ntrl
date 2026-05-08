@@ -39,7 +39,7 @@ function sportColor(idx) {
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function CatalogPage() {
   const qc = useQueryClient();
-  const [tab,         setTab]        = useState("products");
+  const [tab,         setTab]        = useState("sports");
   const [form,        setForm]       = useState(null);
   const [search,      setSearch]     = useState("");
   const [sportOrder,  setSportOrder] = useState([]); // ids ordenados manualmente
@@ -162,7 +162,7 @@ export default function CatalogPage() {
     if (tab === "products") setForm({ type: "product" });
   }
 
-  const TABS = [["products","Productos",IconBox],["lines","Líneas",IconLayers],["sports","Deportes",IconTag]];
+  const TABS = [["sports","Deportes",IconTag],["lines","Líneas",IconLayers],["products","Productos",IconBox]];
 
   return (
     <div className="space-y-4">

@@ -143,6 +143,7 @@ export default function TaskDetailPage() {
       {/* Info del pedido */}
       <div className="card">
         <h2 className="text-brand-green font-mono font-bold text-xl mb-1">#{data.order_number}</h2>
+        {data.name && <p className="text-zinc-400 text-sm font-medium mb-0.5">{data.name}</p>}
         <p className="text-white text-lg">{data.customer_name}</p>
         {data.delivery_date && (
           <p className="text-zinc-400 text-sm mt-1">

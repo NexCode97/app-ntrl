@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
 import { hardRefresh } from "../../utils/hardRefresh.js";
+import { ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 
 const STATUS_COLORS = {
   pending:     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
@@ -72,7 +73,10 @@ export default function SuppliesWorkerPage() {
               )}
               {r.notes && <p className="text-zinc-600 text-xs mt-0.5 italic">"{r.notes}"</p>}
               {r.admin_notes && (
-                <p className="text-blue-400 text-xs mt-1">💬 Admin: {r.admin_notes}</p>
+                <p className="text-blue-400 text-xs mt-1 flex items-center gap-1">
+                  <ChatBubbleLeftIcon className="w-3 h-3 shrink-0" />
+                  Admin: {r.admin_notes}
+                </p>
               )}
               <p className="text-zinc-600 text-xs mt-1">
                 {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short", year:"numeric" })}

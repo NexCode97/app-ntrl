@@ -203,6 +203,7 @@ export default function TasksPage() {
                     </span>
                   </div>
                   <p className="text-white font-medium truncate">{task.customer_name}</p>
+                  {task.order_name && <p className="text-zinc-500 text-xs truncate">{task.order_name}</p>}
                   {task.delivery_date && (
                     <p className="text-zinc-600 text-xs mt-1">
                       Entrega: {new Date(String(task.delivery_date).slice(0, 10) + "T12:00:00").toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}

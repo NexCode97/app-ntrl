@@ -50,7 +50,7 @@ export async function getMyTasks(req, res, next) {
 
     const { rows } = await pool.query(
       `SELECT pt.*, o.order_number, TO_CHAR(o.order_number,'FM000') as order_number_fmt,
-              o.delivery_date, c.name as customer_name
+              o.delivery_date, o.name as order_name, c.name as customer_name
        FROM production_tasks pt
        JOIN orders o ON o.id = pt.order_id
        JOIN customers c ON c.id = o.customer_id

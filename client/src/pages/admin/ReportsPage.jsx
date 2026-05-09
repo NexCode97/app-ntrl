@@ -23,7 +23,7 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto space-y-4 pt-8">
+    <div className="max-w-md mx-auto space-y-4">
       <h2 className="text-white font-semibold text-lg">Exportar reportes</h2>
       <div className="card space-y-3">
         <p className="text-zinc-400 text-sm">Genera reportes de pedidos y ventas para el período actual.</p>

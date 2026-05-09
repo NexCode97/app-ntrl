@@ -152,26 +152,39 @@ export default function OrderDetailPage() {
               </span>
             </div>
             <div className="flex-1 min-w-0">
+              {/* Número + estado */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-brand-green font-mono font-bold text-xl">#{data.order_number}</span>
                 <span className={s.cls}>{s.label}</span>
               </div>
-              {data.name && <p className="text-white font-semibold text-sm mt-0.5 truncate">{data.name}</p>}
-              <p className="text-zinc-300 text-sm mt-1">{data.customer_name}</p>
-              <div className="flex flex-col gap-0.5 mt-1.5">
-                {data.delivery_date && (
-                  <span className="flex items-center gap-1.5 text-zinc-500 text-xs">
-                    <IconCalendar /> Entrega: {new Date(data.delivery_date).toLocaleDateString("es-CO")}
-                  </span>
-                )}
-                {data.created_by_name && (
-                  <span className="flex items-center gap-1.5 text-zinc-500 text-xs">
-                    <IconUser /> {data.created_by_name}
-                  </span>
-                )}
-              </div>
+              {/* Nombre del pedido (si existe) */}
+              {data.name && <p className="text-zinc-400 text-xs mt-0.5 truncate">{data.name}</p>}
+              {/* Cliente — protagonista */}
+              <p className="text-white font-semibold text-base mt-1 truncate">{data.customer_name}</p>
             </div>
           </div>
+
+          {/* Metadata chips — fecha y vendedor en fila separada */}
+          {(data.delivery_date || data.created_by_name) && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {data.delivery_date && (
+                <div className="flex items-center gap-2 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3 py-2">
+                  <span className="text-zinc-400"><IconCalendar /></span>
+                  <span className="text-zinc-500 text-xs">Entrega</span>
+                  <span className="text-white text-xs font-semibold">
+                    {new Date(data.delivery_date).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+              )}
+              {data.created_by_name && (
+                <div className="flex items-center gap-2 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3 py-2">
+                  <span className="text-zinc-400"><IconUser /></span>
+                  <span className="text-zinc-500 text-xs">Vendedor</span>
+                  <span className="text-white text-xs font-semibold">{data.created_by_name}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Acciones — siempre en una sola fila */}

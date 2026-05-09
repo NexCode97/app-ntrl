@@ -970,20 +970,23 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
                 onCancel={() => setEditingId(null)}
               />
             ) : (
-              <div className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2 mb-2">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-zinc-400 text-sm">
-                    Abono #{p.payment_number} · {p.method}
+              <div className="flex items-center justify-between bg-zinc-800 rounded-lg px-3 py-2.5 mb-2">
+                {/* Izquierda: número + método + fecha + banco */}
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <span className="text-white text-sm font-medium">Abono #{p.payment_number} · {p.method}</span>
+                  <div className="flex items-center gap-2 flex-wrap">
                     {p.paid_at && (
-                      <span className="text-zinc-500 ml-2 text-xs">
+                      <span className="text-zinc-500 text-xs">
                         {new Date(p.paid_at).toLocaleDateString("es-CO")}
                       </span>
                     )}
-                  </span>
-                  {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
+                    {p.bank && <span className="text-zinc-500 text-xs">{p.bank}</span>}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-medium">${Number(p.amount).toLocaleString()}</span>
+                {/* Derecha: precio arriba, iconos abajo */}
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <span className="text-white font-semibold text-base">${Number(p.amount).toLocaleString("es-CO")}</span>
+                  <div className="flex items-center gap-1">
                   {p.receipt_url && (
                     <button
                       title="Ver comprobante"
@@ -1015,7 +1018,8 @@ function FinancialTab({ order, onRefresh, onPreviewImage, onPreviewPdf }) {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
-                </div>
+                  </div>{/* fin iconos */}
+                </div>{/* fin columna derecha */}
               </div>
             )}
           </div>

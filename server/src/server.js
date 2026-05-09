@@ -36,6 +36,24 @@ function toTitleCaseEs(str) {
   });
 }
 
+async function normalizeOrderNames() {
+  try {
+    const { pool } = await import("./config/database.js");
+    const { rows } = await pool.query(`SELECT id, name FROM orders WHERE name IS NOT NULL AND name != ''`);
+    let updated = 0;
+    for (const row of rows) {
+      const normalized = toTitleCaseEs(row.name);
+      if (normalized !== row.name) {
+        await pool.query(`UPDATE orders SET name = $1 WHERE id = $2`, [normalized, row.id]);
+        updated++;
+      }
+    }
+    if (updated > 0) console.log(`✓ ${updated} nombre(s) de pedidos normalizados a Title Case (ES).`);
+  } catch (err) {
+    console.warn("⚠ No se pudo normalizar nombres de pedidos:", err.message);
+  }
+}
+
 async function normalizeCustomerNames() {
   try {
     const { pool } = await import("./config/database.js");
@@ -59,6 +77,7 @@ async function start() {
     await testConnection();
     await runMigrations();
     await ensureOrderNameColumn();
+    await normalizeOrderNames();
     await normalizeCustomerNames();
 
     // Redis es opcional — si falla el servidor sigue funcionando sin SSE en tiempo real

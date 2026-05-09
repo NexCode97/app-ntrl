@@ -39,20 +39,20 @@ function sportColor(idx) {
 const SPORT_ICONS = {
   // Bicicleta de ruta con ruedas y marco
   ciclismo:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5L5.5 11 11 7l3.5 5.5 2-3.5H20"/></svg>,
-  // Patín de hielo / roller: bota + cuchilla/ruedas
-  patinaje:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 17h14l1 2H3l1-2z"/><path d="M6 17V10l2-5h4l1 5 2 1v6"/><circle cx="7" cy="20" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/><circle cx="17" cy="20" r="1" fill="currentColor" stroke="none"/></svg>,
-  // BMX: marco angular con tubo top corto y ruedas robustas
-  bmx:        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 18l5-9h1l1 9"/><path d="M19 18l-4-9h-4"/><path d="M10 9V5h3"/><path d="M13 5h4v2"/></svg>,
-  // Balón de fútbol: círculo + pentágono central + líneas de costura
-  futbol:     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8l3 2.2-1.1 3.4H10L9 10.2z"/><path d="M12 8V4M15 10.2l3.5-1.5M14 13.6l2 3.5M10 13.6l-2 3.5M9 10.2L5.5 8.7"/></svg>,
+  // Patín roller: bota con lengüeta, suela y 3 ruedas alineadas
+  patinaje:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13V8c0-1.1.4-2.1 1-2.8L8 3h5l1 4 2 1.5V13"/><path d="M3 16h16a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1z"/><circle cx="6.5" cy="20.5" r="1.5"/><circle cx="12" cy="20.5" r="1.5"/><circle cx="17.5" cy="20.5" r="1.5"/></svg>,
+  // BMX: dos ruedas grandes, tubo central, asiento y manubrio
+  bmx:        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="17" r="3.5"/><circle cx="19" cy="17" r="3.5"/><path d="M5 17l6-10h2l2 10"/><path d="M11 7l5-3"/><path d="M16 4h3v3"/><path d="M13 17l-2-5-4 2"/></svg>,
+  // Balón de fútbol: círculo limpio con hexágono central
+  futbol:     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="12,7 15.5,9.5 14.2,13.5 9.8,13.5 8.5,9.5"/></svg>,
   // Pista de atletismo: óvalo con dos carriles
   atletismo:  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 5h10"/><path d="M7 19h10"/><path d="M7 5a5 5 0 0 0 0 14"/><path d="M17 5a5 5 0 0 1 0 14"/><path d="M7 9h10"/><path d="M7 15h10"/><path d="M7 9a3 3 0 0 0 0 6"/><path d="M17 9a3 3 0 0 1 0 6"/></svg>,
   // Solo olas — sin figura
   natacion:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M2 14c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M2 19c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/></svg>,
-  // Camiseta deportiva
-  accesorios: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg>,
-  // Estrella / vida plena
-  lifestyle:  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+  // Gancho de ropa
+  accesorios: <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M12 5v3"/><path d="M12 8L3 17a3 3 0 0 0 2 5h14a3 3 0 0 0 2-5L12 8z"/></svg>,
+  // Cara feliz
+  lifestyle:  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" strokeWidth="2.5"/><line x1="15" y1="9" x2="15.01" y2="9" strokeWidth="2.5"/></svg>,
   // Birrete de graduación
   colegios:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>,
   // Trofeo

@@ -52,14 +52,18 @@ export default function NotificationBell() {
     es.onmessage = (e) => {
       try {
         const msg = JSON.parse(e.data);
-        if (msg.type) {
-          setUnread((n) => n + 1);
-          // Actualizar datos relacionados en tiempo real
-          qc.invalidateQueries({ queryKey: ["production-overview"] });
-          qc.invalidateQueries({ queryKey: ["orders"] });
-          qc.invalidateQueries({ queryKey: ["order"] });
-          qc.invalidateQueries({ queryKey: ["dashboard"] });
-          qc.invalidateQueries({ queryKey: ["upcoming-deliveries"] });
+        if (!msg.type) return;
+
+        // Invalidar cache siempre que llegue cualquier evento
+        qc.invalidateQueries({ queryKey: ["production-overview"] });
+        qc.invalidateQueries({ queryKey: ["orders"] });
+        qc.invalidateQueries({ queryKey: ["order"] });
+        qc.invalidateQueries({ queryKey: ["dashboard"] });
+        qc.invalidateQueries({ queryKey: ["upcoming-deliveries"] });
+
+        // Solo actualizar contador si es una notificación real (no invalidate)
+        if (msg.type !== "invalidate") {
+          fetchCount();
           // Si el dropdown está abierto, recargar lista
           setOpen((isOpen) => {
             if (isOpen) fetchList();

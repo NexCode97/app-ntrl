@@ -39,12 +39,12 @@ function sportColor(idx) {
 const SPORT_ICONS = {
   // Bicicleta de ruta con ruedas y marco
   ciclismo:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5L5.5 11 11 7l3.5 5.5 2-3.5H20"/></svg>,
-  // Patín roller: bota con lengüeta, suela y 3 ruedas alineadas
-  patinaje:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13V8c0-1.1.4-2.1 1-2.8L8 3h5l1 4 2 1.5V13"/><path d="M3 16h16a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-1a1 1 0 0 1 1-1z"/><circle cx="6.5" cy="20.5" r="1.5"/><circle cx="12" cy="20.5" r="1.5"/><circle cx="17.5" cy="20.5" r="1.5"/></svg>,
-  // BMX: dos ruedas grandes, tubo central, asiento y manubrio
-  bmx:        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="17" r="3.5"/><circle cx="19" cy="17" r="3.5"/><path d="M5 17l6-10h2l2 10"/><path d="M11 7l5-3"/><path d="M16 4h3v3"/><path d="M13 17l-2-5-4 2"/></svg>,
-  // Balón de fútbol: círculo limpio con hexágono central
-  futbol:     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="12,7 15.5,9.5 14.2,13.5 9.8,13.5 8.5,9.5"/></svg>,
+  // Patín roller: bota alta, suela y 3 ruedas
+  patinaje:   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 14V8c0-1.7 1.3-3 3-3h2l2 5v4"/><rect x="3" y="14" width="16" height="3" rx="1"/><circle cx="7" cy="20" r="1.5"/><circle cx="12" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg>,
+  // BMX: dos ruedas, marco triangular, manubrio y asiento
+  bmx:        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 18l7-9 7 9"/><path d="M12 9V5"/><path d="M10 5h4"/><path d="M19 18l-2-5"/><path d="M17 13h4"/></svg>,
+  // Balón de fútbol: esfera con pentágono y costuras
+  futbol:     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 7l2.5 1.8-1 3.2h-3l-1-3.2z"/><path d="M12 7V2.5"/><path d="M14.5 8.8L19 7"/><path d="M13.5 12l2.5 4"/><path d="M10.5 12l-2.5 4"/><path d="M9.5 8.8L5 7"/></svg>,
   // Pista de atletismo: óvalo con dos carriles
   atletismo:  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 5h10"/><path d="M7 19h10"/><path d="M7 5a5 5 0 0 0 0 14"/><path d="M17 5a5 5 0 0 1 0 14"/><path d="M7 9h10"/><path d="M7 15h10"/><path d="M7 9a3 3 0 0 0 0 6"/><path d="M17 9a3 3 0 0 1 0 6"/></svg>,
   // Solo olas — sin figura

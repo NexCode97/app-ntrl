@@ -31,11 +31,10 @@ END $$;
 -- 2. Habilitar RLS en tablas sensibles
 -- ============================================================
 
-ALTER TABLE users          ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders         ENABLE ROW LEVEL SECURITY;
-ALTER TABLE messages       ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notifications  ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payments       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE orders           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE production_tasks ENABLE ROW LEVEL SECURITY;
 
 
@@ -68,12 +67,6 @@ CREATE POLICY deny_direct_access ON notifications
   AS RESTRICTIVE
   USING (false);
 
--- payments
-DROP POLICY IF EXISTS deny_direct_access ON payments;
-CREATE POLICY deny_direct_access ON payments
-  AS RESTRICTIVE
-  USING (false);
-
 -- production_tasks
 DROP POLICY IF EXISTS deny_direct_access ON production_tasks;
 CREATE POLICY deny_direct_access ON production_tasks
@@ -92,7 +85,7 @@ SELECT
 FROM pg_tables
 WHERE tablename IN (
   'users', 'orders', 'messages',
-  'notifications', 'payments', 'production_tasks'
+  'notifications', 'production_tasks'
 )
 ORDER BY tablename;
 
@@ -105,6 +98,6 @@ SELECT
 FROM pg_policies
 WHERE tablename IN (
   'users', 'orders', 'messages',
-  'notifications', 'payments', 'production_tasks'
+  'notifications', 'production_tasks'
 )
 ORDER BY tablename, policyname;

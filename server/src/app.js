@@ -15,6 +15,16 @@ const app = express();
 // ── Trust proxy (Render usa load balancer con X-Forwarded-For) ─
 app.set("trust proxy", 1);
 
+// ── Forzar HTTPS en producción ────────────────────────────────
+if (config.nodeEnv === "production") {
+  app.use((req, res, next) => {
+    if (req.headers["x-forwarded-proto"] !== "https") {
+      return res.redirect(301, `https://${req.headers.host}${req.url}`);
+    }
+    next();
+  });
+}
+
 // ── Logging estructurado ──────────────────────────────────────
 app.use(pinoHttp({ level: config.nodeEnv === "production" ? "info" : "debug" }));
 

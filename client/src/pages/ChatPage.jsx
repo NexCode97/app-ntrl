@@ -413,7 +413,7 @@ export default function ChatPage() {
       <div className={`${showSidebar ? "flex" : "hidden"} md:flex w-full md:w-72 shrink-0 border-r border-zinc-800 bg-zinc-950 flex-col`}>
         {/* Header */}
         <div className="px-4 pt-4 pb-2 shrink-0">
-          <p className="text-white font-bold text-xl mb-3">Mensajes</p>
+          <p className="lg:hidden text-white font-bold text-xl mb-3">Mensajes</p>
           {/* Buscador */}
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>

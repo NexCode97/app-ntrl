@@ -13,7 +13,7 @@ const PAGE_TITLES = {
   "/supplies":  "Suministros",
   "/profile":   "Mi Perfil",
   "/calendar":  "Calendario",
-  "/chat":      "Chats",
+  "/chat":      "Mensajes",
   "/tasks":     "Mis Tareas",
 };
 

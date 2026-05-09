@@ -270,7 +270,7 @@ export default function CalendarPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-4">
 
-      <h1 className="text-white font-bold text-xl">Calendario</h1>
+      <h1 className="lg:hidden text-white font-bold text-xl">Calendario</h1>
 
       <div className="card">
         {/* Selector de vista */}

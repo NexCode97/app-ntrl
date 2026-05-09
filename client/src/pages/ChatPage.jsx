@@ -324,7 +324,7 @@ export default function ChatPage() {
             setContacts((prev) => prev.map((c) => {
               const id = c.id ?? c.other_user;
               return id === incoming.from_user_id
-                ? { ...c, unread: String(parseInt(c.unread ?? "0") + 1), last_message: incoming.content }
+                ? { ...c, unread: String(parseInt(c.unread ?? "0") + 1), last_message: incoming.content, last_message_at: incoming.created_at }
                 : c;
             }));
           }

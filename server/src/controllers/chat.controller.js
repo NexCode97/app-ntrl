@@ -245,7 +245,8 @@ export async function listContacts(req, res, next) {
     const { rows } = await pool.query(
       `SELECT id, name, role, area, position, avatar,
               (SELECT COUNT(*) FROM messages WHERE from_user_id = u.id AND to_user_id = $1 AND is_read = false) AS unread,
-              (SELECT content FROM messages WHERE (from_user_id=u.id AND to_user_id=$1) OR (from_user_id=$1 AND to_user_id=u.id) ORDER BY created_at DESC LIMIT 1) AS last_message
+              (SELECT content FROM messages WHERE (from_user_id=u.id AND to_user_id=$1) OR (from_user_id=$1 AND to_user_id=u.id) ORDER BY created_at DESC LIMIT 1) AS last_message,
+              (SELECT created_at FROM messages WHERE (from_user_id=u.id AND to_user_id=$1) OR (from_user_id=$1 AND to_user_id=u.id) ORDER BY created_at DESC LIMIT 1) AS last_message_at
        FROM users u
        WHERE is_active = true AND id != $1
        ORDER BY role DESC, name ASC`,

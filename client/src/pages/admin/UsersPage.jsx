@@ -8,6 +8,29 @@ const AREA_LABELS = {
   sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados",
 };
 
+function UserAvatar({ name }) {
+  return (
+    <div className="w-10 h-10 rounded-full bg-zinc-700 flex items-center justify-center font-bold text-white text-sm shrink-0">
+      {name?.[0]?.toUpperCase() ?? "?"}
+    </div>
+  );
+}
+
+function RoleBadge({ role }) {
+  const cls = role === "admin" ? "badge-completed" : role === "vendedor" ? "badge-info" : "badge-pending";
+  const label = role === "admin" ? "Admin" : role === "vendedor" ? "Vendedor" : "Trabajador";
+  return <span className={`badge ${cls}`}>{label}</span>;
+}
+
+function StatusBadge({ active }) {
+  return <span className={`badge ${active ? "badge-completed" : "badge-cancelled"}`}>{active ? "Activo" : "Inactivo"}</span>;
+}
+
+function areaOrPosition(u) {
+  if (u.role === "worker") return AREA_LABELS[u.area] || "—";
+  return u.position || "—";
+}
+
 export default function UsersPage() {
   const qc = useQueryClient();
   const [form, setForm] = useState(null);
@@ -32,42 +55,99 @@ export default function UsersPage() {
     onSuccess:  () => qc.invalidateQueries(["users"]),
   });
 
+  const users = data?.data ?? [];
+
   return (
     <div className="space-y-4">
       <div className="flex justify-start">
         <button className="btn-primary whitespace-nowrap" onClick={() => setForm({})}>+ Nuevo usuario</button>
       </div>
 
-      <div className="card overflow-hidden p-0 overflow-x-auto">
-        <table className="w-full text-sm min-w-[580px]">
+      {/* ── Mobile / Tablet: cards ── */}
+      <div className="lg:hidden space-y-3">
+        {isLoading && (
+          <div className="text-center py-12 text-zinc-500 text-sm">Cargando...</div>
+        )}
+        {users.map((u) => (
+          <div key={u.id} className="card flex items-start gap-3">
+            <UserAvatar name={u.name} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-white font-medium text-sm truncate">{u.name}</span>
+                <RoleBadge role={u.role} />
+                <StatusBadge active={u.is_active} />
+              </div>
+              <p className="text-zinc-400 text-xs mt-0.5 truncate">{u.email}</p>
+              <p className="text-zinc-500 text-xs mt-0.5">{areaOrPosition(u)}</p>
+            </div>
+            <div className="flex flex-col gap-1.5 items-end shrink-0">
+              <button
+                className="text-zinc-400 hover:text-brand-green text-xs transition-colors"
+                onClick={() => setForm(u)}
+              >
+                Editar
+              </button>
+              <button
+                className={`text-xs transition-colors ${u.is_active ? "text-zinc-400 hover:text-yellow-400" : "text-zinc-400 hover:text-brand-green"}`}
+                onClick={() => toggleActive.mutate({ id: u.id, is_active: !u.is_active })}
+              >
+                {u.is_active ? "Desactivar" : "Activar"}
+              </button>
+              <button
+                className="text-zinc-400 hover:text-red-400 text-xs transition-colors"
+                onClick={() => {
+                  if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
+                }}
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Desktop: table ── */}
+      <div className="hidden lg:block card overflow-hidden p-0">
+        <table className="w-full text-sm">
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>
               <th className="px-4 py-3 text-left">Nombre</th>
               <th className="px-4 py-3 text-left">Correo</th>
               <th className="px-4 py-3 text-center">Rol</th>
               <th className="px-4 py-3 text-left">Área / Cargo</th>
-              <th className="px-4 py-3 text-left">Estado</th>
+              <th className="px-4 py-3 text-center">Estado</th>
               <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
-            {isLoading && <tr><td colSpan={6} className="text-center py-8 text-zinc-500">Cargando...</td></tr>}
-            {data?.data?.map((u) => (
+            {isLoading && (
+              <tr><td colSpan={6} className="text-center py-8 text-zinc-500">Cargando...</td></tr>
+            )}
+            {users.map((u) => (
               <tr key={u.id} className="hover:bg-zinc-800/50 transition-colors">
-                <td className="px-4 py-3 text-white">{u.name}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <UserAvatar name={u.name} />
+                    <span className="text-white">{u.name}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-zinc-400">{u.email}</td>
-                <td className="px-4 py-3 text-center"><span className={`badge ${u.role === "admin" ? "badge-completed" : "badge-pending"}`}>{u.role}</span></td>
-                <td className="px-4 py-3 text-zinc-400">{u.role === "admin" || u.role === "vendedor" ? (u.position || "—") : (AREA_LABELS[u.area] || "—")}</td>
-                <td className="px-4 py-3"><span className={`badge ${u.is_active ? "badge-completed" : "badge-pending"}`}>{u.is_active ? "Activo" : "Inactivo"}</span></td>
-                <td className="px-4 py-3 flex gap-2">
-                  <button className="text-zinc-500 hover:text-brand-green text-xs" onClick={() => setForm(u)}>Editar</button>
-                  <button className={`text-zinc-500 text-xs ${u.is_active ? "hover:text-yellow-400" : "hover:text-brand-green"}`}
-                    onClick={() => toggleActive.mutate({ id: u.id, is_active: !u.is_active })}>
-                    {u.is_active ? "Desactivar" : "Activar"}
-                  </button>
-                  <button className="text-zinc-500 hover:text-red-400 text-xs" onClick={() => {
-                    if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
-                  }}>Eliminar</button>
+                <td className="px-4 py-3 text-center"><RoleBadge role={u.role} /></td>
+                <td className="px-4 py-3 text-zinc-400">{areaOrPosition(u)}</td>
+                <td className="px-4 py-3 text-center"><StatusBadge active={u.is_active} /></td>
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 justify-end">
+                    <button className="text-zinc-500 hover:text-brand-green text-xs transition-colors" onClick={() => setForm(u)}>Editar</button>
+                    <button
+                      className={`text-zinc-500 text-xs transition-colors ${u.is_active ? "hover:text-yellow-400" : "hover:text-brand-green"}`}
+                      onClick={() => toggleActive.mutate({ id: u.id, is_active: !u.is_active })}
+                    >
+                      {u.is_active ? "Desactivar" : "Activar"}
+                    </button>
+                    <button className="text-zinc-500 hover:text-red-400 text-xs transition-colors" onClick={() => {
+                      if (confirm(`¿Eliminar permanentemente a ${u.name}? Esta acción no se puede deshacer.`)) remove.mutate(u.id);
+                    }}>Eliminar</button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -75,7 +155,15 @@ export default function UsersPage() {
         </table>
       </div>
 
-      {form !== null && <UserModal form={form} onSave={(d) => save.mutate(d)} onClose={() => setForm(null)} saving={save.isLoading} error={save.error?.response?.data?.message} />}
+      {form !== null && (
+        <UserModal
+          form={form}
+          onSave={(d) => save.mutate(d)}
+          onClose={() => setForm(null)}
+          saving={save.isPending}
+          error={save.error?.response?.data?.message}
+        />
+      )}
     </div>
   );
 }
@@ -131,7 +219,6 @@ function UserModal({ form, onSave, onClose, saving, error }) {
             {data.role === "worker" && (
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Área</label>
-
                 <select className="input-field" value={data.area || ""} onChange={(e) => set("area", e.target.value)}>
                   <option value="">Seleccionar área</option>
                   {AREAS.map((a) => <option key={a} value={a}>{AREA_LABELS[a]}</option>)}
@@ -141,7 +228,7 @@ function UserModal({ form, onSave, onClose, saving, error }) {
             {data.role === "vendedor" && (
               <div>
                 <label className="block text-xs text-zinc-400 mb-1">Punto de venta / Cargo</label>
-                <input className="input-field" placeholder="Ej: Almacén Centro, Comercial Norte..." value={data.position || ""} onChange={(e) => set("position", e.target.value)} />
+                <input className="input-field" placeholder="Ej: Almacén Centro..." value={data.position || ""} onChange={(e) => set("position", e.target.value)} />
               </div>
             )}
             {data.role === "admin" && (

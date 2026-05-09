@@ -411,7 +411,7 @@ export default function ChatPage() {
       {/* Lista de contactos */}
       <div className={`${showSidebar ? "flex" : "hidden"} md:flex w-full md:w-64 shrink-0 border-r border-zinc-800 bg-zinc-950 flex-col`}>
         <div className="px-4 py-3 border-b border-zinc-800">
-          <p className="text-white font-semibold text-sm">Contactos</p>
+          <p className="text-white font-semibold text-sm">Mensajes</p>
         </div>
         <div className="flex-1 overflow-y-auto">
           {contacts.length === 0 && (

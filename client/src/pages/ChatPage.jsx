@@ -253,7 +253,8 @@ export default function ChatPage() {
   const [text,        setText]        = useState("");
   const [file,        setFile]        = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(true);
+  const [showSidebar,    setShowSidebar]    = useState(true);
+  const [contactSearch,  setContactSearch]  = useState("");
 
   // Estado para edición en curso
   const [editingMsg,  setEditingMsg]  = useState(null); // { id, content }
@@ -408,16 +409,38 @@ export default function ChatPage() {
   return (
     <div className="flex h-full overflow-hidden">
 
-      {/* Lista de contactos */}
-      <div className={`${showSidebar ? "flex" : "hidden"} md:flex w-full md:w-64 shrink-0 border-r border-zinc-800 bg-zinc-950 flex-col`}>
-        <div className="px-4 py-3 border-b border-zinc-800">
-          <p className="text-white font-semibold text-sm">Mensajes</p>
+      {/* Lista de contactos — estilo WhatsApp */}
+      <div className={`${showSidebar ? "flex" : "hidden"} md:flex w-full md:w-72 shrink-0 border-r border-zinc-800 bg-zinc-950 flex-col`}>
+        {/* Header */}
+        <div className="px-4 pt-4 pb-2 shrink-0">
+          <p className="text-white font-bold text-xl mb-3">Mensajes</p>
+          {/* Buscador */}
+          <div className="relative">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input
+              type="text"
+              placeholder="Buscar..."
+              className="w-full bg-zinc-800 text-white text-sm rounded-full pl-9 pr-4 py-2 outline-none placeholder-zinc-500 focus:ring-1 focus:ring-brand-green"
+              onChange={(e) => {
+                const q = e.target.value.toLowerCase();
+                setContactSearch(q);
+              }}
+            />
+          </div>
         </div>
+
+        {/* Lista */}
         <div className="flex-1 overflow-y-auto">
           {contacts.length === 0 && (
             <p className="text-zinc-600 text-sm text-center py-8">Sin conversaciones</p>
           )}
-          {contacts.map((c) => {
+          {contacts
+            .filter((c) => {
+              if (!contactSearch) return true;
+              const name = (c.name ?? c.other_name ?? "").toLowerCase();
+              return name.includes(contactSearch);
+            })
+            .map((c) => {
             const id       = c.id ?? c.other_user;
             const name     = c.name ?? c.other_name;
             const area     = c.area ?? c.other_area;
@@ -427,18 +450,36 @@ export default function ChatPage() {
               ? (AREA_LABELS[area] ?? area)
               : c.role === "admin" ? "Administrador" : null;
             const unread   = parseInt(c.unread ?? "0");
+            const lastTime = c.last_message_at
+              ? (() => {
+                  const d = new Date(c.last_message_at);
+                  const now = new Date();
+                  const isToday = d.toDateString() === now.toDateString();
+                  return isToday
+                    ? d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })
+                    : d.toLocaleDateString("es-CO", { day: "2-digit", month: "short" });
+                })()
+              : null;
             return (
               <button key={id} onClick={() => { setActiveId(id); setShowSidebar(false); }}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-zinc-800 transition-colors border-b border-zinc-900 ${id === activeId ? "bg-zinc-800" : ""}`}>
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${id === activeId ? "bg-zinc-800" : "hover:bg-zinc-800/60"}`}>
                 <Avatar user={c} />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium truncate ${id === activeId ? "text-white" : "text-zinc-300"}`}>{name}</p>
-                  {subtitle && <p className="text-xs text-zinc-500 truncate">{subtitle}</p>}
-                  {c.last_message && <p className="text-xs text-zinc-600 truncate">{c.last_message}</p>}
+                  {/* Nombre + hora */}
+                  <div className="flex items-center justify-between gap-2">
+                    <p className={`text-sm font-semibold truncate ${unread > 0 ? "text-white" : "text-zinc-200"}`}>{name}</p>
+                    {lastTime && <span className={`text-[11px] shrink-0 ${unread > 0 ? "text-brand-green font-medium" : "text-zinc-500"}`}>{lastTime}</span>}
+                  </div>
+                  {/* Subtítulo + badge */}
+                  <div className="flex items-center justify-between gap-2 mt-0.5">
+                    <p className="text-xs text-zinc-500 truncate">
+                      {c.last_message || subtitle || ""}
+                    </p>
+                    {unread > 0 && (
+                      <span className="min-w-[20px] h-5 bg-brand-green text-black text-[11px] font-bold rounded-full flex items-center justify-center px-1 shrink-0">{unread > 99 ? "99+" : unread}</span>
+                    )}
+                  </div>
                 </div>
-                {unread > 0 && (
-                  <span className="min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">{unread}</span>
-                )}
               </button>
             );
           })}

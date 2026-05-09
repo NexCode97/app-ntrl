@@ -117,9 +117,57 @@ function RequestsTab({ showForm, setShowForm }) {
         ))}
       </div>
 
-      {/* Tabla */}
-      <div className="card overflow-hidden p-0 overflow-x-auto">
-        <table className="w-full text-sm min-w-[600px]">
+      {/* Cards — móvil y tablet */}
+      <div className="lg:hidden">
+        {isLoading && <p className="text-zinc-500 text-center py-8 text-sm">Cargando...</p>}
+        {!isLoading && data?.length === 0 && (
+          <div className="card text-center py-10"><p className="text-zinc-600 text-sm">Sin solicitudes</p></div>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {data?.map((r) => (
+            <div key={r.id} className="card space-y-3">
+              {/* Cabecera: insumo + badge */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-white font-semibold truncate">{r.item_name}</p>
+                  {r.notes && <p className="text-zinc-500 text-xs mt-0.5 truncate">{r.notes}</p>}
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 ${STATUS_COLORS[r.status]}`}>
+                  {STATUS_LABELS[r.status]}
+                </span>
+              </div>
+              {/* Meta */}
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-400">
+                <span><span className="text-zinc-600">Área</span> {AREA_LABELS[r.worker_area] ?? r.worker_area ?? "—"}</span>
+                <span><span className="text-zinc-600">Quién</span> {r.worker_name}</span>
+                <span><span className="text-zinc-600">Cantidad</span> {parseFloat(r.quantity)} {r.unit}</span>
+                {r.order_number && (
+                  <span>
+                    <span className="text-zinc-600">Pedido </span>
+                    <button onClick={() => navigate(`/orders/${r.order_id}`)} className="text-brand-green font-mono hover:underline">
+                      #{String(r.order_number).padStart(3,"0")}
+                    </button>
+                  </span>
+                )}
+              </div>
+              {/* Footer: fecha + acciones */}
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+                <span className="text-zinc-600 text-xs">
+                  {new Date(r.created_at).toLocaleDateString("es-CO", { day:"2-digit", month:"short", year:"numeric" })}
+                </span>
+                <div className="flex gap-3">
+                  <button onClick={() => setEditing(r)} className="text-zinc-500 hover:text-brand-green text-xs transition-colors">Editar</button>
+                  <button onClick={() => setSelected(r)} className="text-brand-green hover:text-white text-xs font-medium transition-colors">Gestionar</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tabla — solo escritorio */}
+      <div className="hidden lg:block card overflow-hidden p-0">
+        <table className="w-full text-sm">
           <thead className="bg-zinc-800 text-zinc-400">
             <tr>
               <th className="px-4 py-3 text-left whitespace-nowrap">Área</th>
@@ -237,7 +285,7 @@ function SuppliersTab({ showForm, setShowForm }) {
         </div>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {data?.map((s) => (
           <div key={s.id} className={`card space-y-2 ${!s.is_active ? "opacity-50" : ""}`}>
             <div className="flex items-start justify-between gap-2">

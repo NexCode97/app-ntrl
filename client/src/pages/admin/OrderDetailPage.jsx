@@ -299,37 +299,41 @@ export default function OrderDetailPage() {
             const itemSubtotal = itemQty * (Number(item.unit_price) || 0);
             return (
               <div key={item.id} className="bg-zinc-800 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
+                {/* Fila superior: miniatura + nombre + tallas a la derecha */}
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  {/* Izquierda: imagen + nombre + meta */}
+                  <div className="flex items-start gap-2 min-w-0">
                     {df && (
                       dfIsPdf ? (
-                        <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600" onClick={() => setPdfSrc(dfUrl)} />
+                        <PdfThumbnail url={dfUrl} width={32} btnClassName="rounded border border-zinc-600 shrink-0" onClick={() => setPdfSrc(dfUrl)} />
                       ) : (
                         <button type="button" onClick={() => setLightboxSrc(dfUrl)} className="shrink-0 focus:outline-none">
                           <img src={dfUrl} alt="diseño" className="w-8 h-8 rounded object-cover border border-zinc-600 hover:border-brand-green transition-colors cursor-zoom-in" />
                         </button>
                       )
                     )}
-                    <span className="text-white font-medium">{item.product_name}</span>
+                    <div className="min-w-0">
+                      <p className="text-white font-medium leading-tight">{item.product_name}</p>
+                      <p className="text-zinc-500 text-xs mt-0.5">
+                        {[item.sport_name, item.line_name, item.gender].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-zinc-400 text-sm">{item.gender} · {item.line_name} / {item.sport_name}</span>
-                </div>
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <div className="flex gap-2 flex-wrap text-xs">
+                  {/* Derecha: tallas */}
+                  <div className="flex gap-1.5 flex-wrap justify-end shrink-0 max-w-[45%]">
                     {Object.entries(item.sizes).filter(([,q]) => q > 0).map(([size, qty]) => (
-                      <span key={size} className="bg-zinc-700 text-white px-2 py-0.5 rounded">
+                      <span key={size} className="bg-zinc-700 text-white text-xs px-2 py-0.5 rounded">
                         {size}: {qty}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-zinc-400 shrink-0">
-                    <span>{itemQty} und.</span>
-                    {itemSubtotal > 0 && (
-                      <span className="text-white font-medium">
-                        ${itemSubtotal.toLocaleString("es-CO")}
-                      </span>
-                    )}
-                  </div>
+                </div>
+                {/* Fila inferior: unidades + subtotal */}
+                <div className="flex items-center justify-end gap-3 text-xs text-zinc-400 pt-1 border-t border-zinc-700/60">
+                  <span>{itemQty} und.</span>
+                  {itemSubtotal > 0 && (
+                    <span className="text-white font-medium">${itemSubtotal.toLocaleString("es-CO")}</span>
+                  )}
                 </div>
               </div>
             );

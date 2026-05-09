@@ -354,7 +354,6 @@ export default function CatalogPage() {
           </div>
         );
       })()}
-      )}
 
       {/* ── Productos ── */}
       {tab === "products" && (

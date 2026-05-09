@@ -376,15 +376,23 @@ export default function OrderDetailPage() {
       {/* Tab: Producción */}
       {tab === "production" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {data.tasks?.map((task) => {
               const ts = STATUS_LABELS[task.status] || STATUS_LABELS.pending;
               return (
-                <div key={task.id} className="card">
-                  <p className="text-white font-medium text-sm mb-2">{AREA_NAMES[task.area]}</p>
+                <div key={task.id} className="card flex flex-col gap-2">
+                  <p className="text-white font-semibold text-sm leading-tight">{AREA_NAMES[task.area]}</p>
                   <span className={ts.cls}>{ts.label}</span>
-                  {task.started_by_name && <p className="text-xs text-zinc-500 mt-2">Inició: {task.started_by_name}</p>}
-                  {task.completed_by_name && <p className="text-xs text-zinc-500">Completó: {task.completed_by_name}</p>}
+                  {(task.started_by_name || task.completed_by_name) && (
+                    <div className="space-y-0.5 mt-auto pt-1 border-t border-zinc-800">
+                      {task.started_by_name && (
+                        <p className="text-[11px] text-zinc-500 truncate">▶ {task.started_by_name}</p>
+                      )}
+                      {task.completed_by_name && (
+                        <p className="text-[11px] text-zinc-500 truncate">✓ {task.completed_by_name}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}

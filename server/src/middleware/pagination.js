@@ -1,9 +1,15 @@
 import Joi from "joi";
 
+// Whitelist de columnas permitidas para ordenar — evita SQL injection en ORDER BY
+const ALLOWED_SORT_COLUMNS = [
+  "created_at", "updated_at", "name", "email", "order_number",
+  "status", "total", "delivery_date", "payment_number", "amount",
+];
+
 const schema = Joi.object({
   page:   Joi.number().integer().min(1).default(1),
   limit:  Joi.number().integer().min(1).max(100).default(20),
-  sort:   Joi.string().max(50).default("created_at"),
+  sort:   Joi.string().valid(...ALLOWED_SORT_COLUMNS).default("created_at"),
   order:  Joi.string().valid("asc", "desc").default("desc"),
   search: Joi.string().max(200).allow("").optional(),
 });

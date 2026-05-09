@@ -36,7 +36,7 @@ export async function login(email, password, ipAddress, userAgent) {
   return {
     user:         { id: user.id, name: user.name, email: user.email, role: user.role, area: user.area },
     accessToken,
-    refreshToken,
+    refreshToken, // necesario para clientes móviles que no usan cookies
     refreshExpiresAt: expiresAt,
   };
 }
@@ -45,13 +45,17 @@ export async function refreshAccessToken(refreshToken, cookieToken) {
   const tokenToVerify = refreshToken || cookieToken;
   if (!tokenToVerify) throw new AppError("Refresh token requerido.", 401, "UNAUTHORIZED");
 
-  // Buscar sesiones activas y verificar hash
+  // Buscar solo sesiones activas del periodo reciente — NO carga toda la tabla
+  // Se filtra por expires_at para reducir el conjunto al mínimo necesario
   const { rows } = await pool.query(
     `SELECT s.id, s.refresh_token_hash, s.expires_at,
             u.id as user_id, u.name, u.email, u.role, u.area
      FROM sessions s
      JOIN users u ON u.id = s.user_id
-     WHERE u.is_active = true AND s.expires_at > NOW()`,
+     WHERE u.is_active = true
+       AND s.expires_at > NOW()
+     ORDER BY s.created_at DESC
+     LIMIT 200`,
   );
 
   let session = null;
@@ -79,9 +83,14 @@ export async function logout(accessToken, refreshToken) {
     }
   } catch { /* token inválido, ignorar */ }
 
-  // Eliminar sesión
+  // Eliminar sesión — solo busca sesiones activas, no toda la tabla
   if (refreshToken) {
-    const { rows } = await pool.query("SELECT id, refresh_token_hash FROM sessions");
+    const { rows } = await pool.query(
+      `SELECT id, refresh_token_hash FROM sessions
+       WHERE expires_at > NOW()
+       ORDER BY created_at DESC
+       LIMIT 200`
+    );
     for (const row of rows) {
       const match = await bcrypt.compare(refreshToken, row.refresh_token_hash);
       if (match) {

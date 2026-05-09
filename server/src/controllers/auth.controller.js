@@ -95,6 +95,18 @@ export async function updateMe(req, res, next) {
 
     if (new_password) {
       if (!current_password) throw new AppError("Debes ingresar tu contraseña actual.", 400, "MISSING_CURRENT_PASSWORD");
+
+      // Validar complejidad: mín 8 chars, mayúscula, minúscula, número, especial
+      const pwdErrors = [];
+      if (new_password.length < 8)               pwdErrors.push("al menos 8 caracteres");
+      if (!/[A-Z]/.test(new_password))            pwdErrors.push("una mayúscula");
+      if (!/[a-z]/.test(new_password))            pwdErrors.push("una minúscula");
+      if (!/[0-9]/.test(new_password))            pwdErrors.push("un número");
+      if (!/[^A-Za-z0-9]/.test(new_password))     pwdErrors.push("un carácter especial");
+      if (pwdErrors.length) {
+        throw new AppError(`La contraseña debe incluir: ${pwdErrors.join(", ")}.`, 400, "WEAK_PASSWORD");
+      }
+
       const { rows: [u] } = await pool.query("SELECT password_hash FROM users WHERE id = $1", [req.user.id]);
       const ok = await bcrypt.compare(current_password, u.password_hash);
       if (!ok) throw new AppError("La contraseña actual es incorrecta.", 401, "WRONG_PASSWORD");

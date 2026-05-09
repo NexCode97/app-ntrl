@@ -376,7 +376,7 @@ export default function OrderDetailPage() {
       {/* Tab: Producción */}
       {tab === "production" && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {data.tasks?.map((task) => {
               const ts = STATUS_LABELS[task.status] || STATUS_LABELS.pending;
               return (

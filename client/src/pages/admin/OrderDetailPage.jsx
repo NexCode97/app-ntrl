@@ -1189,10 +1189,10 @@ function HistoryTab({ orderId }) {
   return (
     <div className="space-y-2">
       {data?.map((h) => (
-        <div key={h.id} className="flex items-start gap-3 text-sm">
-          <span className="text-zinc-500 shrink-0">{new Date(h.created_at).toLocaleString("es-CO")}</span>
-          <span className="text-zinc-400">{h.user_name}:</span>
-          <span className="text-white">{h.action}</span>
+        <div key={h.id} className="bg-zinc-800 rounded-lg px-3 py-2.5">
+          <p className="text-zinc-500 text-xs">{new Date(h.created_at).toLocaleString("es-CO")}</p>
+          <p className="text-zinc-400 text-xs mt-0.5">{h.user_name}</p>
+          <p className="text-white text-sm mt-1">{h.action}</p>
         </div>
       ))}
     </div>

@@ -382,7 +382,7 @@ export default function OrderDetailPage() {
               return (
                 <div key={task.id} className="card flex flex-col gap-2">
                   <p className="text-white font-semibold text-sm leading-tight">{AREA_NAMES[task.area]}</p>
-                  <span className={ts.cls}>{ts.label}</span>
+                  <span className={`${ts.cls} w-fit`}>{ts.label}</span>
                   {(task.started_by_name || task.completed_by_name) && (
                     <div className="space-y-0.5 mt-auto pt-1 border-t border-zinc-800">
                       {task.started_by_name && (

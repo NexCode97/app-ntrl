@@ -529,8 +529,8 @@ function EditOrderModal({ order, onClose, onSaved }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 overflow-y-auto py-8">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-2xl mx-4 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 overflow-y-auto overflow-x-hidden py-8">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-2xl mx-4 shadow-2xl overflow-x-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
           <h2 className="text-white font-semibold">Editar pedido #{order.order_number}</h2>
           <button onClick={onClose} className="text-zinc-400 hover:text-white text-xl leading-none">✕</button>

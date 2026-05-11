@@ -417,6 +417,16 @@ export function generateInvoicePDF(order) {
 
     doc.rect(m, tableY, cW, rowY - tableY).lineWidth(0.5).strokeColor("#cccccc").stroke();
 
+    // ── SALTO DE PÁGINA si no hay espacio para el bloque inferior ──
+    // Estimar espacio necesario: abonos + emitido + totales + pie
+    const paymentsH  = order.payments?.length ? (order.payments.length * 12 + 16) : 0;
+    const bloqueNeed = paymentsH + 14 + 56 + 35; // emitido + totales + pie
+    const pageBottom = doc.page.height - m;
+    if (rowY + 6 + bloqueNeed > pageBottom) {
+      doc.addPage();
+      rowY = m;
+    }
+
     // ── BLOQUE INFERIOR: izquierda = historial + emitido | derecha = totales ──
     rowY += 6;
     const totalPaid = (order.payments || []).reduce((s, p) => s + Number(p.amount || 0), 0);

@@ -71,6 +71,129 @@ function KanbanCard({ order, onClick }) {
   );
 }
 
+function PendingBalancesSection({ pendingBalances, showAll, setShowAll, navigate }) {
+  const [activePieIdx, setActivePieIdx] = useState(null);
+
+  const totalBalance = (pendingBalances ?? []).reduce((s, o) => s + Number(o.balance), 0);
+  const totalPaid    = (pendingBalances ?? []).reduce((s, o) => s + Number(o.amount_paid ?? 0), 0);
+  const totalInvoice = totalBalance + totalPaid;
+
+  const donutData = totalInvoice === 0 ? [] : [
+    { name: "Recaudado",  value: totalPaid,    color: "#98f909" },
+    { name: "Pendiente",  value: totalBalance, color: "#eab308" },
+  ];
+
+  const formatPesos = (v) => `$${Number(v).toLocaleString("es-CO")}`;
+
+  const renderActiveShape = (props) => {
+    const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+    const total = donutData.reduce((s, d) => s + d.value, 0);
+    return (
+      <g>
+        <text x={cx} y={cy - 10} textAnchor="middle" fill="#ffffff" fontSize={11} fontWeight="700">{payload.name}</text>
+        <text x={cx} y={cy + 10} textAnchor="middle" fill={fill} fontSize={13} fontWeight="800">
+          {`${Math.round((payload.value / total) * 100)}%`}
+        </text>
+        <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius + 7} startAngle={startAngle} endAngle={endAngle} fill={fill} />
+        <Sector cx={cx} cy={cy} innerRadius={innerRadius - 5} outerRadius={innerRadius - 2} startAngle={startAngle} endAngle={endAngle} fill={fill} />
+      </g>
+    );
+  };
+
+  return (
+    <div>
+      <h2 className="text-white font-semibold mb-3">Pendiente de cobro</h2>
+      <div className="card">
+        {!pendingBalances?.length ? (
+          <p className="text-zinc-600 text-sm text-center py-6">Sin saldos pendientes.</p>
+        ) : (
+          <>
+            {/* Dona */}
+            <div className="flex flex-col sm:flex-row items-center gap-6 mb-5">
+              <div className="w-[180px] h-[180px] shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={donutData}
+                      cx="50%" cy="50%"
+                      innerRadius={55} outerRadius={78}
+                      isAnimationActive animationBegin={200} animationDuration={900} animationEasing="ease-out"
+                      dataKey="value"
+                      activeIndex={activePieIdx}
+                      activeShape={renderActiveShape}
+                      onMouseEnter={(_, i) => setActivePieIdx(i)}
+                      onMouseLeave={() => setActivePieIdx(null)}
+                    >
+                      {donutData.map((entry, i) => <Cell key={i} fill={entry.color} stroke="transparent" />)}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: "#18181b", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12 }}
+                      labelStyle={{ color: "#a1a1aa" }}
+                      itemStyle={{ color: "#ffffff" }}
+                      formatter={(v, name) => [formatPesos(v), name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="space-y-3 flex-1 min-w-0 w-full">
+                {donutData.map((d) => {
+                  const pct = Math.round((d.value / totalInvoice) * 100);
+                  return (
+                    <div key={d.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: d.color }} />
+                          <span className="text-zinc-300 text-sm">{d.name}</span>
+                        </div>
+                        <span className="text-sm font-bold" style={{ color: d.color }}>{pct}%</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: d.color }} />
+                      </div>
+                      <p className="text-zinc-400 text-xs mt-0.5">{formatPesos(d.value)}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Lista */}
+            <div className="divide-y divide-zinc-800/60 -mx-4 sm:-mx-5">
+              {(showAll ? pendingBalances : pendingBalances.slice(0, 5)).map((o) => (
+                <div key={o.id}
+                  onClick={() => navigate(`/orders/${o.id}?tab=financial`)}
+                  className="flex items-center gap-3 px-4 sm:px-5 py-3 hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                  <span className="text-brand-green font-mono font-bold text-sm shrink-0 w-12">
+                    #{o.order_number_fmt}
+                  </span>
+                  <span className="text-zinc-200 text-sm truncate flex-1 min-w-0">
+                    {o.customer_name}
+                  </span>
+                  <div className="text-right shrink-0">
+                    <p className="text-yellow-400 font-bold text-sm leading-tight">
+                      ${Number(o.balance).toLocaleString("es-CO")}
+                    </p>
+                    <p className="text-zinc-600 text-[11px] leading-tight">
+                      de ${Number(o.total).toLocaleString("es-CO")}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {pendingBalances.length > 5 && (
+                <button
+                  onClick={() => setShowAll((v) => !v)}
+                  className="w-full py-2.5 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors text-center">
+                  {showAll ? "Ver menos ↑" : `Ver todos (${pendingBalances.length - 5} más) ↓`}
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const KANBAN_PREVIEW = 5;
 
 function KanbanSection({ production, navigate }) {
@@ -322,53 +445,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Pendiente de cobro */}
-        <div>
-          <div className="card divide-y divide-zinc-800/60 p-0 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3">
-              <h2 className="text-white font-semibold">Pendiente de cobro</h2>
-              {pendingBalances?.length > 0 && (
-                <span className="text-yellow-400 font-bold text-sm">
-                  ${pendingBalances.reduce((s, o) => s + Number(o.balance), 0).toLocaleString("es-CO")}
-                </span>
-              )}
-            </div>
-            {!pendingBalances?.length ? (
-              <p className="text-zinc-600 text-sm text-center py-6">Sin saldos pendientes.</p>
-            ) : (
-              <>
-                {(showAllPending ? pendingBalances : pendingBalances.slice(0, 5)).map((o) => (
-                  <div key={o.id}
-                    onClick={() => navigate(`/orders/${o.id}?tab=financial`)}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 cursor-pointer transition-colors">
-                    <span className="text-brand-green font-mono font-bold text-sm shrink-0 w-12">
-                      #{o.order_number_fmt}
-                    </span>
-                    <span className="text-zinc-200 text-sm truncate flex-1 min-w-0">
-                      {o.customer_name}
-                    </span>
-                    <div className="text-right shrink-0">
-                      <p className="text-yellow-400 font-bold text-sm leading-tight">
-                        ${Number(o.balance).toLocaleString("es-CO")}
-                      </p>
-                      <p className="text-zinc-600 text-[11px] leading-tight">
-                        de ${Number(o.total).toLocaleString("es-CO")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {pendingBalances.length > 5 && (
-                  <button
-                    onClick={() => setShowAllPending((v) => !v)}
-                    className="w-full py-2.5 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors text-center">
-                    {showAllPending
-                      ? "Ver menos ↑"
-                      : `Ver todos (${pendingBalances.length - 5} más) ↓`}
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        </div>
+        <PendingBalancesSection
+          pendingBalances={pendingBalances}
+          showAll={showAllPending}
+          setShowAll={setShowAllPending}
+          navigate={navigate}
+        />
 
         {/* Producción en curso */}
         <div>

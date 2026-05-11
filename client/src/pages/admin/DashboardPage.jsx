@@ -323,15 +323,15 @@ export default function DashboardPage() {
 
         {/* Pendiente de cobro */}
         <div>
-          <div className="flex items-center justify-between mb-3 px-0">
-            <h2 className="text-white font-semibold">Pendiente de cobro</h2>
-            {pendingBalances?.length > 0 && (
-              <span className="text-yellow-400 font-bold text-sm pr-0">
-                ${pendingBalances.reduce((s, o) => s + Number(o.balance), 0).toLocaleString("es-CO")}
-              </span>
-            )}
-          </div>
           <div className="card divide-y divide-zinc-800/60 p-0 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3">
+              <h2 className="text-white font-semibold">Pendiente de cobro</h2>
+              {pendingBalances?.length > 0 && (
+                <span className="text-yellow-400 font-bold text-sm">
+                  ${pendingBalances.reduce((s, o) => s + Number(o.balance), 0).toLocaleString("es-CO")}
+                </span>
+              )}
+            </div>
             {!pendingBalances?.length ? (
               <p className="text-zinc-600 text-sm text-center py-6">Sin saldos pendientes.</p>
             ) : (

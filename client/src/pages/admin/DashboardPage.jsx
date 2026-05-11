@@ -321,33 +321,41 @@ export default function DashboardPage() {
 
         {/* Pendiente de cobro */}
         <div>
-          <h2 className="text-white font-semibold mb-3">Pendiente de cobro</h2>
-          <div className="card p-0 overflow-hidden">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-white font-semibold">Pendiente de cobro</h2>
+            {pendingBalances?.length > 0 && (
+              <span className="text-yellow-400 font-bold text-sm">
+                ${pendingBalances.reduce((s, o) => s + Number(o.balance), 0).toLocaleString("es-CO")}
+              </span>
+            )}
+          </div>
+          <div className="card divide-y divide-zinc-800/60 p-0 overflow-hidden">
             {!pendingBalances?.length ? (
               <p className="text-zinc-600 text-sm text-center py-6">Sin saldos pendientes.</p>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-zinc-800 text-zinc-400">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Pedido</th>
-                    <th className="px-4 py-2 text-left">Cliente</th>
-                    <th className="px-4 py-2 text-right">Total</th>
-                    <th className="px-4 py-2 text-right">Abonado</th>
-                    <th className="px-4 py-2 text-right">Saldo</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-800">
-                  {pendingBalances.map((o) => (
-                    <tr key={o.id} onClick={() => navigate(`/orders/${o.id}?tab=financial`)} className="hover:bg-zinc-800/50 cursor-pointer transition-colors">
-                      <td className="px-4 py-3 text-brand-green font-mono font-bold">#{o.order_number_fmt}</td>
-                      <td className="px-4 py-3 text-white">{o.customer_name}</td>
-                      <td className="px-4 py-3 text-zinc-400 text-right">${Number(o.total).toLocaleString()}</td>
-                      <td className="px-4 py-3 text-zinc-400 text-right">${Number(o.amount_paid).toLocaleString()}</td>
-                      <td className="px-4 py-3 text-yellow-400 font-bold text-right">${Number(o.balance).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              pendingBalances.map((o) => (
+                <div key={o.id}
+                  onClick={() => navigate(`/orders/${o.id}?tab=financial`)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                  {/* Número */}
+                  <span className="text-brand-green font-mono font-bold text-sm shrink-0 w-12">
+                    #{o.order_number_fmt}
+                  </span>
+                  {/* Cliente */}
+                  <span className="text-zinc-200 text-sm truncate flex-1 min-w-0">
+                    {o.customer_name}
+                  </span>
+                  {/* Saldo pendiente */}
+                  <div className="text-right shrink-0">
+                    <p className="text-yellow-400 font-bold text-sm leading-tight">
+                      ${Number(o.balance).toLocaleString("es-CO")}
+                    </p>
+                    <p className="text-zinc-600 text-[11px] leading-tight">
+                      de ${Number(o.total).toLocaleString("es-CO")}
+                    </p>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </div>

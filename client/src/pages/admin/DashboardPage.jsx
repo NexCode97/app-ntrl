@@ -145,6 +145,8 @@ export default function DashboardPage() {
   const isVendedor = user?.role === "vendedor";
 
   const [refreshing, setRefreshing] = useState(false);
+  const [showAllPending,    setShowAllPending]    = useState(false);
+  const [showAllProduction, setShowAllProduction] = useState(false);
 
   async function handleRefresh() {
     setRefreshing(true);
@@ -321,10 +323,10 @@ export default function DashboardPage() {
 
         {/* Pendiente de cobro */}
         <div>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 px-0">
             <h2 className="text-white font-semibold">Pendiente de cobro</h2>
             {pendingBalances?.length > 0 && (
-              <span className="text-yellow-400 font-bold text-sm">
+              <span className="text-yellow-400 font-bold text-sm pr-0">
                 ${pendingBalances.reduce((s, o) => s + Number(o.balance), 0).toLocaleString("es-CO")}
               </span>
             )}
@@ -333,29 +335,37 @@ export default function DashboardPage() {
             {!pendingBalances?.length ? (
               <p className="text-zinc-600 text-sm text-center py-6">Sin saldos pendientes.</p>
             ) : (
-              pendingBalances.map((o) => (
-                <div key={o.id}
-                  onClick={() => navigate(`/orders/${o.id}?tab=financial`)}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 cursor-pointer transition-colors">
-                  {/* Número */}
-                  <span className="text-brand-green font-mono font-bold text-sm shrink-0 w-12">
-                    #{o.order_number_fmt}
-                  </span>
-                  {/* Cliente */}
-                  <span className="text-zinc-200 text-sm truncate flex-1 min-w-0">
-                    {o.customer_name}
-                  </span>
-                  {/* Saldo pendiente */}
-                  <div className="text-right shrink-0">
-                    <p className="text-yellow-400 font-bold text-sm leading-tight">
-                      ${Number(o.balance).toLocaleString("es-CO")}
-                    </p>
-                    <p className="text-zinc-600 text-[11px] leading-tight">
-                      de ${Number(o.total).toLocaleString("es-CO")}
-                    </p>
+              <>
+                {(showAllPending ? pendingBalances : pendingBalances.slice(0, 5)).map((o) => (
+                  <div key={o.id}
+                    onClick={() => navigate(`/orders/${o.id}?tab=financial`)}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-800/50 cursor-pointer transition-colors">
+                    <span className="text-brand-green font-mono font-bold text-sm shrink-0 w-12">
+                      #{o.order_number_fmt}
+                    </span>
+                    <span className="text-zinc-200 text-sm truncate flex-1 min-w-0">
+                      {o.customer_name}
+                    </span>
+                    <div className="text-right shrink-0">
+                      <p className="text-yellow-400 font-bold text-sm leading-tight">
+                        ${Number(o.balance).toLocaleString("es-CO")}
+                      </p>
+                      <p className="text-zinc-600 text-[11px] leading-tight">
+                        de ${Number(o.total).toLocaleString("es-CO")}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+                {pendingBalances.length > 5 && (
+                  <button
+                    onClick={() => setShowAllPending((v) => !v)}
+                    className="w-full py-2.5 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-colors text-center">
+                    {showAllPending
+                      ? "Ver menos ↑"
+                      : `Ver todos (${pendingBalances.length - 5} más) ↓`}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -371,6 +381,9 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {KANBAN_COLUMNS.map((col) => {
                 const orders = (production ?? []).filter((o) => o.order_status === col.key);
+                const LIMIT = 3;
+                const visible = showAllProduction ? orders : orders.slice(0, LIMIT);
+                const hidden  = orders.length - LIMIT;
                 return (
                   <div key={col.key} className={`bg-zinc-900/50 border ${col.border} rounded-xl p-3`}>
                     <div className="flex items-center gap-2 mb-3">
@@ -382,15 +395,29 @@ export default function DashboardPage() {
                       <p className="text-zinc-700 text-xs text-center py-4">Sin pedidos</p>
                     ) : (
                       <div className="space-y-2">
-                        {orders.map((order) => (
+                        {visible.map((order) => (
                           <KanbanCard key={order.id} order={order} onClick={() => navigate(`/orders/${order.id}`)} />
                         ))}
+                        {!showAllProduction && hidden > 0 && (
+                          <button
+                            onClick={() => setShowAllProduction(true)}
+                            className="w-full text-center text-[11px] text-zinc-500 hover:text-white py-1.5 rounded-lg hover:bg-zinc-800/50 transition-colors">
+                            +{hidden} más
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
                 );
               })}
             </div>
+          )}
+          {showAllProduction && (production ?? []).some((o) => KANBAN_COLUMNS.some((c) => c.key === o.order_status)) && (
+            <button
+              onClick={() => setShowAllProduction(false)}
+              className="mt-2 w-full text-center text-xs text-zinc-500 hover:text-white py-2 transition-colors">
+              Ver menos ↑
+            </button>
           )}
         </div>
       </div>

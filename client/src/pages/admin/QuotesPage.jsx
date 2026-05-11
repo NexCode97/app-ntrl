@@ -465,31 +465,37 @@ function QuoteDetail({ quote, onClose, onRefresh, onConvert }) {
         )}
 
         {/* Botones principales */}
-        <div className="flex gap-2 flex-wrap">
-          <button onClick={handleDownload}
-            className="btn-secondary text-sm px-4 flex items-center gap-2">
-            <DownloadIcon /> Descargar PDF
-          </button>
-          <button onClick={handleDownloadCatalog} disabled={downloadingCat}
-            className="btn-secondary text-sm px-4 flex items-center gap-2 disabled:opacity-60">
-            {downloadingCat ? "Generando..." : <><DocumentArrowDownIcon className="w-4 h-4" /> Descargar catálogo</>}
-          </button>
-          {quote.customer_email && (
-            <button onClick={handleSendEmail} disabled={sending}
-              className="btn-secondary text-sm px-4 flex items-center gap-2">
-              {sending ? "Enviando..." : <><EnvelopeIcon className="w-4 h-4" /> Enviar por correo</>}
+        <div className="space-y-2">
+          {/* Fila 1: descargas + correo en grid 2 cols */}
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={handleDownload}
+              className="btn-secondary text-sm flex items-center justify-center gap-2">
+              <DownloadIcon /> Descargar PDF
             </button>
-          )}
-          {quote.status === "approved" && (
-            <button onClick={() => onConvert(quote)}
-              className="btn-primary text-sm px-4 flex items-center gap-2">
-              <ClipboardDocumentCheckIcon className="w-4 h-4" /> Convertir en pedido
+            <button onClick={handleDownloadCatalog} disabled={downloadingCat}
+              className="btn-secondary text-sm flex items-center justify-center gap-2 disabled:opacity-60">
+              {downloadingCat ? "Generando..." : <><DocumentArrowDownIcon className="w-4 h-4" /> Catálogo</>}
             </button>
-          )}
-          <button onClick={() => setEditing(true)}
-            className="btn-secondary text-sm px-4 ml-auto">
-            Editar
-          </button>
+            {quote.customer_email && (
+              <button onClick={handleSendEmail} disabled={sending}
+                className="btn-secondary text-sm flex items-center justify-center gap-2 col-span-2">
+                {sending ? "Enviando..." : <><EnvelopeIcon className="w-4 h-4" /> Enviar por correo</>}
+              </button>
+            )}
+          </div>
+          {/* Fila 2: acción primaria + editar */}
+          <div className="flex gap-2">
+            {quote.status === "approved" && (
+              <button onClick={() => onConvert(quote)}
+                className="btn-primary text-sm flex-1 flex items-center justify-center gap-2">
+                <ClipboardDocumentCheckIcon className="w-4 h-4" /> Convertir en pedido
+              </button>
+            )}
+            <button onClick={() => setEditing(true)}
+              className={`btn-secondary text-sm px-5 ${quote.status !== "approved" ? "flex-1" : ""}`}>
+              Editar
+            </button>
+          </div>
         </div>
       </div>
     </div>

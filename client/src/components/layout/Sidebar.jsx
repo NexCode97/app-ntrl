@@ -19,7 +19,6 @@ import {
   CheckCircleIcon,
   ArrowRightStartOnRectangleIcon,
   BanknotesIcon,
-  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 
 const AREA_LABELS = { corte: "Corte", diseno: "Diseño", sublimacion: "Sublimación", ensamble: "Ensamble", terminados: "Terminados" };
@@ -32,7 +31,6 @@ const VENDEDOR_LINKS = [
   { to: "/catalog",   label: "Catálogo",     Icon: TagIcon },
   { to: "/supplies",  label: "Suministros",  Icon: ArchiveBoxIcon },
   { to: "/payroll",   label: "Nómina",       Icon: BanknotesIcon },
-  { to: "/employees", label: "Empleados",    Icon: UserGroupIcon },
   { to: "/chat",      label: "Mensajes",     Icon: ChatBubbleLeftRightIcon },
 ];
 
@@ -44,7 +42,6 @@ const ADMIN_LINKS = [
   { to: "/catalog",   label: "Catálogo",     Icon: TagIcon },
   { to: "/supplies",  label: "Suministros",  Icon: ArchiveBoxIcon },
   { to: "/payroll",   label: "Nómina",       Icon: BanknotesIcon },
-  { to: "/employees", label: "Empleados",    Icon: UserGroupIcon },
   { to: "/reports",   label: "Reportes",     Icon: PresentationChartLineIcon },
   { to: "/calendar",  label: "Calendario",   Icon: CalendarDaysIcon },
   { to: "/chat",      label: "Mensajes",     Icon: ChatBubbleLeftRightIcon },

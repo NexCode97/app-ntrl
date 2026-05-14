@@ -18,9 +18,8 @@ import ProfilePage    from "../pages/admin/ProfilePage.jsx";
 import CalendarPage   from "../pages/admin/CalendarPage.jsx";
 import QuotesPage          from "../pages/admin/QuotesPage.jsx";
 import ChatPage            from "../pages/ChatPage.jsx";
-import EmployeesPage       from "../pages/admin/payroll/EmployeesPage.jsx";
-import PayrollPeriodsPage  from "../pages/admin/payroll/PayrollPeriodsPage.jsx";
-import PayrollDetailPage   from "../pages/admin/payroll/PayrollDetailPage.jsx";
+import PayrollPage        from "../pages/admin/payroll/PayrollPage.jsx";
+import PayrollDetailPage  from "../pages/admin/payroll/PayrollDetailPage.jsx";
 
 // Worker pages
 import TasksPage           from "../pages/worker/TasksPage.jsx";
@@ -81,9 +80,8 @@ export default function AppRouter() {
         } />
 
         {/* Nómina — Admin + Vendedor */}
-        <Route path="payroll"     element={<RequireAuth roles={["admin","vendedor"]}><PayrollPeriodsPage /></RequireAuth>} />
+        <Route path="payroll"     element={<RequireAuth roles={["admin","vendedor"]}><PayrollPage /></RequireAuth>} />
         <Route path="payroll/:id" element={<RequireAuth roles={["admin","vendedor"]}><PayrollDetailPage /></RequireAuth>} />
-        <Route path="employees"   element={<RequireAuth roles={["admin","vendedor"]}><EmployeesPage /></RequireAuth>} />
 
         {/* Worker routes */}
         <Route path="tasks"     element={<RequireAuth roles={["worker"]}><TasksPage /></RequireAuth>} />

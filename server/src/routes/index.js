@@ -13,7 +13,9 @@ import syncRoutes from "./sync.routes.js";
 import chatRoutes from "./chat.routes.js";
 import suppliesRoutes from "./supplies.routes.js";
 import pushRoutes   from "./push.routes.js";
-import quotesRoutes from "./quotes.routes.js";
+import quotesRoutes    from "./quotes.routes.js";
+import employeesRoutes from "./employees.routes.js";
+import payrollRoutes   from "./payroll.routes.js";
 const router = Router();
 
 router.get("/health", health);
@@ -31,5 +33,7 @@ router.use("/chat",          chatRoutes);
 router.use("/supplies",      suppliesRoutes);
 router.use("/push",          pushRoutes);
 router.use("/quotes",        quotesRoutes);
+router.use("/employees",     employeesRoutes);
+router.use("/payroll",       payrollRoutes);
 
 export default router;

@@ -54,10 +54,7 @@ export default function PayrollPage() {
         <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center">
           <BanknotesIcon className="w-5 h-5 text-brand-green" />
         </div>
-        <div>
-          <h1 className="text-white font-bold text-xl">Nómina</h1>
-          <p className="text-zinc-400 text-sm">Gestión de empleados y períodos quincenales</p>
-        </div>
+        <h1 className="text-white font-bold text-xl">Nómina</h1>
       </div>
 
       {/* Tabs */}

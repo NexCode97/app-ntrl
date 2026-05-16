@@ -15,6 +15,8 @@ const PAGE_TITLES = {
   "/calendar":  "Calendario",
   "/chat":      "Mensajes",
   "/tasks":     "Mis Tareas",
+  "/quotes":    "Cotizaciones",
+  "/payroll":   "Nómina",
 };
 
 export default function Header() {

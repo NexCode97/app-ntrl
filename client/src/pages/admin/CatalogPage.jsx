@@ -206,14 +206,14 @@ export default function CatalogPage() {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-zinc-900 p-1 rounded-xl w-fit">
+      {/* Tabs — solo tablet y escritorio */}
+      <div className="hidden md:flex gap-1 bg-zinc-900 border border-zinc-800 p-1 rounded-xl w-fit">
         {TABS.map(([key, label, Icon]) => (
           <button key={key} onClick={() => { setTab(key); setSearch(""); }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-150 whitespace-nowrap
               ${tab === key ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
             <Icon />
-            <span className="hidden sm:inline">{label}</span>
+            {label}
           </button>
         ))}
       </div>

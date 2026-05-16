@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../../config/api.js";
 import { COLOMBIA, DEPARTAMENTOS } from "../../data/colombia.js";
 import { UserIcon, PhoneIcon, EnvelopeIcon } from "@heroicons/react/24/outline";
+import TabBar from "../../components/ui/TabBar.jsx";
 
 const STATUS_COLORS = {
   pending:     "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30",
@@ -28,16 +29,14 @@ export default function SuppliesPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="order-last sm:order-first flex bg-zinc-900 rounded-xl p-1 gap-1 w-fit">
-          <button onClick={() => setTab("requests")}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${tab === "requests" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
-            Solicitudes
-          </button>
-          <button onClick={() => setTab("suppliers")}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${tab === "suppliers" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
-            Proveedores
-          </button>
-        </div>
+        <TabBar
+          tabs={[
+            { value: "requests",  label: "Solicitudes" },
+            { value: "suppliers", label: "Proveedores" },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
         <div className="order-first sm:order-last self-start sm:self-auto">
           {tab === "requests"  && <button className="btn-primary whitespace-nowrap" onClick={() => setShowRequestForm(true)}>+ Nueva solicitud</button>}
           {tab === "suppliers" && <button className="btn-primary whitespace-nowrap" onClick={() => setShowSupplierForm(true)}>+ Nuevo proveedor</button>}
@@ -108,14 +107,16 @@ function RequestsTab({ showForm, setShowForm }) {
           ))}
         </select>
       </div>
-      <div className="hidden md:flex bg-zinc-900 rounded-xl p-1 gap-1 w-fit">
-        {[["all","Todos"], ["pending","Pendientes"], ["in_progress","En proceso"], ["delivered","Entregados"]].map(([val, label]) => (
-          <button key={val} onClick={() => setFilter(val)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${filter === val ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
-            {label}{val !== "all" && counts[val] ? ` (${counts[val]})` : ""}
-          </button>
-        ))}
-      </div>
+      <TabBar
+        tabs={[
+          { value: "all",         label: "Todos" },
+          { value: "pending",     label: "Pendientes",  count: counts.pending },
+          { value: "in_progress", label: "En proceso",  count: counts.in_progress },
+          { value: "delivered",   label: "Entregados",  count: counts.delivered },
+        ]}
+        value={filter}
+        onChange={setFilter}
+      />
 
       {/* Cards — móvil y tablet */}
       <div className="lg:hidden">

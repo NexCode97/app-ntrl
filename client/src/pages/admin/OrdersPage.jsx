@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../config/api.js";
+import TabBar from "../../components/ui/TabBar.jsx";
 
 const STATUS_LABELS = {
   pending:     { label: "Pendiente",   cls: "badge-pending"   },
@@ -83,21 +84,17 @@ export default function OrdersPage() {
             ))}
           </select>
         </div>
-        <div className="hidden md:flex items-center gap-2 flex-wrap">
-          {[{ value: "", label: "Todos" }, ...Object.entries(STATUS_LABELS).map(([v, { label }]) => ({ value: v, label }))].map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => { setStatus(tab.value); setPage(1); }}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap font-medium ${
-                statusFilter === tab.value
-                  ? "bg-brand-green text-black"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <TabBar
+          tabs={[
+            { value: "",            label: "Todos" },
+            { value: "pending",     label: "Pendiente" },
+            { value: "in_progress", label: "En proceso" },
+            { value: "completed",   label: "Completado" },
+            { value: "delivered",   label: "Entregado" },
+          ]}
+          value={statusFilter}
+          onChange={(v) => { setStatus(v); setPage(1); }}
+        />
       </div>
 
       {/* Cards — todos los tamaños */}

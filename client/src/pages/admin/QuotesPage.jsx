@@ -12,6 +12,7 @@ import {
   EnvelopeIcon,
   ClipboardDocumentCheckIcon,
 } from "@heroicons/react/24/outline";
+import TabBar from "../../components/ui/TabBar.jsx";
 
 const GENDERS = [
   { value: "nino",   label: "Niño"         },
@@ -584,17 +585,16 @@ export default function QuotesPage() {
             {STATUS_TABS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
-        <div className="hidden md:flex items-center gap-2 flex-wrap">
-          {STATUS_TABS.map((t) => (
-            <button key={t.value} onClick={() => setStatusFilter(t.value)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
-                statusFilter === t.value
-                  ? "bg-brand-green text-black border-brand-green font-semibold"
-                  : "text-zinc-400 border-zinc-700 hover:border-zinc-500"}`}>
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <TabBar
+          tabs={STATUS_TABS.map((t) => ({
+            ...t,
+            count: t.value !== "all"
+              ? quotes.filter((q) => q.status === t.value).length
+              : undefined,
+          }))}
+          value={statusFilter}
+          onChange={setStatusFilter}
+        />
       </div>
 
       {/* Cards */}

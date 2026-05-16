@@ -13,6 +13,7 @@ import {
   CheckCircleIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import TabBar from "../../../components/ui/TabBar.jsx";
 
 // ── Formatters ─────────────────────────────────────────────────
 const fmt = (v) =>
@@ -60,29 +61,15 @@ export default function PayrollPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-zinc-900 border border-zinc-800 rounded-xl mb-6 w-fit">
-        <button
-          onClick={() => setTab("periodos")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "periodos"
-              ? "bg-brand-green text-black"
-              : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <BanknotesIcon className="w-4 h-4" />
-          Períodos
-        </button>
-        <button
-          onClick={() => setTab("empleados")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "empleados"
-              ? "bg-brand-green text-black"
-              : "text-zinc-400 hover:text-white"
-          }`}
-        >
-          <UserGroupIcon className="w-4 h-4" />
-          Empleados
-        </button>
+      <div className="mb-6">
+        <TabBar
+          tabs={[
+            { value: "periodos",  label: "Períodos",   Icon: BanknotesIcon },
+            { value: "empleados", label: "Empleados",  Icon: UserGroupIcon },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
       </div>
 
       {/* Contenido */}

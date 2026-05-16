@@ -88,10 +88,10 @@ export default function OrdersPage() {
             <button
               key={tab.value}
               onClick={() => { setStatus(tab.value); setPage(1); }}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap ${
+              className={`text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap font-medium ${
                 statusFilter === tab.value
-                  ? "bg-brand-green text-black border-brand-green font-semibold"
-                  : "text-zinc-400 border-zinc-700 hover:border-zinc-500"
+                  ? "bg-brand-green text-black"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}
             >
               {tab.label}

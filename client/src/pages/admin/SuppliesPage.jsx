@@ -28,13 +28,13 @@ export default function SuppliesPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div className="order-last sm:order-first flex bg-zinc-800 rounded-lg p-1 gap-1 w-fit">
+        <div className="order-last sm:order-first flex bg-zinc-900 rounded-xl p-1 gap-1 w-fit">
           <button onClick={() => setTab("requests")}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "requests" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${tab === "requests" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
             Solicitudes
           </button>
           <button onClick={() => setTab("suppliers")}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${tab === "suppliers" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${tab === "suppliers" ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
             Proveedores
           </button>
         </div>
@@ -108,10 +108,10 @@ function RequestsTab({ showForm, setShowForm }) {
           ))}
         </select>
       </div>
-      <div className="hidden md:flex gap-2 flex-wrap">
+      <div className="hidden md:flex bg-zinc-900 rounded-xl p-1 gap-1 w-fit">
         {[["all","Todos"], ["pending","Pendientes"], ["in_progress","En proceso"], ["delivered","Entregados"]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${filter === val ? "bg-brand-green text-black" : "bg-zinc-800 text-zinc-400 hover:text-white"}`}>
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${filter === val ? "bg-brand-green text-black" : "text-zinc-400 hover:text-white"}`}>
             {label}{val !== "all" && counts[val] ? ` (${counts[val]})` : ""}
           </button>
         ))}

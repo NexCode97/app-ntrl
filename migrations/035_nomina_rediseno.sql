@@ -40,6 +40,27 @@ ALTER TABLE payroll_periods
   ADD COLUMN IF NOT EXISTS paid_at      TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS paid_by      UUID REFERENCES users(id) ON DELETE SET NULL;
 
+-- Actualizar CHECK constraint de estado (remover 'generado' del modelo anterior)
+DO $$
+BEGIN
+  -- Eliminar el constraint viejo si existe
+  IF EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE table_name = 'payroll_periods'
+      AND constraint_type = 'CHECK'
+      AND constraint_name LIKE '%estado%'
+  ) THEN
+    ALTER TABLE payroll_periods DROP CONSTRAINT IF EXISTS payroll_periods_estado_check;
+  END IF;
+  -- Agregar el nuevo constraint sin 'generado'
+  ALTER TABLE payroll_periods
+    ADD CONSTRAINT payroll_periods_estado_check
+    CHECK (estado IN ('borrador','aprobado','pagado'));
+EXCEPTION WHEN OTHERS THEN
+  -- Si ya fue aplicado o el constraint no existe con ese nombre, continuar
+  NULL;
+END $$;
+
 -- ── 3. ELIMINAR tablas genéricas del modelo anterior ─────────
 DROP TABLE IF EXISTS payroll_earnings   CASCADE;
 DROP TABLE IF EXISTS payroll_deductions CASCADE;

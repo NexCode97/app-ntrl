@@ -49,14 +49,6 @@ export default function PayrollPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-brand-green/10 flex items-center justify-center">
-          <BanknotesIcon className="w-5 h-5 text-brand-green" />
-        </div>
-        <h1 className="text-white font-bold text-xl">Nómina</h1>
-      </div>
-
       {/* Tabs */}
       <div className="mb-6">
         <TabBar
